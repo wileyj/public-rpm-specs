@@ -1,43 +1,37 @@
 %define cpan_name Gearman::Server
 %define pkgname Gearman-Server
-%define cpan_version %(echo `curl -s https://metacpan.org/pod/%{cpan_name} | grep "Module version" | cut -d":" -f2`)
+%define cpan_version %(echo `curl -s https://metacpan.org/pod/%{cpan_name} | grep "Module version" | awk {'print $4'} |tr -d 'itemprop="softwareVersion"></span>'`)
 %define filelist %{pkgname}-%{version}-filelist
 
-Name:           perl-%{srcname}
-version: %{cpan_version}
-Release:        1.%{dist}
-Summary:        Distributed job system
-License:        GPL or Artistic
-Vendor: 	%{vendor}
-Packager: 	%{packager}
-Group:          Development/Libraries
-URL:            http://danga.com/gearman/
-BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-BuildRequires:  perl(ExtUtils::MakeMaker)
+name:      perl-%{pkgname}
+summary:   perl module providing %{cpan_name}
+version: %{cpan_version}
+release:   1.%{dist}
+license:   Artistic
+Vendor: %{vendor}
+Packager: %{packager}
+group:     Applications/CPAN
+url:       http://www.cpan.org
+buildroot: %{_tmppath}/%{name}-%{version}-%(id -u -n)
+prefix:    %(echo %{_prefix})
+BuildRequires: perl, perl-srpm-macros,  perl-devel, perl-libs, perl-ExtUtils-MakeMaker
 BuildRequires:  perl(String::CRC32)
 BuildRequires:  perl-Time-HiRes
-BuildRequires: perl, perl-srpm-macros,  perl-devel, perl-libs, perl-ExtUtils-MakeMaker
-
-
 Provides: %{name}
 %{?load: %{_sourcedir}/macros.perl}
 
 
 %description
-Gearman is a system to farm out work to other machines,
-dispatching function calls to machines that are better suited to do work,
-to do work in parallel, to load balance lots of function calls,
-or to call functions between languages.
+Provides Perl Module %{cpan_name}-%{version}
 
 %prep
-curl -o $RPM_SOURCE_DIR/%{name}.tar.gz `curl -s https://metacpan.org/pod/%{cpan_name} | grep "tar.gz" | cut -d '"' -f2`
+curl -o $RPM_SOURCE_DIR/%{name}.tar.gz `curl -s https://metacpan.org/pod/%{cpan_name} | grep "tar.gz" | cut -d '"' -f4 | head -1`
 tar -xzvf $RPM_SOURCE_DIR/%{name}.tar.gz
-#%setup -q -n %{pkgname}-%{version} 
 chmod -R u+w %{_builddir}/%{pkgname}-%{version}
 
 %build
-cd $RPM_BUILD_DIR/%{pkgname}-%{cpan_version}
+cd $RPM_BUILD_DIR/%{pkgname}-%{version}
 grep -rsl '^#!.*perl' . |
 grep -v '.bak$' |xargs --no-run-if-empty \
 %__perl -MExtUtils::MakeMaker -e 'MY->fixin(@ARGV)'
@@ -46,7 +40,7 @@ CFLAGS="$RPM_OPT_FLAGS"
 echo "Y" | %{__make} %{?_smp_mflags} OPTIMIZE="%{optflags}" 
 
 %install
-cd $RPM_BUILD_DIR/%{pkgname}-%{cpan_version}
+cd $RPM_BUILD_DIR/%{pkgname}-%{version}
 [ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
 
 %{makeinstall} `%{__perl} -MExtUtils::MakeMaker -e ' print \$ExtUtils::MakeMaker::VERSION <= 6.05 ? qq|PREFIX=%{buildroot}%{_prefix}| : qq|DESTDIR=%{buildroot}| '`

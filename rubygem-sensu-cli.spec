@@ -1,18 +1,17 @@
-#AutoReqProv: no
-#  gem list ^json$ -r |  cut -f2 -d" " | grep -o '\((.*\)$' | tr -d '()'
-%include %{_rpmconfigdir}/macros.d/macros.rubygems
+%global _python_bytecompile_errors_terminate_build 0
 %global gemname sensu-cli
-%global remoteversion %(echo `gem list ^%{gemname}$ -r |  grep %{gemname} | cut -f2 -d" " | tr -d '()' | tr -d ','`)
-%global rubyabi 2.2.2
-
+%global repo https://github.com/agent462/%{gemname}.git
+%global gemdesc %(echo `gem list ^%{gemname}$ -r -d | tail -1`)
+%global remoteversion %(echo `gem list ^%{gemname}$ -r |  cut -f2 -d" " | tr -d '()'`)
 %global sensu_base /etc/sensu
 %global plugins    %{sensu_base}/plugins
 %global metrics    %{sensu_base}/metrics
 %global handlers   %{sensu_base}/handlers
 %global extensions %{sensu_base}/extensions
 %global mutators   %{sensu_base}/mutators
+%include %{_rpmconfigdir}/macros.d/macros.rubygems
 
-Summary: A command line utility for Sensu
+Summary: %{gemdesc}
 Name: rubygem-%{gemname}
 Version: %{remoteversion}
 Release: 1.%{dist}
@@ -33,17 +32,22 @@ Provides: rubygem-%{gemname}
 Provides: rubygem(%{gemname})
 
 %description
-A command line utility for interacting with the Sensu api.
+%{summary}
+%setup -q -c -T
 
 %prep
-
-%setup -q -c -T
+if [ -d %{name}-%{version} ];then
+    rm -rf %{name}-%{version}
+fi
 export CONFIGURE_ARGS="--with-cflags='%{optflags}'"
+git clone %{repo} %{name}-%{version}
+cd %{name}-%{version}
 gem install --install-dir %{_builddir}/%{name}%{gem_dir} --bindir %{_builddir}/%{name}%{_bindir} --force --no-rdoc --no-ri --no-doc --ignore-dependencies %{gemname}
 
 %build
 
 %install
+cd %{name}-%{version}
 %__mkdir_p %{__builddir}%{_bindir}
 %__mkdir_p %{_builddir}/%{name}%{gem_dir}
 %__mkdir_p %{_builddir}/%{name}%{_bindir}
@@ -107,10 +111,10 @@ then
     %{__sed} -i -e "s|('mixlib-config.*| \"mixlib-config\"|g" %{buildroot}%{gem_dir}/gems/%{gemname}-%{version}/%{gemname}.gemspec
     %{__sed} -i -e "s|('erubis.*| \"erubis\"|g" %{buildroot}%{gem_dir}/gems/%{gemname}-%{version}/%{gemname}.gemspec
 fi
+
 %clean
 [ "%{buildroot}" != "/" ] && %__rm -rf %{buildroot}
 [ "%{_builddir}/%{name}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}
 [ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}
 
-%files -f filelist
-
+%files -f %{name}-%{version}/filelist

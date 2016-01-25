@@ -5,35 +5,25 @@
 %define _use_internal_dependency_generator 0
 %define __find_requires %{nil}
 %global __spec_install_post /usr/lib/rpm/check-rpaths   /usr/lib/rpm/check-buildroot  /usr/lib/rpm/brp-compress
-#%global goroot          /usr/lib/golang/bin/linux_amd64
 %global goroot          /usr/lib/golang
-%global go_api 1.5
-%global go_version 1.5.2
 %global gohostarch  amd64
+%define go_version %(echo `git ls-remote --tags https://github.com/golang/go.git go1* | more | grep -v beta | grep -v rc1 | tail -1 | tr -d 'refs/tags/go' | awk {'print $2'}`)
 
 Name:           golang
-Version:        1.5.1
+Version:        %{go_version}
 Release:        1.%{?dist}
 Summary:        The Go Programming Language
 License:        BSD
 URL:            http://golang.org/
-BuildRequires:  golang > 1.4
-BuildRequires:  pcre-devel
-BuildRequires:  /bin/hostname
+BuildRequires:  golang > 1.4 git pcre-devel /bin/hostname
 Provides:       go = %{version}-%{release}
 Requires:       %{name}-bin
 Requires:       %{name}-src = %{version}-%{release}
-Requires:	go-srpm-macros
-#Patch212:       golang-1.5-bootstrap-binary-path.patch
-Patch213:       go1.5beta1-disable-TestGdbPython.patch
-#Patch214:       go1.5beta2-disable-TestCloneNEWUSERAndRemapNoRootDisableSetgroups.patch
-Patch215:       ./go1.5-zoneinfo_testing_only.patch
-#Patch216:       ./golang-1.5.1-a3156aaa12.patch
+Requires:   go-srpm-macros
 Obsoletes:      %{name}-docs < 1.1-4
 Obsoletes:      %{name}-data < 1.1.1-4
 Obsoletes:      %{name}-vim < 1.4
 Obsoletes:      emacs-%{name} < 1.4
-Source0:        https://storage.googleapis.com/golang/go%{go_version}.src.tar.gz
 Source100:      golang-gdbinit
 Source101:      golang-prelink.conf
 
@@ -119,13 +109,14 @@ Summary:        Golang shared object libraries
 %{summary}.
 
 %prep
-%setup -q -n go
-#%patch212 -p1
-%patch213 -p1
-#%patch214 -p1
-#%patch216 -p1
+if [ -d %{name}-%{version} ]; then
+  rm -rf %{name}-%{version}
+fi
+git clone https://github.com/golang/go.git %{name}-%{version}
+cd %{name}-%{version}
 
 %build
+cd %{name}-%{version}
 export GOROOT_BOOTSTRAP=%{goroot}
 export GOROOT_FINAL=%{goroot}
 export GOHOSTOS=linux
@@ -141,16 +132,17 @@ CC="gcc" \
 CC_FOR_TARGET="gcc" \
 GOOS=linux \
 GOARCH=%{gohostarch} \
-	./make.bash --no-clean
+    ./make.bash --no-clean
 popd
 GOROOT=$(pwd) PATH=$(pwd)/bin:$PATH go install -buildmode=shared std
 
 %install
+cd %{name}-%{version}
 rm -rf $RPM_BUILD_ROOT
 mkdir -p $RPM_BUILD_ROOT%{_bindir}
 mkdir -p $RPM_BUILD_ROOT%{goroot}
-cp -apv api bin doc favicon.ico lib pkg robots.txt src misc test VERSION $RPM_BUILD_ROOT%{goroot}
-find $RPM_BUILD_ROOT%{goroot}/src -exec touch -r $RPM_BUILD_ROOT%{goroot}/VERSION "{}" \;
+cp -apv api bin doc favicon.ico lib pkg robots.txt src misc test VERSION.cache AUTHORS CONTRIBUTORS PATENTS LICENSE $RPM_BUILD_ROOT%{goroot}
+#find $RPM_BUILD_ROOT%{goroot}/src -exec touch -r $RPM_BUILD_ROOT%{goroot}/VERSION.cache "{}" \;
 touch $RPM_BUILD_ROOT%{goroot}/pkg
 find $RPM_BUILD_ROOT%{goroot}/pkg -exec touch -r $RPM_BUILD_ROOT%{goroot}/pkg "{}" \;
 cwd=$(pwd)
@@ -163,22 +155,22 @@ tests_list=$cwd/go-tests.list
 rm -f $src_list $pkg_list $docs_list $misc_list $tests_list $shared_list
 touch $src_list $pkg_list $docs_list $misc_list $tests_list $shared_list
 pushd $RPM_BUILD_ROOT%{goroot}
-	find src/ -type d -a \( ! -name testdata -a ! -ipath '*/testdata/*' \) -printf '%%%dir %{goroot}/%p\n' >> $src_list
-	find src/ ! -type d -a \( ! -ipath '*/testdata/*' -a ! -name '*_test*.go' \) -printf '%{goroot}/%p\n' >> $src_list
-	find bin/ pkg/ -type d -a ! -path '*_dynlink/*' -printf '%%%dir %{goroot}/%p\n' >> $pkg_list
-	find bin/ pkg/ ! -type d -a ! -path '*_dynlink/*' -printf '%{goroot}/%p\n' >> $pkg_list
-	find doc/ -type d -printf '%%%dir %{goroot}/%p\n' >> $docs_list
-	find doc/ ! -type d -printf '%{goroot}/%p\n' >> $docs_list
-	find misc/ -type d -printf '%%%dir %{goroot}/%p\n' >> $misc_list
-	find misc/ ! -type d -printf '%{goroot}/%p\n' >> $misc_list
-	find pkg/*_dynlink/ -type d -printf '%%%dir %{goroot}/%p\n' >> $shared_list
-	find pkg/*_dynlink/ ! -type d -printf '%{goroot}/%p\n' >> $shared_list
-	find test/ -type d -printf '%%%dir %{goroot}/%p\n' >> $tests_list
-	find test/ ! -type d -printf '%{goroot}/%p\n' >> $tests_list
-	find src/ -type d -a \( -name testdata -o -ipath '*/testdata/*' \) -printf '%%%dir %{goroot}/%p\n' >> $tests_list
-	find src/ ! -type d -a \( -ipath '*/testdata/*' -o -name '*_test*.go' \) -printf '%{goroot}/%p\n' >> $tests_list
-	find lib/ -type d -printf '%%%dir %{goroot}/%p\n' >> $tests_list
-	find lib/ ! -type d -printf '%{goroot}/%p\n' >> $tests_list
+    find src/ -type d -a \( ! -name testdata -a ! -ipath '*/testdata/*' \) -printf '%%%dir %{goroot}/%p\n' >> $src_list
+    find src/ ! -type d -a \( ! -ipath '*/testdata/*' -a ! -name '*_test*.go' \) -printf '%{goroot}/%p\n' >> $src_list
+    find bin/ pkg/ -type d -a ! -path '*_dynlink/*' -printf '%%%dir %{goroot}/%p\n' >> $pkg_list
+    find bin/ pkg/ ! -type d -a ! -path '*_dynlink/*' -printf '%{goroot}/%p\n' >> $pkg_list
+    find doc/ -type d -printf '%%%dir %{goroot}/%p\n' >> $docs_list
+    find doc/ ! -type d -printf '%{goroot}/%p\n' >> $docs_list
+    find misc/ -type d -printf '%%%dir %{goroot}/%p\n' >> $misc_list
+    find misc/ ! -type d -printf '%{goroot}/%p\n' >> $misc_list
+    find pkg/*_dynlink/ -type d -printf '%%%dir %{goroot}/%p\n' >> $shared_list
+    find pkg/*_dynlink/ ! -type d -printf '%{goroot}/%p\n' >> $shared_list
+    find test/ -type d -printf '%%%dir %{goroot}/%p\n' >> $tests_list
+    find test/ ! -type d -printf '%{goroot}/%p\n' >> $tests_list
+    find src/ -type d -a \( -name testdata -o -ipath '*/testdata/*' \) -printf '%%%dir %{goroot}/%p\n' >> $tests_list
+    find src/ ! -type d -a \( -ipath '*/testdata/*' -o -name '*_test*.go' \) -printf '%{goroot}/%p\n' >> $tests_list
+    find lib/ -type d -printf '%%%dir %{goroot}/%p\n' >> $tests_list
+    find lib/ ! -type d -printf '%{goroot}/%p\n' >> $tests_list
 popd
 rm -rfv $RPM_BUILD_ROOT%{goroot}/doc/Makefile
 mkdir -p $RPM_BUILD_ROOT%{goroot}/bin/linux_%{gohostarch}
@@ -202,7 +194,7 @@ cp -av %{SOURCE101} $RPM_BUILD_ROOT%{_sysconfdir}/prelink.conf.d/golang.conf
 
 %preun bin
 if [ $1 = 0 ]; then
-	%{_sbindir}/update-alternatives --remove go %{goroot}/bin/go
+    %{_sbindir}/update-alternatives --remove go %{goroot}/bin/go
 fi
 
 %clean
@@ -213,8 +205,7 @@ fi
 
 
 %files
-%doc AUTHORS CONTRIBUTORS LICENSE PATENTS
-%doc %{goroot}/VERSION
+#%doc AUTHORS CONTRIBUTORS LICENSE PATENTS VERSION.cache
 %dir %{goroot}/doc
 %doc %{goroot}/doc/*
 %dir %{goroot}
@@ -235,18 +226,18 @@ fi
 %{_sysconfdir}/gdbinit.d
 %{_sysconfdir}/prelink.conf.d
 
-%files -f go-src.list src
+%files -f %{name}-%{version}/go-src.list src
 
-%files -f go-docs.list docs
+%files -f %{name}-%{version}/go-docs.list docs
 
-%files -f go-misc.list misc
+%files -f %{name}-%{version}/go-misc.list misc
 
-%files -f go-tests.list tests
+%files -f %{name}-%{version}/go-tests.list tests
 
-%files -f go-pkg.list bin
+%files -f %{name}-%{version}/go-pkg.list bin
 %{_bindir}/go
 %{_bindir}/gofmt
 
-%files -f go-shared.list shared
+%files -f %{name}-%{version}/go-shared.list shared
 
 %changelog

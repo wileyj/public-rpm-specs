@@ -58,7 +58,6 @@ BuildRequires: python27-PyYAML
 BuildRequires: python27-requests
 BuildRequires: python27-unittest2
 BuildRequires: python27-mock
-BuildRequires: python27-libcloud
 BuildRequires: python27-argparse
 BuildRequires: python27-devel
 %else
@@ -79,7 +78,6 @@ BuildRequires: python-PyYAML
 BuildRequires: python-requests
 BuildRequires: python-unittest2
 BuildRequires: python-mock
-BuildRequires: python-libcloud
 BuildRequires: python-argparse
 BuildRequires: python-devel
 %endif

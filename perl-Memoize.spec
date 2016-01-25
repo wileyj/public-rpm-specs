@@ -1,6 +1,6 @@
 %define cpan_name Memoize
 %define pkgname Memoize
-%define cpan_version %(echo `curl -s https://metacpan.org/pod/%{cpan_name} | grep "Module version" | cut -d":" -f2`)
+%define cpan_version %(echo `curl -s https://metacpan.org/pod/%{cpan_name} | grep "Module version" | awk {'print $4'} |tr -d 'itemprop="softwareVersion"></span>'`)
 %define filelist %{pkgname}-%{version}-filelist
 
 name:      perl-Memoize
@@ -99,8 +99,8 @@ few colors, which get looked up over and over again.  Memoizing
 `ColorToRGB' sped up the program by several percent.
 
 %prep
-curl -o $RPM_SOURCE_DIR/%{name}.tar.gz `curl -s https://metacpan.org/pod/%{cpan_name} | grep "tar.gz" | cut -d '"' -f2`
-tar -xzvf $RPM_SOURCE_DIR/%{name}.tar.gz
+curl -o $RPM_SOURCE_DIR/%{name}.tgz `curl -s https://metacpan.org/pod/%{cpan_name} | grep "tgz" | cut -d '"' -f4`
+tar -xzvf $RPM_SOURCE_DIR/%{name}.tgz
 #%setup -q -n %{pkgname}-%{version} 
 chmod -R u+w %{_builddir}/%{pkgname}-%{version}
 

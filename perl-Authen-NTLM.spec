@@ -1,6 +1,7 @@
 %define cpan_name Authen::NTLM 
+%define shortname NTLM
 %define pkgname Authen-NTLM
-%define cpan_version %(echo `curl -s https://metacpan.org/pod/%{cpan_name} | grep "Module version" | cut -d":" -f2`)
+%define cpan_version %(echo `curl -s https://metacpan.org/pod/%{cpan_name} | grep "Module version" | awk {'print $4'} |tr -d 'itemprop="softwareVersion"></span>'`)
 %define filelist %{pkgname}-%{version}-filelist
 
 
@@ -35,13 +36,13 @@ This module provides methods to use NTLM authentication.  It can
     likely to be good enough for most situations.
 
 %prep
-curl -o $RPM_SOURCE_DIR/%{name}.tar.gz `curl -s https://metacpan.org/pod/%{cpan_name} | grep "tar.gz" | cut -d '"' -f2`
+curl -o $RPM_SOURCE_DIR/%{name}.tar.gz `curl -s https://metacpan.org/pod/%{cpan_name} | grep "tar.gz" | cut -d '"' -f4`
 tar -xzvf $RPM_SOURCE_DIR/%{name}.tar.gz
 #%setup -q -n %{pkgname}-%{version} 
-chmod -R u+w %{_builddir}/%{pkgname}-%{version}
+chmod -R u+w %{_builddir}/%{shortname}-%{version}
 
 %build
-cd $RPM_BUILD_DIR/%{pkgname}-%{cpan_version}
+cd $RPM_BUILD_DIR/%{shortname}-%{cpan_version}
 grep -rsl '^#!.*perl' . |
 grep -v '.bak$' |xargs --no-run-if-empty \
 %__perl -MExtUtils::MakeMaker -e 'MY->fixin(@ARGV)'
@@ -50,7 +51,7 @@ CFLAGS="$RPM_OPT_FLAGS"
 echo "Y" | %{__make} %{?_smp_mflags} OPTIMIZE="%{optflags}" 
 
 %install
-cd $RPM_BUILD_DIR/%{pkgname}-%{cpan_version}
+cd $RPM_BUILD_DIR/%{shortname}-%{cpan_version}
 [ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
 
 %{makeinstall} `%{__perl} -MExtUtils::MakeMaker -e ' print \$ExtUtils::MakeMaker::VERSION <= 6.05 ? qq|PREFIX=%{buildroot}%{_prefix}| : qq|DESTDIR=%{buildroot}| '`
@@ -122,7 +123,7 @@ find %{buildroot}%{_prefix}             \
 [ "%{_builddir}/%{srcname}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{srcname}-%{version}
 [ "%{_builddir}/%{pkgname}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{pkgname}-%{version}
 
-%files -f %{pkgname}-%{cpan_version}/%filelist
+%files -f %{shortname}-%{cpan_version}/%filelist
 %defattr(-,root,root)
 
 %changelog

@@ -1,6 +1,6 @@
 %define cpan_name Tree::DAG_Node
 %define pkgname Tree-DAG_Node
-%define cpan_version %(echo `curl -s https://metacpan.org/pod/%{cpan_name} | grep "Module version" | cut -d":" -f2`)
+%define cpan_version %(echo `curl -s https://metacpan.org/pod/%{cpan_name} | grep "Module version" | awk {'print $4'} |tr -d 'itemprop="softwareVersion"></span>'`)
 %define filelist %{pkgname}-%{version}-filelist
 
 Summary: (super)class for representing nodes in a tree

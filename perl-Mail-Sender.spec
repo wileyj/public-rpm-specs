@@ -1,6 +1,6 @@
 %define cpan_name Mail::Sender
 %define pkgname Mail-Sender
-%define cpan_version %(echo `curl -s https://metacpan.org/pod/%{cpan_name} | grep "Module version" | cut -d":" -f2`)
+%define cpan_version %(echo `curl -s https://metacpan.org/pod/%{cpan_name} | grep "Module version" | awk {'print $4'} |tr -d 'itemprop="softwareVersion"></span>'`)
 %define filelist %{pkgname}-%{version}-filelist
 
 name:      perl-Mail-Sender
@@ -32,7 +32,7 @@ directly from Perl, using Socket.
 Sends mails directly from Perl through a socket connection.
 
 %prep
-curl -o $RPM_SOURCE_DIR/%{name}.tar.gz `curl -s https://metacpan.org/pod/%{cpan_name} | grep "tar.gz" | cut -d '"' -f2` | head -1
+curl -o $RPM_SOURCE_DIR/%{name}.tar.gz `curl -s https://metacpan.org/pod/%{cpan_name} | grep "tar.gz" | cut -d '"' -f4` | head -1
 tar -xzvf $RPM_SOURCE_DIR/%{name}.tar.gz 
 chmod -R u+w %{_builddir}/%{pkgname}-%{version}
 
