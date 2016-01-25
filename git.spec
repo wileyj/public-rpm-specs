@@ -1,12 +1,4 @@
-%if 0%{?el6}
-    %define macro %{_rpmconfigdir}/macros.d/macros.python27
-    %global __python /usr/bin/python27
-%else
-    %define macro %{_rpmconfigdir}/macros.d/macros.python
-    %global __python /usr/bin/python
-%endif
-
-%include %{macro}
+%{?load: %{_rpmconfigdir}/macros.d/macros.python}
 
 %define _without_docs 1
 %define _find_requires 0
@@ -22,11 +14,7 @@ Group: 		Development/Tools
 URL: 		http://kernel.org/pub/software/scm/git/
 Source: 	%{name}.tar.gz
 BuildRequires:	zlib-devel >= 1.2, openssl-devel, curl-devel, expat-devel, gettext  %{!?_without_docs:, xmlto, asciidoc > 6.0.3} 
-%if 0%{?el6}
-    BuildRequires: python27-devel
-%else
-    BuildRequires: python-devel
-%endif
+BuildRequires: python-devel
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 AutoReq: 	no
 Requires:	zlib >= 1.2, rsync, less, openssh-clients, expat

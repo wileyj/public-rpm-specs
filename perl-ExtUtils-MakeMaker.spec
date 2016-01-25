@@ -1,118 +1,37 @@
 %define cpan_name ExtUtils::MakeMaker
-%global pkgname ExtUtils-MakeMaker
-%define cpan_version %(echo `curl -s https://metacpan.org/pod/%{cpan_name} | grep "Module version" | cut -d":" -f2`)
+%define pkgname ExtUtils-MakeMaker
+%define cpan_version %(echo `curl -s https://metacpan.org/pod/%{cpan_name} | grep "Module version" | awk {'print $4'} |tr -d 'itemprop="softwareVersion"></span>'`)
 %define filelist %{pkgname}-%{version}-filelist
 
 
-Name:           perl-%{cpan_name}
+name:      perl-%{pkgname}
+summary:   perl module providing %{cpan_name}
 version: %{cpan_version}
-Release:        2.%{dist}
-Summary:        Create a module Makefile
-License:        GPL+ or Artistic
+release:   1.%{dist}
+license:   Artistic
 Vendor: %{vendor}
 Packager: %{packager}
-Group:          Development/Libraries
-URL:            http://search.cpan.org/dist/%{cpan_name}/
-Patch0:         %{cpan_name}-6.96-USE_MM_LD_RUN_PATH.patch
-Patch1:         %{cpan_name}-6.88-Link-to-libperl-explicitly-on-Linux.patch
-BuildArch:      noarch
-BuildRequires:  perl
-# Makefile.Pl uses ExtUtils::MakeMaker from ./lib
-BuildRequires:  perl(Carp)
-BuildRequires:  perl(Config)
-BuildRequires:  perl(Cwd)
-BuildRequires:  perl(Exporter)
-BuildRequires:  perl(File::Basename)
-BuildRequires:  perl(File::Path)
-BuildRequires:  perl(File::Spec) >= 0.8
-BuildRequires:  perl(lib)
-BuildRequires:  perl(strict)
-BuildRequires:  perl(vars)
-BuildRequires:  perl(warnings)
-# Unbundled
-BuildRequires:  perl(File::Copy::Recursive)
-# Tests:
-BuildRequires:  perl(AutoSplit)
-BuildRequires:  perl(base)
-BuildRequires:  perl(CPAN::Meta)
-BuildRequires:  perl(Data::Dumper)
-BuildRequires:  perl(DirHandle)
-BuildRequires:  perl(DynaLoader)
-BuildRequires:  perl(ExtUtils::Command)
-BuildRequires:  perl(ExtUtils::Install)
-BuildRequires:  perl(ExtUtils::Installed)
-BuildRequires:  perl(ExtUtils::Manifest)
-BuildRequires:  perl(File::Find)
-BuildRequires:  perl(File::Temp)
-BuildRequires:  perl(Getopt::Long)
-BuildRequires:  perl(IO::File)
-# IO::Handle not used
-BuildRequires:  perl(less)
-BuildRequires:  perl(overload)
-BuildRequires:  perl(Parse::CPAN::Meta)
-BuildRequires:  perl(Pod::Man)
-BuildRequires:  perl(POSIX)
-BuildRequires:  perl(Scalar::Util)
-BuildRequires:  perl(subs)
-BuildRequires:  perl(Test::Harness)
-# threads::shared not used
-BuildRequires:  perl(version)
-# XSLoader not used
-# Optional tests
-BuildRequires:  perl(ExtUtils::CBuilder)
-BuildRequires:  perl(PerlIO)
-# Keep YAML optional
-# Keep YAML::Tiny optional
-Requires:       perl(:MODULE_COMPAT_%(eval "`perl -V:version`"; echo $version))
-# CPAN::Meta is optional
-Requires:       perl(Data::Dumper)
-Requires:       perl(DynaLoader)
-Requires:       perl(ExtUtils::Command)
-Requires:       perl(ExtUtils::Install)
-Requires:       perl(ExtUtils::Manifest)
-# ExtUtils::XSSymSet is not needed (VMS only)
-Requires:       perl(File::Find)
-Requires:       perl(File::Spec) >= 0.8
-Requires:       perl(Getopt::Long)
-# Optional Pod::Man is needed for generating manual pages from POD
-Requires:       perl(Pod::Man)
-Requires:       perl(POSIX)
-Requires:       perl(Test::Harness)
-# Time::HiRes is optional
-# Text::ParseWords is not needed (Win32 only)
-Requires:       perl(version)
-# VMS::Filespec is not needed (VMS only)
-# Win32 is not needed (Win32 only)
+group:     Applications/CPAN
+url:       http://www.cpan.org
+buildroot: %{_tmppath}/%{name}-%{version}-%(id -u -n)
+prefix:    %(echo %{_prefix})
+BuildRequires: perl, perl-srpm-macros,  perl-devel, perl-libs, perl-ExtUtils-MakeMaker
 
-# Do not export underspecified dependencies
-%global __requires_exclude %{?__requires_exclude:%__requires_exclude|}^perl\\(File::Spec\\)\s*$
-# Do not export private redefinitions
-%global __provides_exclude %{?__provides_exclude:%__provides_exclude|}^perl\\(DynaLoader|ExtUtils::MakeMaker::_version\\)
 
 Provides: %{name}
 %{?load: %{_sourcedir}/macros.perl}
 
 
 %description
-This utility is designed to write a Makefile for an extension module from a
-Makefile.PL. It is based on the Makefile.SH model provided by Andy
-Dougherty and the perl5-porters.
+Provides Perl Module %{cpan_name}-%{version}
 
 %prep
-%patch0 -p1
-%patch1 -p1
-# Remove bundled modules
-rm -rf bundled/* ||:
-sed -i -e '/^bundled\// d' MANIFEST
-
-curl -o $RPM_SOURCE_DIR/%{name}.tar.gz `curl -s https://metacpan.org/pod/%{cpan_name} | grep "tar.gz" | cut -d '"' -f2`
+curl -o $RPM_SOURCE_DIR/%{name}.tar.gz `curl -s https://metacpan.org/pod/%{cpan_name} | grep "tar.gz" | cut -d '"' -f4 | head -1`
 tar -xzvf $RPM_SOURCE_DIR/%{name}.tar.gz
-#%setup -q -n %{pkgname}-%{version} 
 chmod -R u+w %{_builddir}/%{pkgname}-%{version}
 
-
 %build
-cd $RPM_BUILD_DIR/%{pkgname}-%{cpan_version}
+cd $RPM_BUILD_DIR/%{pkgname}-%{version}
 grep -rsl '^#!.*perl' . |
 grep -v '.bak$' |xargs --no-run-if-empty \
 %__perl -MExtUtils::MakeMaker -e 'MY->fixin(@ARGV)'
@@ -121,7 +40,7 @@ CFLAGS="$RPM_OPT_FLAGS"
 echo "Y" | %{__make} %{?_smp_mflags} OPTIMIZE="%{optflags}" 
 
 %install
-cd $RPM_BUILD_DIR/%{pkgname}-%{cpan_version}
+cd $RPM_BUILD_DIR/%{pkgname}-%{version}
 [ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
 
 %{makeinstall} `%{__perl} -MExtUtils::MakeMaker -e ' print \$ExtUtils::MakeMaker::VERSION <= 6.05 ? qq|PREFIX=%{buildroot}%{_prefix}| : qq|DESTDIR=%{buildroot}| '`

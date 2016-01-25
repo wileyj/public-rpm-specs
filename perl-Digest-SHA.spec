@@ -1,6 +1,6 @@
 %define cpan_name Digest::SHA
 %define pkgname Digest-SHA
-%define cpan_version %(echo `curl -s https://metacpan.org/pod/%{cpan_name} | grep "Module version" | cut -d":" -f2`)
+%define cpan_version %(echo `curl -s https://metacpan.org/pod/%{cpan_name} | grep "Module version" | awk {'print $4'} |tr -d 'itemprop="softwareVersion"></span>'`)
 %define filelist %{pkgname}-%{version}-filelist
 
 
@@ -89,7 +89,7 @@ mimic the style and behavior of the *sha()*, *sha_hex()*, and
 	print hmac_sha256_hex("Hi There", chr(0x0b) x 32), "\n";
 
 %prep
-curl -o $RPM_SOURCE_DIR/%{name}.tar.gz `curl -s https://metacpan.org/pod/%{cpan_name} | grep "tar.gz" | cut -d '"' -f2`
+curl -o $RPM_SOURCE_DIR/%{name}.tar.gz `curl -s https://metacpan.org/pod/%{cpan_name} | grep "tar.gz" | cut -d '"' -f4`
 tar -xzvf $RPM_SOURCE_DIR/%{name}.tar.gz
 #%setup -q -n %{pkgname}-%{version} 
 chmod -R u+w %{_builddir}/%{pkgname}-%{version}

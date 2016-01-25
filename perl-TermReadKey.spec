@@ -1,6 +1,6 @@
-%define cpan_name TermReadKey
+%define cpan_name Term::ReadKey
 %define pkgname TermReadKey
-%define cpan_version %(echo `curl -s https://metacpan.org/pod/%{cpan_name} | grep "Module version" | cut -d":" -f2`)
+%define cpan_version %(echo `curl -s https://metacpan.org/pod/%{cpan_name} | grep "Module version" | awk {'print $4'} |tr -d 'itemprop="softwareVersion"></span>'`)
 %define filelist %{pkgname}-%{version}-filelist
 
 
@@ -29,7 +29,7 @@ functions as portable as possible, so you can just plug in "use
 Term::ReadKey" on any architecture and have a good likelyhood of it working.
 
 %prep
-curl -o $RPM_SOURCE_DIR/%{name}.tar.gz `curl -s https://metacpan.org/pod/%{cpan_name} | grep "tar.gz" | cut -d '"' -f2`
+curl -o $RPM_SOURCE_DIR/%{name}.tar.gz `curl -s https://metacpan.org/pod/%{cpan_name} | grep "tar.gz" | cut -d '"' -f4`
 tar -xzvf $RPM_SOURCE_DIR/%{name}.tar.gz
 #%setup -q -n %{pkgname}-%{version} 
 chmod -R u+w %{_builddir}/%{pkgname}-%{version}

@@ -1,6 +1,6 @@
 %define cpan_name Getopt::OO 
 %define pkgname Getopt-OO
-%define cpan_version %(echo `curl -s https://metacpan.org/pod/%{cpan_name} | grep "Module version" | cut -d":" -f2`)
+%define cpan_version %(echo `curl -s https://metacpan.org/pod/%{cpan_name} | grep "Module version" | awk {'print $4'} |tr -d 'itemprop="softwareVersion"></span>'`)
 %define filelist %{pkgname}-%{version}-filelist
 
 name:      perl-Getopt-OO
@@ -48,7 +48,7 @@ if you were expecting "-xv --hello" as possible command line options,
 the keys for your template hash would be "-x", "-v", and "--hello".
 
 %prep
-curl -o $RPM_SOURCE_DIR/%{name}.tar.gz `curl -s https://metacpan.org/pod/%{cpan_name} | grep "tar.gz" | cut -d '"' -f2`
+curl -o $RPM_SOURCE_DIR/%{name}.tar.gz `curl -s https://metacpan.org/pod/%{cpan_name} | grep "tar.gz" | cut -d '"' -f4`
 tar -xzvf $RPM_SOURCE_DIR/%{name}.tar.gz
 #%setup -q -n %{pkgname}-%{version} 
 chmod -R u+w %{_builddir}/%{pkgname}-%{version}

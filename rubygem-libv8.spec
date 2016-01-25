@@ -1,14 +1,7 @@
-%if 0%{?el6}
-    %define macro %{_rpmconfigdir}/macros.d/macros.python27
-    %global __python /usr/bin/python27
-%else
-    %define macro %{_rpmconfigdir}/macros.d/macros.python
-    %global __python /usr/bin/python
-%endif
-%include %{macro}
-
+%global _python_bytecompile_errors_terminate_build 0
 AutoReqProv: no
 %include %{_rpmconfigdir}/macros.d/macros.rubygems
+%{?load: %{_rpmconfigdir}/macros.d/macros.python}
 %global gemname libv8
 %global remoteversion %(echo `gem list ^%{gemname}$ -r |  grep %{gemname} | cut -f2 -d" " | tr -d '()' | tr -d ','`)
 %global rubyabi 2.2.2

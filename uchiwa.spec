@@ -15,7 +15,7 @@ URL:            https://uchiwa.io
 License:        MIT
 Vendor: %{vendor}
 Packager: %{packager}
-Source0:        %{srcname}.tar.gz
+#Source0:        %{srcname}.tar.gz
 Source1:        %{name}.init
 Source2:        %{name}.json
 BuildArch:      noarch
@@ -55,13 +55,20 @@ Provides:       %{srcname}(%{import_path}/uchiwa) = %{version}-%{release}
 This package contains library source intended for
 building other packages which use %{project}/%{repo}.
 
+#%prep
+#%setup -q -n %{srcname}
 %prep
-%setup -q -n %{srcname}
+if [ -d %{name}-%{version} ]; then
+    rm -rf %{name}-%{version}
+fi
+git clone https://github.com/sensu/%{name}.git %{name}-%{version}
+chmod -R u+w %{_builddir}/%{name}-%{version}
 
-%build
-git pull
+#%build
+#cd $RPM_BUILD_DIR/%{name}-%{version}
 
 %install
+cd $RPM_BUILD_DIR/%{name}-%{version}
 
 %{__mkdir_p}  %{buildroot}%{_initrddir}
 %{__install} -m755 %{SOURCE1} %{buildroot}%{_initrddir}/%{srcname}
@@ -85,6 +92,17 @@ a=`pwd`
 cd %{buildroot}/opt
 %{__ln_s} %{gopath}/src/%{import_path} %{srcname}
 cd $a
+
+(
+    cd %{buildroot}
+    echo '%defattr(-,root,root,-)'
+    echo '"%{app_dir}"' 
+    find %{buildroot} -type d -printf '%%%dir "%p"\n' | %{__sed} -e 's|%{buildroot}||g'
+    find %{buildroot} -type f -printf '"%p"\n' | %{__sed} -e 's|%{buildroot}||g' 
+) > filelist
+%{__sed} -i -e 's/%dir ""//g' filelist
+%{__sed} -i -e '/^$/d' filelist
+
 
 %check
 GOPATH=%{buildroot}/%{gopath}:%{gopath} go test %{import_path}
@@ -131,12 +149,7 @@ fi
 [ "%{_builddir}/%{name}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}
 [ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}
 
-%files
-%doc README.md
-%dir %{gopath}/src/%{provider}.%{provider_tld}/%{project}
-%{gopath}/src/%{import_path}
-%{app_dir}
-%{_initrddir}/%{srcname}
+%files -f %{name}-%{version}/filelist
 
 
 %changelog

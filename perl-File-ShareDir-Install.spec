@@ -1,6 +1,6 @@
 %define cpan_name File::ShareDir::Install
 %define pkgname File-ShareDir-Install
-%define cpan_version %(echo `curl -s https://metacpan.org/pod/%{cpan_name} | grep "Module version" | cut -d":" -f2`)
+%define cpan_version %(echo `curl -s https://metacpan.org/pod/%{cpan_name} | grep "Module version" | awk {'print $4'} |tr -d 'itemprop="softwareVersion"></span>'`)
 %define filelist %{pkgname}-%{version}-filelist
 
 
@@ -34,7 +34,7 @@ Please note that this module installs read-only data files; empty
 directories will be ignored.
 
 %prep
-curl -o $RPM_SOURCE_DIR/%{name}.tar.gz `curl -s https://metacpan.org/pod/%{cpan_name} | grep "tar.gz" | cut -d '"' -f2`
+curl -o $RPM_SOURCE_DIR/%{name}.tar.gz `curl -s https://metacpan.org/pod/%{cpan_name} | grep "tar.gz" | cut -d '"' -f4`
 tar -xzvf $RPM_SOURCE_DIR/%{name}.tar.gz
 #%setup -q -n %{pkgname}-%{version} 
 chmod -R u+w %{_builddir}/%{pkgname}-%{version}

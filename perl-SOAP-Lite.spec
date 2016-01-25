@@ -1,11 +1,11 @@
 %define cpan_name SOAP::Lite
 %define pkgname SOAP-Lite
-%define cpan_version %(echo `curl -s https://metacpan.org/pod/%{cpan_name} | grep "Module version" | cut -d":" -f2`)
+%define cpan_version %(echo `curl -s https://metacpan.org/pod/%{cpan_name} | grep "Module version" | awk {'print $4'} |tr -d 'itemprop="softwareVersion"></span>'`)
 %define filelist %{pkgname}-%{version}-filelist
 
 
-name:      perl-SOAP-Lite
-summary:   SOAP-Lite - Perl's Web Services Toolkit
+name:      perl-%{pkgname}
+summary:   perl module providing %{cpan_name}
 version: %{cpan_version}
 release:   1.%{dist}
 license:   Artistic
@@ -16,32 +16,22 @@ url:       http://www.cpan.org
 buildroot: %{_tmppath}/%{name}-%{version}-%(id -u -n)
 prefix:    %(echo %{_prefix})
 BuildRequires: perl, perl-srpm-macros,  perl-devel, perl-libs, perl-ExtUtils-MakeMaker
-BuildRequires:  perl-Net-Jabber, perl-MIME-Lite
-Requires:  perl-Net-Jabber, perl-MIME-Lite, perl-Test-MockObject, perl-IO-stringy, perl-version
-AutoReq: 0
-%if 0%{?el6}
-buildarch: x86_64
-%else
-buildarch: noarch
-%endif
+
 
 Provides: %{name}
 %{?load: %{_sourcedir}/macros.perl}
 
 
 %description
-SOAP::Lite is a collection of Perl modules which provides a simple and
-lightweight interface to the Simple Object Access Protocol (SOAP) both on
-client and server side.
+Provides Perl Module %{cpan_name}-%{version}
 
 %prep
-curl -o $RPM_SOURCE_DIR/%{name}.tar.gz `curl -s https://metacpan.org/pod/%{cpan_name} | grep "tar.gz" | cut -d '"' -f2`
+curl -o $RPM_SOURCE_DIR/%{name}.tar.gz `curl -s https://metacpan.org/pod/%{cpan_name} | grep "tar.gz" | cut -d '"' -f4 | head -1`
 tar -xzvf $RPM_SOURCE_DIR/%{name}.tar.gz
-#%setup -q -n %{pkgname}-%{version} 
 chmod -R u+w %{_builddir}/%{pkgname}-%{version}
 
 %build
-cd $RPM_BUILD_DIR/%{pkgname}-%{cpan_version}
+cd $RPM_BUILD_DIR/%{pkgname}-%{version}
 grep -rsl '^#!.*perl' . |
 grep -v '.bak$' |xargs --no-run-if-empty \
 %__perl -MExtUtils::MakeMaker -e 'MY->fixin(@ARGV)'
@@ -50,7 +40,7 @@ CFLAGS="$RPM_OPT_FLAGS"
 echo "Y" | %{__make} %{?_smp_mflags} OPTIMIZE="%{optflags}" 
 
 %install
-cd $RPM_BUILD_DIR/%{pkgname}-%{cpan_version}
+cd $RPM_BUILD_DIR/%{pkgname}-%{version}
 [ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
 
 %{makeinstall} `%{__perl} -MExtUtils::MakeMaker -e ' print \$ExtUtils::MakeMaker::VERSION <= 6.05 ? qq|PREFIX=%{buildroot}%{_prefix}| : qq|DESTDIR=%{buildroot}| '`

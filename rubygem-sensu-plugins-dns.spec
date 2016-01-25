@@ -1,18 +1,17 @@
-#AutoReqProv: no
-#  gem list ^json$ -r |  cut -f2 -d" " | grep -o '\((.*\)$' | tr -d '()'
-%include %{_rpmconfigdir}/macros.d/macros.rubygems
+%global _python_bytecompile_errors_terminate_build 0
 %global gemname sensu-plugins-dns
+%global repo https://github.com/sensu-plugins/%{gemname}.git
+%global gemdesc %(echo `gem list ^%{gemname}$ -r -d | tail -1`)
 %global remoteversion %(echo `gem list ^%{gemname}$ -r |  cut -f2 -d" " | tr -d '()'`)
-%global rubyabi 2.2.2
-
 %global sensu_base /etc/sensu
 %global plugins    %{sensu_base}/plugins
 %global metrics    %{sensu_base}/metrics
 %global handlers   %{sensu_base}/handlers
 %global extensions %{sensu_base}/extensions
 %global mutators   %{sensu_base}/mutators
+%include %{_rpmconfigdir}/macros.d/macros.rubygems
 
-Summary: Sensu plugins for dns
+Summary: %{gemdesc}
 Name: rubygem-%{gemname}
 Version: %{remoteversion}
 Release: 1.%{dist}
@@ -22,6 +21,7 @@ Vendor: %{vendor}
 Packager: %{packager}
 Requires: ruby rubygems
 Requires: rubygem-sensu-plugin
+Requires: rubygem-json
 BuildRequires: rubygems rubygems-devel
 BuildRequires: ruby
 BuildArch: x86_64
@@ -29,17 +29,22 @@ Provides: rubygem-%{gemname}
 Provides: rubygem(%{gemname})
 
 %description
-Sensu plugins for dns.
-
+%{summary}
 %setup -q -c -T
 
 %prep
+if [ -d %{name}-%{version} ];then
+    rm -rf %{name}-%{version}
+fi
 export CONFIGURE_ARGS="--with-cflags='%{optflags}'"
+git clone %{repo} %{name}-%{version}
+cd %{name}-%{version}
 gem install --install-dir %{_builddir}/%{name}%{gem_dir} --bindir %{_builddir}/%{name}%{_bindir} --force --no-rdoc --no-ri --no-doc --ignore-dependencies %{gemname}
 
 %build
 
 %install
+cd %{name}-%{version}
 %__mkdir_p %{buildroot}%{gem_dir}
 %__mkdir_p %{buildroot}%{extensions}
 %__mkdir_p %{buildroot}%{handlers}
@@ -124,4 +129,4 @@ fi
 [ "%{_builddir}/%{name}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}
 [ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}
 
-%files -f filelist
+%files -f %{name}-%{version}/filelist

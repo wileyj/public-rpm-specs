@@ -1,11 +1,17 @@
-#AutoReqProv: no
-#  gem list ^json$ -r |  cut -f2 -d" " | grep -o '\((.*\)$' | tr -d '()'
-%include %{_rpmconfigdir}/macros.d/macros.rubygems
+%global _python_bytecompile_errors_terminate_build 0
 %global gemname sensu-em
-%global remoteversion %(echo `gem list ^%{gemname}$ -r |  grep %{gemname} | cut -f2 -d" " | tr -d '()' | tr -d ','`)
-%global rubyabi 2.2.2
+%global repo https://github.com/sensu/%{gemname}.git
+%global gemdesc %(echo `gem list ^%{gemname}$ -r -d | tail -1`)
+%global remoteversion %(echo `gem list ^%{gemname}$ -r |  cut -f2 -d" " | tr -d '()'`)
+%global sensu_base /etc/sensu
+%global plugins    %{sensu_base}/plugins
+%global metrics    %{sensu_base}/metrics
+%global handlers   %{sensu_base}/handlers
+%global extensions %{sensu_base}/extensions
+%global mutators   %{sensu_base}/mutators
+%include %{_rpmconfigdir}/macros.d/macros.rubygems
 
-Summary: Ruby/EventMachine library
+Summary: %{gemdesc}
 Name: rubygem-%{gemname}
 Version: %{remoteversion}
 Release: 1.%{dist}
@@ -21,26 +27,22 @@ Provides: rubygem-%{gemname}
 Provides: rubygem(%{gemname})
 
 %description
-EventMachine implements a fast, single-threaded engine for arbitrary network
-communications. It's extremely easy to use in Ruby. EventMachine wraps all
-interactions with IP sockets, allowing programs to concentrate on the
-implementation of network protocols. It can be used to create both network
-servers and clients. To create a server or client, a Ruby program only needs
-to specify the IP address and port, and provide a Module that implements the
-communications protocol. Implementations of several standard network protocols
-are provided with the package, primarily to serve as examples. The real goal
-of EventMachine is to enable programs to easily interface with other programs
-using TCP/IP, especially if custom protocols are required.
+%{summary}
+%setup -q -c -T
 
 %prep
-
-%setup -q -c -T
+if [ -d %{name}-%{version} ];then
+    rm -rf %{name}-%{version}
+fi
 export CONFIGURE_ARGS="--with-cflags='%{optflags}'"
+git clone %{repo} %{name}-%{version}
+cd %{name}-%{version}
 gem install --install-dir %{_builddir}/%{name}%{gem_dir} --bindir %{_builddir}/%{name}%{_bindir} --force --no-rdoc --no-ri --no-doc --ignore-dependencies %{gemname}
 
 %build
 
 %install
+cd %{name}-%{version}
 %__mkdir_p %{_builddir}/%{name}%{gem_dir}
 %__mkdir_p %{_builddir}/%{name}%{_bindir}
 find %{_builddir}/%{name} -type f -exec sed -i -e 's|/usr/local/bin/ruby|/usr/bin/ruby|g' {} \;
@@ -120,5 +122,4 @@ fi
 [ "%{_builddir}/%{name}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}
 [ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}
 
-%files -f filelist
-
+%files -f %{name}-%{version}/filelist
