@@ -64,14 +64,14 @@ BuildRequires: python27-devel
 Requires: python-crypto
 Requires: python-jinja2
 Requires: python-m2crypto
-Requires: python-msgpack
+Requires: python-msgpack-python
 Requires: python-PyYAML
 Requires: python-requests
 Requires: python-pyzmq
 BuildRequires: python-devel
 BuildRequires: python-crypto
 BuildRequires: python-jinja2
-BuildRequires: python-msgpack
+BuildRequires: python-msgpack-python
 BuildRequires: python-pip
 BuildRequires: python-pyzmq
 BuildRequires: python-PyYAML

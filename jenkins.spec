@@ -2,7 +2,7 @@
 %define workdir	/opt/jenkins/home
 
 Name:		jenkins
-Version:	1.638
+Version:	1.645
 Release:	1.%{dist}
 Summary:	Continous Build Server
 Source:		jenkins.war
@@ -16,8 +16,7 @@ Vendor: %{vendor}
 Packager: %{packager}
 BuildRoot:	%{_tmppath}/build-%{name}-%{version}
 Obsoletes:  	hudson
-PreReq:		/usr/sbin/lgroupadd /usr/sbin/luseradd
-#PreReq:	%{fillup_prereq}
+Requires:	/usr/sbin/lgroupadd /usr/sbin/luseradd
 BuildArch:	noarch
 Requires: 	jdk
 

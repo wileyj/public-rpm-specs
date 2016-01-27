@@ -1,44 +1,49 @@
 %define nodejs_libdir /usr/lib/node_modules
-
-Name:       nodejs-node-uuid
-Version:    1.3.3
-Release:    3.%{dist}
-Summary:    RFC4122v4 UUID generator for Node.js
-License:    MIT or GPL+
-Vendor: %{vendor}
-Packager: %{packager}
-Group:      Development/Libraries
-URL:        https://github.com/isaacs/node-semver
-Source0:    http://registry.npmjs.org/node-uuid/-/node-uuid-%{version}.tgz
-BuildRoot:  %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-BuildArch:  noarch
-
-BuildRequires:  nodejs-devel
-Requires:       nodejs
-
-Obsoletes:      nodejs-uuid < 1.2.0-2
-Provides:       nodejs-uuid = %{version}-%{release}
+%define npmname node-uuid
+%define npm_version %(echo `curl -s https://www.npmjs.com/package/%{npmname}| grep "<strong>" | tail -1 | tr -d "</strong>"`)
+%define _summary %(echo `curl -s https://www.npmjs.com/package/%{npmname} | grep '"description":' |cut -d'"' -f4`)
+%define filelist %{npmname}-filelist
+Name:           nodejs-%{npmname}
+Version:        %{npm_version}
+Release:        1.%{dist}
+Summary:        %{_summary}
+License:        MIT
+Vendor:         %{vendor}
+Packager:       %{packager}
+Group:          System Environment/Libraries
+BuildRequires:  nodejs, nodejs-devel, nodejs-npm, nodejs-binary, git
+Requires:       nodejs, nodejs-npm, nodejs-binary, git
 
 %description
-Simple, fast generation of RFC4122v4 and non-RFC compact UUIDs.  It runs in
-node.js and many browsers.
+%{summary}
 
 %prep
-%setup -q -n package
+if [ -d %{name}-%{version} ];then
+    rm -rf %{name}-%{version}
+fi
 
 %install
-rm -rf %{buildroot}
+npm install %{npmname} -g --prefix %{buildroot}%{nodejs_libdir}/%{npmname}-%{version}
+(
+    cd %{buildroot}
+    echo '%defattr(-,root,root,-)'
+    find %{buildroot} -type d -printf '%%%dir "%p"\n' | %{__sed} -e 's|%{buildroot}||g'
+    find %{buildroot} -type f -printf '"%p"\n' | %{__sed} -e 's|%{buildroot}||g' 
+) > %{filelist}
+%{__sed} -i -e 's/%dir ""//g' %{filelist}
+%{__sed} -i -e '/^$/d' %{filelist}
+for i in `find %{buildroot} -type f -name "*.json"`
+do
+%{__sed} -i -e  's|%{buildroot}||g' $i
+done
 
-mkdir -p %{buildroot}%{nodejs_libdir}/node-uuid
-cp -p uuid.js package.json %{buildroot}%{nodejs_libdir}/node-uuid
+echo '"%{nodejs_libdir}/%{npmname}-%{version}/bin/uuid"' >> %{filelist}
+
 
 %clean
+[ "%{_builddir}/%{filelist}" != "/" ] && %__rm -rf %{_builddir}/%{filelist}
 [ "%{buildroot}" != "/" ] && %__rm -rf %{buildroot}
 [ "%{_builddir}/%{name}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}
+[ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}
 
-%files
-%defattr(-,root,root,-)
-%{nodejs_libdir}/node-uuid
-%doc README.md LICENSE.md
-
-%changelog
+%files -f %{filelist}

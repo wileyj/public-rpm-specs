@@ -2,6 +2,7 @@
 %define base_rev 1
 %define bname openjpeg
 %global _default_patch_fuzz 2
+%global repo https://github.com/uclouvain/openjpeg.git
 
 Name:    	libopenjpeg
 Version: 	%{base_version}.%{base_rev}
@@ -15,7 +16,6 @@ URL:       	http://www.openjpeg.org/
 BuildRoot: 	%{_tmppath}/%{bname}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: 	libtiff-devel
 Requires: 	%{name}-libs = %{version}-%{release}
-Source0: 	%{bname}-version.%{version}.tar.gz
 #Patch50: 	openjpeg-1.3-libm.patch
 
 %description
@@ -41,16 +41,20 @@ The openjpeg-devel package contains libraries and header files for
 developing applications that use OpenJPEG.
 
 %prep 
-%setup -q -n %{bname}-version.%{version} 
-rm -rf jp3d
-rm -rf libs
+%setup -q -c -T
 
+if [ -d %{name}-%{version} ];then
+    rm -rf %{name}-%{version}
+fi
+export CONFIGURE_ARGS="--with-cflags='%{optflags}'"
+git clone %{repo} %{name}-%{version}
+cd %{name}-%{version}
 
-%build
 cmake .
 #%{__make} %{?_smp_mflags}
 
 %install
+cd %{name}-%{version}
 rm -rf %{buildroot}
 %{__make} install DESTDIR="%{buildroot}"
 %__mv %{buildroot}/usr/local/bin %{buildroot}%{_bindir}

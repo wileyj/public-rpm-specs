@@ -1,8 +1,8 @@
-%define pkgname msgpack
+%define pkgname msgpack-python
 %define pip_version %(echo `curl -s https://pypi.python.org/pypi/%{pkgname} | grep "<title>" | awk '{print $2}'`)
 %define filelist %{pkgname}-%{version}-filelist
 
-Name:           python-%{pkgname}
+Name:           python-msgpack
 Version:        %{pip_version}
 Release:        1.%{dist}
 Summary:        a Python Library for %{pkgname}
@@ -19,7 +19,7 @@ Requires:       python
 %description
 Python Library %{pkgname}
 %prep
-curl -o $RPM_SOURCE_DIR/%{name}.tar.gz `curl -s https://pypi.python.org/pypi/%{pkgname} | grep tar.gz | head -1 |cut -d '"' -f2 | cut -f1 -d "#" `
+curl -o $RPM_SOURCE_DIR/%{name}.tar.gz `curl -s https://pypi.python.org/pypi/%{pkgname} | grep tar.gz | tail -1 |cut -d '"' -f2 | cut -f1 -d "#" `
 tar -xzvf $RPM_SOURCE_DIR/%{name}.tar.gz 
 mv %{_builddir}/%{pkgname}-%{version} %{_builddir}/python_%{pkgname}-%{version}
 chmod -R u+w %{_builddir}/python_%{pkgname}-%{version}

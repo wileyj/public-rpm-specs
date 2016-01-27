@@ -1,43 +1,46 @@
 %define nodejs_libdir /usr/lib/node_modules
-
-%global git_hash 53a6c97
-
-Name:       nodejs-slide-flow-control
-Version:    1.1.3
-Release:    3.%{dist}
-Summary:    A flow control library that fits in a slideshow
-License:    MIT
-Vendor: %{vendor}
-Packager: %{packager}
-Group:      System Environment/Libraries
-URL:        https://github.com/isaacs/abbrev-js
-# download from https://github.com/isaacs/slide-flow-control/tarball/%%{version}
-Source0:    isaacs-slide-flow-control-%{version}-0-g%{git_hash}.tar.gz
-BuildRoot:  %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-BuildArch:  noarch
-
-BuildRequires:  nodejs-devel
-Requires:       nodejs
+%define npmname flow-control
+%define npm_version %(echo `curl -s https://www.npmjs.com/package/%{npmname}| grep "<strong>" | tail -1 | tr -d "</strong>"`)
+%define _summary %(echo `curl -s https://www.npmjs.com/package/%{npmname} | grep '"description":' |cut -d'"' -f4`)
+%define filelist %{npmname}-filelist
+Name:           nodejs-%{npmname}
+Version:        %{npm_version}
+Release:        1.%{dist}
+Summary:        %{_summary}
+License:        MIT
+Vendor:         %{vendor}
+Packager:       %{packager}
+Group:          System Environment/Libraries
+BuildRequires:  nodejs, nodejs-devel, nodejs-npm, nodejs-binary, git
+Requires:       nodejs, nodejs-npm, nodejs-binary, git
 
 %description
-Provides simple, easy callbacks for node.js.
+%{summary}
 
 %prep
-%setup -q -n isaacs-slide-flow-control-e6ca2aa
+if [ -d %{name}-%{version} ];then
+    rm -rf %{name}-%{version}
+fi
 
 %install
-rm -rf %{buildroot}
-
-mkdir -p %{buildroot}%{nodejs_libdir}
-cp -p lib/*.js %{buildroot}%{nodejs_libdir}
+npm install %{npmname} -g --prefix %{buildroot}%{nodejs_libdir}/%{npmname}-%{version}
+(
+    cd %{buildroot}
+    echo '%defattr(-,root,root,-)'
+    find %{buildroot} -type d -printf '%%%dir "%p"\n' | %{__sed} -e 's|%{buildroot}||g'
+    find %{buildroot} -type f -printf '"%p"\n' | %{__sed} -e 's|%{buildroot}||g' 
+) > %{filelist}
+%{__sed} -i -e 's/%dir ""//g' %{filelist}
+%{__sed} -i -e '/^$/d' %{filelist}
+for i in `find %{buildroot} -type f -name "*.json"`
+do
+%{__sed} -i -e  's|%{buildroot}||g' $i
+done
 
 %clean
+[ "%{_builddir}/%{filelist}" != "/" ] && %__rm -rf %{_builddir}/%{filelist}
 [ "%{buildroot}" != "/" ] && %__rm -rf %{buildroot}
 [ "%{_builddir}/%{name}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}
+[ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}
 
-%files
-%defattr(-,root,root,-)
-%{nodejs_libdir}/*.js
-%doc README.md nodejs-controlling-flow.pdf
-
-%changelog
+%files -f %{filelist}

@@ -2,7 +2,7 @@
 %define pip_version %(echo `curl -s https://pypi.python.org/pypi/%{pkgname} | grep "<title>" | awk '{print $2}'`)
 %define filelist %{pkgname}-%{version}-filelist
 
-Name:           python-%{pkgname}
+Name:           python-jinja2
 Version:        %{pip_version}
 Release:        1.%{dist}
 Summary:        a Python Library for %{pkgname}
