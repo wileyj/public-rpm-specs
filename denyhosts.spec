@@ -85,7 +85,7 @@ fi
 %{prefix}/bin/denyhosts.py*
 %{prefix}/bin/reset-blocked-ip.pl
 %{python_sitearch}/site-packages/DenyHosts/
-%{python_sitearch}/site-packages/DenyHosts-2.6.egg-info
+%{python_sitearch}/site-packages/DenyHosts*.egg-info
 %{prefix}/data
 %config (noreplace) %{prefix}/etc/denyhosts.cfg
 /etc/init.d/denyhosts

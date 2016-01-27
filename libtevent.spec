@@ -1,12 +1,12 @@
 Name: libtevent
-Version: 0.9.21
+Version: 0.9.26
 Release: 1.%{dist}
 Group: System Environment/Daemons
 Summary: The tevent library
 License: LGPLv3+
 Vendor: %{vendor}
 Packager: %{packager}
-URL: http://tevent.samba.org/
+URL: https://github.com/samba-team/samba/releases/tag/tevent-0.9.26
 Source: http://samba.org/ftp/tevent/tevent-%{version}.tar.gz
 BuildRoot: %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
@@ -66,12 +66,13 @@ UpdateTimestamps() {
   done
 }
 
-%setup -q -n tevent-%{version}
+%setup -q -n samba-tevent-%{version}
 
 %build
 %configure --disable-rpath \
            --bundled-libraries=NONE \
-           --builtin-libraries=replace
+           --builtin-libraries=replace \
+	   --enable-fhs
 
 make %{?_smp_mflags} V=1
 

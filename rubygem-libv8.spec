@@ -1,12 +1,15 @@
 %global _python_bytecompile_errors_terminate_build 0
-AutoReqProv: no
-%include %{_rpmconfigdir}/macros.d/macros.rubygems
-%{?load: %{_rpmconfigdir}/macros.d/macros.python}
+# this is required since post install creates a log of .pyc and .pyo files
+%global __os_install_post %{nil}
 %global gemname libv8
-%global remoteversion %(echo `gem list ^%{gemname}$ -r |  grep %{gemname} | cut -f2 -d" " | tr -d '()' | tr -d ','`)
-%global rubyabi 2.2.2
+%global repo https://github.com/sensu-plugins/%{gemname}.git
+%global gemdesc %(echo `gem list ^%{gemname}$ -r -d | tail -1`)
+%global remoteversion %(echo `gem list ^%{gemname}$ -r |  cut -f2 -d" " | tr -d '()'`)
 
-Summary: Distribution of the V8 JavaScript engine
+%include %{_rpmconfigdir}/macros.d/macros.rubygems
+#%{?load: %{_rpmconfigdir}/macros.d/macros.python}
+
+Summary: %{gemdesc}
 Name: rubygem-%{gemname}
 Version: %{remoteversion}
 Release: 1.%{dist}
@@ -15,33 +18,28 @@ License: Ruby
 Vendor: %{vendor}
 Packager: %{packager}
 Requires: ruby rubygems rubygem-mini_portile rubygem-nokogiri
-BuildRequires: rubygems rubygems-devel
-BuildRequires: ruby-devel
-BuildRequires: ruby rubygems rubygem-mini_portile rubygem-nokogiri
+BuildRequires: rubygems rubygems-devel ruby-devel v8-devel ruby rubygem-mini_portile rubygem-nokogiri
 BuildArch: x86_64
 Provides: rubygem-%{gemname}
 Provides: rubygem(%{gemname})
 
 %description
-Distributes the V8 JavaScript engine in binary and source forms in order to
-support fast builds of The Ruby Racer.
+%{summary}
 
 %prep
 
 %setup -q -c -T
 export CONFIGURE_ARGS="--with-cflags='%{optflags}'"
-gem install --install-dir %{_builddir}/%{name}%{gem_dir} --bindir %{_builddir}/%{name}%{_bindir} --force --no-rdoc --no-ri --no-doc --ignore-dependencies %{gemname}
+gem install --install-dir %{_builddir}/%{name}%{gem_dir} --bindir %{_builddir}/%{name}%{_bindir} --force --no-rdoc --no-ri --no-doc --ignore-dependencies %{gemname} -- --with-system-v8
 
 %build
 
 %install
 %__mkdir_p %{_builddir}/%{name}%{gem_dir}
 %__mkdir_p %{_builddir}/%{name}%{_bindir}
-/bin/sed -i -e 's|%{_bindir}/env python|%{python27}|g' %{_builddir}/%{name}/usr/share/gems/gems/libv8-4.5.95.5/vendor/v8/build/gyp_v8
-/bin/sed -i -e 's|%{_bindir}/env python|%{python27}|g' %{_builddir}/%{name}/usr/share/gems/gems/libv8-4.5.95.5/vendor/depot_tools/external_bin/gsutil/gsutil_4.7/gsutil/third_party/boto/bin/route53
-/bin/sed -i -e 's|%{_bindir}/env python|%{python27}|g' %{_builddir}/%{name}/usr/share/gems/gems/libv8-4.5.95.5/vendor/depot_tools/external_bin/gsutil/gsutil_4.7/gsutil/third_party/boto/bin/lss3
-
 find %{_builddir}/%{name} -type f -exec sed -i -e 's|/usr/local/bin/ruby|/usr/bin/ruby|g' {} \;
+cp -pa %{_builddir}/%{name}/* %{buildroot}/
+find %{_builddir}/%{name} -type f -exec sed -i -e 's|/usr/local/bin/ruby|/usr/bin/ruby|g' {} \; 
 cp -pa %{_builddir}/%{name}/* %{buildroot}/
 if [ -f *.gemspec ]
 then
@@ -54,43 +52,39 @@ fi
     then
         echo '%exclude "%{gem_dir}/cache"'
     fi
-    if [ -f %{buildroot}%{gem_dir}/cache/%{gemname}-%{version}.gem ]
+    if [ -f %{buildroot}%{gem_dir}/cache/%{gemname}-*.gem ]
     then
-        echo '%exclude "%{gem_dir}/cache/%{gemname}-%{version}.gem"'
+        echo '%exclude "%{gem_dir}/cache/%{gemname}-*.gem"'
     fi
-    if [ -f %{buildroot}%{gem_dir}/gems/%{gemname}-%{version}/.gitignore ]
+    if [ -f %{buildroot}%{gem_dir}/gems/%{gemname}-*/.gitignore ]
     then
-        echo '%exclude "%{gem_dir}/gems/%{gemname}-%{version}/.gitignore"'
+        echo '%exclude "%{gem_dir}/gems/%{gemname}-*/.gitignore"'
     fi
-    if [ -f %{buildroot}%{gem_dir}/gems/%{gemname}-%{version}/.travis.yml ]
+    if [ -f %{buildroot}%{gem_dir}/gems/%{gemname}-*/.travis.yml ]
     then
-        echo '%exclude "%{gem_dir}/gems/%{gemname}-%{version}/.travis.yml"'
+        echo '%exclude "%{gem_dir}/gems/%{gemname}-*/.travis.yml"'
     fi
-    if [ -f %{buildroot}%{gem_dir}/gems/%{gemname}-%{version}/.yardopts ]
+    if [ -f %{buildroot}%{gem_dir}/gems/%{gemname}-*/.yardopts ]
     then
-        echo '%exclude "%{gem_dir}/gems/%{gemname}-%{version}/.yardopts"'
+        echo '%exclude "%{gem_dir}/gems/%{gemname}-*/.yardopts"'
     fi
     find %{buildroot} -type d -printf '%%%dir "%p"\n' | %{__sed} -e 's|%{buildroot}||g' | %{__grep} -v '%{gem_dir}/cache'
-    find %{buildroot} -type f -printf '"%p"\n' | %{__sed} -e 's|%{buildroot}||g' | %{__grep} -v '%{gem_dir}/cache/%{gemname}-%{version}.gem'
-    echo '"%{gem_dir}/gems/%{gemname}-%{version}/vendor/v8/build/gyp"'
-    echo '"%{gem_dir}/gems/%{gemname}-%{version}/vendor/v8/build/gyp_v8"'
-    #echo '"%{gem_dir}/gems/%{gemname}-%{version}/vendor/gyp/*"'
-    echo '"%{gem_dir}/gems/%{gemname}-%{version}/vendor/v8/tools/*"'
-    echo '"%{gem_dir}/gems/%{gemname}-%{version}/vendor/v8/test/*"'
-    echo '"%{gem_dir}/gems/%{gemname}-%{version}/vendor/v8/PRESUBMIT.pyc"'
-    echo '"%{gem_dir}/gems/%{gemname}-%{version}/vendor/v8/PRESUBMIT.pyo"'
-    echo '"%{gem_dir}/gems/%{gemname}-%{version}/vendor/v8/third_party"'
-    echo '"%{gem_dir}/gems/%{gemname}-%{version}/vendor/v8/testing/gtest"'
-    echo '"%{gem_dir}/gems/%{gemname}-%{version}/vendor/v8/testing/gmock"'
-    echo '"%{gem_dir}/gems/%{gemname}-%{version}/vendor/v8/testing"'
-    echo '"%{gem_dir}/gems/%{gemname}-%{version}/vendor/v8/buildtools/clang_format"'
-    echo '"%{gem_dir}/gems/%{gemname}-%{version}/vendor/v8/buildtools/checkdeps"'
-    echo '"%{gem_dir}/gems/%{gemname}-%{version}/vendor/v8/build"'
-    echo '"%{gem_dir}/gems/%{gemname}-%{version}/vendor/v8"'
-    echo '"%{gem_dir}/gems/%{gemname}-%{version}/vendor/depot_tools"'
-    echo '"%{gem_dir}/gems/%{gemname}-%{version}/vendor/depot_tools/external_bin"'
+    find %{buildroot} -type f -printf '"%p"\n' | %{__sed} -e 's|%{buildroot}||g' | %{__grep} -v '%{gem_dir}/cache/%{gemname}-*.gem'
 ) > filelist
-%{__sed} -i -e 's|%dir ""||g' filelist
+%{__sed} -i -e 's|%dir "%{gem_dir}/specifications"||' filelist
+%{__sed} -i -e 's|%dir "%{_datadir}"||' filelist
+%{__sed} -i -e 's|%dir "%{gem_dir}"||' filelist
+%{__sed} -i -e 's|%dir "%{gem_dir}/build_info"||' filelist
+%{__sed} -i -e 's|%dir "%{gem_dir}/doc"||' filelist
+%{__sed} -i -e 's|%dir "%{gem_dir}/extensions"||' filelist
+%{__sed} -i -e 's|%dir "%{gem_dir}/gems"||' filelist
+%{__sed} -i -e 's|%dir "%{_exec_prefix}"||' filelist
+%{__sed} -i -e 's|%dir "%{_bindir}"||' filelist
+%{__sed} -i -e 's|%dir "%{_libdir}"||' filelist
+%{__sed} -i -e 's|%dir "%{_libdir}/gems"||' filelist
+%{__sed} -i -e 's|%dir "%{_libdir}/gems/ruby"||' filelist
+%{__sed} -i -e 's/%dir ""//g' filelist
+%{__sed} -i -e '/^$/d' filelist
 
 if [ -f %{buildroot}%{gem_dir}/specifications/%{gemname}-%{version}.gemspec ]
 then
@@ -103,14 +97,9 @@ then
     sed -i -e 's|\["= |\[">= |g' %{buildroot}%{gem_dir}/gems/%{gemname}-%{version}/%{gemname}.gemspec
 fi
 
-
-
-
-
 %clean
 [ "%{buildroot}" != "/" ] && %__rm -rf %{buildroot}
 [ "%{_builddir}/%{name}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}
 [ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}
 
 %files -f filelist
-

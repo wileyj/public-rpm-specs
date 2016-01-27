@@ -1,40 +1,50 @@
 %define nodejs_libdir /usr/lib/node_modules
-
-Name:       nodejs-lru-cache
-Version:    1.1.0
-Release:    3.%{dist}
-Summary:    A cache object that deletes the least recently used items
-License:    MIT
-Vendor: %{vendor}
-Packager: %{packager}
-Group:      System Environment/Libraries
-URL:        https://github.com/isaacs/node-lru-cache
-Source0:    http://registry.npmjs.org/lru-cache/-/lru-cache-%{version}.tgz
-BuildRoot:  %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-BuildArch:  noarch
-
-BuildRequires:  nodejs-devel
-Requires:       nodejs
+%define npmname cache
+%define npm_version %(echo `curl -s https://www.npmjs.com/package/%{npmname}| grep "<strong>" | tail -1 | tr -d "</strong>"`)
+%define _summary %(echo `curl -s https://www.npmjs.com/package/%{npmname} | grep '"description":' |cut -d'"' -f4`)
+%define filelist %{npmname}-filelist
+Name:           nodejs-%{npmname}
+Version:        %{npm_version}
+Release:        1.%{dist}
+Summary:        %{_summary}
+License:        MIT
+Vendor:         %{vendor}
+Packager:       %{packager}
+Group:          System Environment/Libraries
+BuildRequires:  nodejs, nodejs-devel, nodejs-npm, nodejs-binary, git
+Requires:       nodejs, nodejs-npm, nodejs-binary, git
 
 %description
-lru caching for nodejs
+%{summary}
 
 %prep
-%setup -q -n package
+if [ -d %{name}-%{version} ];then
+    rm -rf %{name}-%{version}
+fi
 
 %install
-rm -rf %{buildroot}
+npm install %{npmname} -g --prefix %{buildroot}%{nodejs_libdir}/%{npmname}-%{version}
+(
+    cd %{buildroot}
+    echo '%defattr(-,root,root,-)'
+    find %{buildroot} -type d -printf '%%%dir "%p"\n' | %{__sed} -e 's|%{buildroot}||g'
+    find %{buildroot} -type f -printf '"%p"\n' | %{__sed} -e 's|%{buildroot}||g' 
+) > %{filelist}
+%{__sed} -i -e 's/%dir ""//g' %{filelist}
+%{__sed} -i -e '/^$/d' %{filelist}
+for i in `find %{buildroot} -type f -name "*.json"`
+do
+%{__sed} -i -e  's|%{buildroot}||g' $i
+done
 
-mkdir -p %{buildroot}%{nodejs_libdir}/lru-cache
-cp -pr lib package.json %{buildroot}%{nodejs_libdir}/lru-cache
+echo '"%{nodejs_libdir}/%{npmname}-%{version}/bin/cached"' >> %{filelist}
+
+
 
 %clean
+[ "%{_builddir}/%{filelist}" != "/" ] && %__rm -rf %{_builddir}/%{filelist}
 [ "%{buildroot}" != "/" ] && %__rm -rf %{buildroot}
 [ "%{_builddir}/%{name}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}
+[ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}
 
-%files
-%defattr(-,root,root,-)
-%{nodejs_libdir}/lru-cache
-%doc README.md LICENSE
-
-%changelog
+%files -f %{filelist}

@@ -1,5 +1,6 @@
-%global VER 6.9.3
-%global Patchlevel 2
+%global VER 7.0.0
+%global Patchlevel 7
+%define repo https://github.com/ImageMagick/ImageMagick
 
 %define _installpath /opt/ImageMagick-%{VER}
 %define IMbindir %{_installpath}/bin
@@ -12,14 +13,14 @@
 
 Name:		ImageMagick
 Version:		%{VER}.%{Patchlevel}
-Release:		1.%{dist}
+Release:		5.%{dist}
 Summary:		An X application for displaying and manipulating images
 Group:		Applications/Multimedia
 License:		ImageMagick
 Vendor: %{vendor}
 Packager: %{packager}
 Url:			http://www.imagemagick.org/
-Source0:		ftp://ftp.ImageMagick.org/pub/%{name}/%{name}-%{VER}-%{Patchlevel}.tar.gz
+#Source0:		ftp://ftp.ImageMagick.org/pub/%{name}/%{name}-%{VER}-%{Patchlevel}.tar.xz
 #Patch0:			PerlMagick-Makefile.patch
 
 Requires:		%{name}-libs = %{version}-%{release}
@@ -142,23 +143,25 @@ You don't need to install it if you just want to use ImageMagick, or if you
 want to develop/compile applications using the ImageMagick C interface,
 however.
 
+%setup -q -c -T
 
 %prep
-%setup -q -n %{name}-%{VER}-%{Patchlevel}
-#%patch0 -p0
-
-#read ans
+if [ -d %{name}-%{version} ];then
+    rm -rf %{name}-%{version}
+fi
+git clone %{repo} %{name}-%{version}
+cd %{name}-%{version}
 sed -i 's/libltdl.la/libltdl.so/g' configure
-iconv -f ISO-8859-1 -t UTF-8 README.txt > README.txt.tmp
-touch -r README.txt README.txt.tmp
-mv README.txt.tmp README.txt
+#iconv -f ISO-8859-1 -t UTF-8 README.txt > README.txt.tmp
+#touch -r README.txt README.txt.tmp
+#mv README.txt.tmp README.txt
 # for %%doc
 mkdir Magick++/examples
 cp -p Magick++/demo/*.cpp Magick++/demo/*.miff Magick++/examples
 
 
 %build
-export CPPFLAGS="-I%{_includedir}/openjpeg-2.1"
+cd %{name}-%{version}
 
 %configure \
         --prefix=%{_installpath} \
@@ -197,6 +200,7 @@ make
 
 
 %install
+cd %{name}-%{version}
 rm -rf %{buildroot}
 
 make %{?_smp_mflags} install DESTDIR=%{buildroot} INSTALL="install -p"
@@ -233,10 +237,9 @@ fi
 
 # fix multilib issues
 
-mv %{buildroot}%{IMincludedir}/%{name}-6/magick/magick-config.h \
-	%{buildroot}%{IMincludedir}/%{name}-6/magick/magick-config-%{__isa_bits}.h
+mv %{buildroot}%{IMincludedir}/%{name}-7/MagickCore/magick-config.h %{buildroot}%{IMincludedir}/%{name}-7/MagickCore/magick-config-%{__isa_bits}.h
 
-cat >%{buildroot}%{IMincludedir}/%{name}-6/magick/magick-config.h <<EOF
+cat >%{buildroot}%{IMincludedir}/%{name}-7/MagickCore/magick-config.h <<EOF
 #ifndef IMAGEMAGICK_MULTILIB
 #define IMAGEMAGICK_MULTILIB
 
@@ -268,6 +271,7 @@ chmod a+x %{buildroot}/etc/profile.d/ImageMagick.sh
 %clean
 [ "%{buildroot}" != "/" ] && %__rm -rf %{buildroot}
 [ "%{_builddir}/%{name}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}
+[ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}
 
 %post libs -p /sbin/ldconfig
 
@@ -279,7 +283,7 @@ chmod a+x %{buildroot}/etc/profile.d/ImageMagick.sh
 
 
 %files
-%doc README.txt LICENSE NOTICE AUTHORS.txt NEWS.txt ChangeLog Platforms.txt
+#%doc LICENSE NOTICE AUTHORS.txt NEWS.txt ChangeLog Platforms.txt
 %{IMbindir}/[a-z]*
 /etc/profile.d/ImageMagick.sh
 %{_mandir}/man[145]/[a-z]*
@@ -287,36 +291,26 @@ chmod a+x %{buildroot}/etc/profile.d/ImageMagick.sh
 
 %files libs
 %defattr(-,root,root,-)
-%doc LICENSE NOTICE AUTHORS.txt QuickStart.txt
-%{IMlibdir}/libMagickCore-6.Q16.so.2*
-%{IMlibdir}/libMagickWand-6.Q16.so.2*
+#%doc LICENSE NOTICE AUTHORS.txt QuickStart.txt
+%{IMlibdir}/libMagickCore*
+%{IMlibdir}/libMagickWand*
 %{IMlibdir}/%{name}-%{VER}
-%{_datadir}/%{name}-6
-#%exclude %{IMlibdir}/%{name}-%{VER}/modules-Q16/coders/djvu.*
-%{_installpath}%{_sysconfdir}/%{name}-6
+%{_datadir}/%{name}-7
+%{_installpath}%{_sysconfdir}/%{name}-7
 
 %files devel
 %defattr(-,root,root,-)
 %{IMbindir}/MagickCore-config
-%{IMbindir}/Magick-config
 %{IMbindir}/MagickWand-config
-%{IMbindir}/Wand-config
-%{IMlibdir}/libMagickCore-6.Q16.so
-%{IMlibdir}/libMagickWand-6.Q16.so
-%{IMlibdir}/pkgconfig/MagickCore.pc
-%{IMlibdir}/pkgconfig/MagickCore-6.Q16.pc
-%{IMlibdir}/pkgconfig/ImageMagick.pc
-%{IMlibdir}/pkgconfig/ImageMagick-6.Q16.pc
-%{IMlibdir}/pkgconfig/MagickWand.pc
-%{IMlibdir}/pkgconfig/MagickWand-6.Q16.pc
-%{IMlibdir}/pkgconfig/Wand.pc
-%{IMlibdir}/pkgconfig/Wand-6.Q16.pc
-%dir %{IMincludedir}/%{name}-6
-%{IMincludedir}/%{name}-6/magick
-%{IMincludedir}/%{name}-6/wand
-%{_mandir}/man1/Magick-config.*
+%{IMlibdir}/libMagickCore*
+%{IMlibdir}/libMagickWand*
+%{IMlibdir}/pkgconfig/MagickCore*.pc
+%{IMlibdir}/pkgconfig/ImageMagick*.pc
+%{IMlibdir}/pkgconfig/MagickWand*.pc
+%dir %{IMincludedir}/%{name}*
+%{IMincludedir}/%{name}-7/MagickCore
+%{IMincludedir}/%{name}-7/MagickWand
 %{_mandir}/man1/MagickCore-config.*
-%{_mandir}/man1/Wand-config.*
 %{_mandir}/man1/MagickWand-config.*
 
 #%files djvu
@@ -325,32 +319,29 @@ chmod a+x %{buildroot}/etc/profile.d/ImageMagick.sh
 
 %files doc
 %defattr(-,root,root,-)
-%doc %{_datadir}/doc/%{name}-6
+%doc %{_datadir}/doc/%{name}-7
 %doc %{_datadir}/doc/%{name}-%{VER}
-%doc LICENSE
 
 %files c++
 %defattr(-,root,root,-)
-%doc Magick++/AUTHORS Magick++/ChangeLog Magick++/NEWS Magick++/README
-%doc www/Magick++/COPYING
-%{IMlibdir}/libMagick++-6.Q16.so.*
+#%doc Magick++/AUTHORS Magick++/ChangeLog Magick++/NEWS Magick++/README
+#%doc www/Magick++/COPYING
+%{IMlibdir}/libMagick++-7.Q*.so.*
 
 %files c++-devel
 %defattr(-,root,root,-)
-%doc Magick++/examples
+#%doc Magick++/examples
 %{IMbindir}/Magick++-config
-%{IMincludedir}/%{name}-6/Magick++
-%{IMincludedir}/%{name}-6/Magick++.h
-%{IMlibdir}/libMagick++-6.Q16.so
+%{IMincludedir}/%{name}-7/Magick++
+%{IMincludedir}/%{name}-7/Magick++.h
+%{IMlibdir}/libMagick++-7.Q*.so
 %{IMlibdir}/pkgconfig/Magick++.pc
-%{IMlibdir}/pkgconfig/Magick++-6.Q16.pc
-%{IMlibdir}/pkgconfig/ImageMagick++.pc
-%{IMlibdir}/pkgconfig/ImageMagick++-6.Q16.pc
+%{IMlibdir}/pkgconfig/Magick++-7.Q*.pc
 %{_mandir}/man1/Magick++-config.*
 
-%files perl -f perl-pkg-files
+%files perl -f %{name}-%{version}/perl-pkg-files
 %defattr(-,root,root,-)
 %{_mandir}/man3/*
-%doc PerlMagick/demo/ PerlMagick/Changelog PerlMagick/README.txt
+#%doc PerlMagick/demo/ PerlMagick/Changelog
 
 %changelog

@@ -9,7 +9,7 @@
 %include %{macro}
 
 Name: libtdb
-Version: 1.3.1
+Version: 1.3.8
 Release: 1.%{dist}
 Group: System Environment/Daemons
 Summary: The tdb library
@@ -18,11 +18,10 @@ Vendor: %{vendor}
 Packager: %{packager}
 URL: http://tdb.samba.org/
 Source: http://samba.org/ftp/tdb/tdb-%{version}.tar.gz
-Patch0: 0001-tdb-include-include-stdbool.h-in-tdb.h.patch
 BuildRoot: %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
 BuildRequires: autoconf
-BuildRequires: libxslt
+BuildRequires: libxslt gnutls gnutls-devel
 BuildRequires: docbook-style-xsl
 %if 0%{?el6}
 BuildRequires: python27-devel
@@ -63,13 +62,14 @@ Requires: libtdb = %{version}-%{release}
 Python bindings for libtdb
 
 %prep
-%setup -q -n tdb-%{version}
-%patch0 -p1
+%setup -q -n samba-tdb-%{version}
 
 %build
 %configure --disable-rpath \
            --bundled-libraries=NONE \
-           --builtin-libraries=replace
+           --builtin-libraries=replace \
+	   --enable-fhs \
+	   --bundled-libraries=tdb
 make %{?_smp_mflags} V=1
 
 %install

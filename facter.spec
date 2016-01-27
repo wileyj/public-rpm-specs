@@ -1,5 +1,6 @@
 %global factpath /etc/puppetlabs/facter/facts.d
 %global binpath  /opt/puppetlabs/bin
+%define repo https://github.com/puppetlabs/facter.git
 
 Name:           facter
 Version:        3.1.3
@@ -10,7 +11,7 @@ License:        ASL 2.0
 Vendor: 	%{vendor}
 Packager: 	%{packager}
 URL:            https://puppetlabs.com/%{name}
-Source0:        %{name}.tar.gz
+#Source0:        %{name}.tar.gz
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: boost-devel >= 1.59
 BuildRequires: openssl-devel libblkid-devel libcurl-devel gcc-c++ make wget tar libyaml libyaml-devel  leatherman yaml-cpp-devel
@@ -31,15 +32,21 @@ custom or site specific. It is easy to extend by including your own custom
 facts. Facter can also be used to create conditional expressions in Puppet that
 key off the values returned by facts.
 
+%setup -q -c -T
 %prep
-%setup -q -n %{name}
-
-%build
-git pull
+if [ -d %{name}-%{version} ];then
+    rm -rf %{name}-%{version}
+fi
+git clone %{repo} %{name}-%{version}
+cd %{name}-%{version}
 git submodule init
 git submodule update
 
+%build
+cd %{name}-%{version}
+
 %install
+cd %{name}-%{version}
 rm -rf %{buildroot}
 %__mkdir_p release
 pwd
@@ -62,8 +69,9 @@ fi
 
 
 %clean
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot} 
+[ "%{buildroot}" != "/" ] && %__rm -rf %{buildroot}
 [ "%{_builddir}/%{name}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}
+[ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}
 
 
 %files

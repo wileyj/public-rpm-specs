@@ -1,13 +1,13 @@
 %define debug_package %{nil}
 
 Name: rabbitmq-server
-Version: 3.5.6
+Version: 3.6.0
 Release: 1.%{?dist}
 License: MPLv1.1 and MIT and ASL 2.0 and BSD
 Packager: %{packager}
 Vendor: %{vendor}
 Group: %{group_tag}
-Source: http://www.rabbitmq.com/releases/rabbitmq-server/v%{version}/%{name}-%{version}.tar.gz
+Source: http://www.rabbitmq.com/releases/rabbitmq-server/v%{version}/%{name}-%{version}.tar.xz
 Source1: rabbitmq-server.init
 Source2: rabbitmq-script-wrapper
 Source3: rabbitmq-server.logrotate
@@ -74,7 +74,9 @@ install -p -D -m 0644 %{S:3} %{buildroot}%{_sysconfdir}/logrotate.d/rabbitmq-ser
 
 mkdir -p %{buildroot}%{_sysconfdir}/rabbitmq
 
-rm %{_maindir}/LICENSE %{_maindir}/LICENSE-MPL-RabbitMQ %{_maindir}/INSTALL
+#rm %{buildroot}%{_maindir}/LICENSE 
+#rm %{buildroot}%{_maindir}/LICENSE-MPL-RabbitMQ 
+#rm %{buildroot}%{_maindir}/INSTALL
 
 #Build the list of files
 echo '%defattr(-,root,root, -)' >%{_builddir}/%{name}.files
@@ -137,179 +139,3 @@ done
 rm -rf %{buildroot}
 
 %changelog
-* Fri May 22 2015 jean-sebastien@rabbitmq.com 3.5.3-1
-- New Upstream Release
-
-* Tue May 12 2015 jean-sebastien@rabbitmq.com 3.5.2-1
-- New Upstream Release
-
-* Thu Apr 2 2015 michael@rabbitmq.com 3.5.1-1
-- New Upstream Release
-
-* Wed Mar 11 2015 jean-sebastien@rabbitmq.com 3.5.0-1
-- New Upstream Release
-
-* Wed Feb 11 2015 michael@rabbitmq.com 3.4.4-1
-- New Upstream Release
-
-* Tue Jan 6 2015 jean-sebastien@rabbitmq.com 3.4.3-1
-- New Upstream Release
-
-* Wed Nov 26 2014 simon@rabbitmq.com 3.4.2-1
-- New Upstream Release
-
-* Wed Oct 29 2014 simon@rabbitmq.com 3.4.1-1
-- New Upstream Release
-
-* Tue Oct 21 2014 simon@rabbitmq.com 3.4.0-1
-- New Upstream Release
-
-* Mon Aug 11 2014 simon@rabbitmq.com 3.3.5-1
-- New Upstream Release
-
-* Tue Jun 24 2014 simon@rabbitmq.com 3.3.4-1
-- New Upstream Release
-
-* Mon Jun 16 2014 simon@rabbitmq.com 3.3.3-1
-- New Upstream Release
-
-* Mon Jun 9 2014 simon@rabbitmq.com 3.3.2-1
-- New Upstream Release
-
-* Tue Apr 29 2014 simon@rabbitmq.com 3.3.1-1
-- New Upstream Release
-
-* Wed Apr 2 2014 simon@rabbitmq.com 3.3.0-1
-- New Upstream Release
-
-* Mon Mar 3 2014 simon@rabbitmq.com 3.2.4-1
-- New Upstream Release
-
-* Thu Jan 23 2014 emile@rabbitmq.com 3.2.3-1
-- New Upstream Release
-
-* Tue Dec 10 2013 emile@rabbitmq.com 3.2.2-1
-- New Upstream Release
-
-* Wed Oct 23 2013 emile@rabbitmq.com 3.2.0-1
-- New Upstream Release
-
-* Thu Aug 15 2013 simon@rabbitmq.com 3.1.5-1
-- New Upstream Release
-
-* Tue Jun 25 2013 tim@rabbitmq.com 3.1.3-1
-- New Upstream Release
-
-* Mon Jun 24 2013 tim@rabbitmq.com 3.1.2-1
-- New Upstream Release
-
-* Mon May 20 2013 tim@rabbitmq.com 3.1.1-1
-- Test release
-
-* Wed May 1 2013 simon@rabbitmq.com 3.1.0-1
-- New Upstream Release
-
-* Tue Dec 11 2012 simon@rabbitmq.com 3.0.1-1
-- New Upstream Release
-
-* Fri Nov 16 2012 simon@rabbitmq.com 3.0.0-1
-- New Upstream Release
-
-* Fri Dec 16 2011 steve@rabbitmq.com 2.7.1-1
-- New Upstream Release
-
-* Tue Nov 8 2011 steve@rabbitmq.com 2.7.0-1
-- New Upstream Release
-
-* Fri Sep 9 2011 tim@rabbitmq.com 2.6.1-1
-- New Upstream Release
-
-* Fri Aug 26 2011 tim@rabbitmq.com 2.6.0-1
-- New Upstream Release
-
-* Mon Jun 27 2011 simon@rabbitmq.com 2.5.1-1
-- New Upstream Release
-
-* Thu Jun 9 2011 jerryk@vmware.com 2.5.0-1
-- New Upstream Release
-
-* Thu Apr 7 2011 Alexandru Scvortov <alexandru@rabbitmq.com> 2.4.1-1
-- New Upstream Release
-
-* Tue Mar 22 2011 Alexandru Scvortov <alexandru@rabbitmq.com> 2.4.0-1
-- New Upstream Release
-
-* Thu Feb 3 2011 simon@rabbitmq.com 2.3.1-1
-- New Upstream Release
-
-* Tue Feb 1 2011 simon@rabbitmq.com 2.3.0-1
-- New Upstream Release
-
-* Mon Nov 29 2010 rob@rabbitmq.com 2.2.0-1
-- New Upstream Release
-
-* Tue Oct 19 2010 vlad@rabbitmq.com 2.1.1-1
-- New Upstream Release
-
-* Tue Sep 14 2010 marek@rabbitmq.com 2.1.0-1
-- New Upstream Release
-
-* Mon Aug 23 2010 mikeb@rabbitmq.com 2.0.0-1
-- New Upstream Release
-
-* Wed Jul 14 2010 Emile Joubert <emile@rabbitmq.com> 1.8.1-1
-- New Upstream Release
-
-* Tue Jun 15 2010 Matthew Sackman <matthew@rabbitmq.com> 1.8.0-1
-- New Upstream Release
-
-* Mon Feb 15 2010 Matthew Sackman <matthew@lshift.net> 1.7.2-1
-- New Upstream Release
-
-* Fri Jan 22 2010 Matthew Sackman <matthew@lshift.net> 1.7.1-1
-- New Upstream Release
-
-* Mon Oct 5 2009 David Wragg <dpw@lshift.net> 1.7.0-1
-- New upstream release
-
-* Wed Jun 17 2009 Matthias Radestock <matthias@lshift.net> 1.6.0-1
-- New upstream release
-
-* Tue May 19 2009 Matthias Radestock <matthias@lshift.net> 1.5.5-1
-- Maintenance release for the 1.5.x series
-
-* Mon Apr 6 2009 Matthias Radestock <matthias@lshift.net> 1.5.4-1
-- Maintenance release for the 1.5.x series
-
-* Tue Feb 24 2009 Tony Garnock-Jones <tonyg@lshift.net> 1.5.3-1
-- Maintenance release for the 1.5.x series
-
-* Mon Feb 23 2009 Tony Garnock-Jones <tonyg@lshift.net> 1.5.2-1
-- Maintenance release for the 1.5.x series
-
-* Mon Jan 19 2009 Ben Hood <0x6e6562@gmail.com> 1.5.1-1
-- Maintenance release for the 1.5.x series
-
-* Wed Dec 17 2008 Matthias Radestock <matthias@lshift.net> 1.5.0-1
-- New upstream release
-
-* Thu Jul 24 2008 Tony Garnock-Jones <tonyg@lshift.net> 1.4.0-1
-- New upstream release
-
-* Mon Mar 3 2008 Adrien Pierard <adrian@lshift.net> 1.3.0-1
-- New upstream release
-
-* Wed Sep 26 2007 Simon MacMullen <simon@lshift.net> 1.2.0-1
-- New upstream release
-
-* Wed Aug 29 2007 Simon MacMullen <simon@lshift.net> 1.1.1-1
-- New upstream release
-
-* Mon Jul 30 2007 Simon MacMullen <simon@lshift.net> 1.1.0-1.alpha
-- New upstream release
-
-* Tue Jun 12 2007 Hubert Plociniczak <hubert@lshift.net> 1.0.0-1.20070607
-- Building from source tarball, added starting script, stopping
-
-* Mon May 21 2007 Hubert Plociniczak <hubert@lshift.net> 1.0.0-1.alpha
-- Initial build of server library of RabbitMQ package
