@@ -50,8 +50,6 @@ install -d -m 0755 %{buildroot}%{_includedir}
 %__mv %{buildroot}/usr/local/lib/* %{buildroot}/usr/lib
 %__rm -rf %{buildroot}/usr/local
 
-%{__sed} -i -e 's/%dir ""//g' filelist
-%{__sed} -i -e '/^$/d' filelist
 
 %clean
 [ "%{buildroot}" != "/" ] && rm -rf %{buildroot} 
