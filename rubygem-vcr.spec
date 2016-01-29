@@ -1,5 +1,5 @@
 %global _python_bytecompile_errors_terminate_build 0
-%global gemname rspec
+%global gemname vcr
 %global gemdesc %(echo `gem list ^%{gemname}$ -r -d | tail -1`)
 %global remoteversion %(echo `gem list ^%{gemname}$ -r |  cut -f2 -d" " | tr -d '()'`)
 %include %{_rpmconfigdir}/macros.d/macros.rubygems
