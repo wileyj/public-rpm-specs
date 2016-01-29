@@ -1,11 +1,6 @@
-
-%if 0%{?el6}
-    %define macro %{_rpmconfigdir}/macros.d/macros.python27
-    %global __python /usr/bin/python27
-%else
-    %define macro %{_rpmconfigdir}/macros.d/macros.python
-    %global __python /usr/bin/python
-%endif
+%define nowide_repo https://github.com/artyom-beilis/nowide.git
+%define macro %{_rpmconfigdir}/macros.d/macros.python
+%global __python /usr/bin/python
 %include %{macro}
 
 %define boost_docdir __tmp_docdir
@@ -779,6 +774,9 @@ rm -f tmp-doc-files-to-be-installed
 rm -f tmp-doc-directories
 %{__install} -p -m 644 -t $EXAMPLESPATH LICENSE_1_0.txt
 
+git clone https://github.com/artyom-beilis/nowide.git %{builddir}/nowide-%{version}
+%{__cp} -pR %{builddir}/nowide-%{version}/include/boost/nowide %{buildroot}%{_includedir}/%{name}/
+
 %clean
 [ "%{buildroot}" != "/" ] && %__rm -rf %{buildroot}
 [ "%{_builddir}/%{name}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}
@@ -1052,6 +1050,7 @@ fi
 %defattr(-, root, root, -)
 %license LICENSE_1_0.txt
 %{_includedir}/%{name}
+%{_includedir}/%{name}/nowide
 %{_libdir}/libboost_atomic.so
 %{_libdir}/libboost_chrono.so
 %{_libdir}/libboost_container.so

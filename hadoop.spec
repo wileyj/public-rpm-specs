@@ -18,7 +18,7 @@
 #
 
 %define name         hadoop
-%define version      2.7.1
+%define version      2.7.2
 %define release      1.%{dist}
 
 # Installation Locations
@@ -41,10 +41,10 @@
 
 # Disable brp-java-repack-jars for aspect J
 %define __os_install_post    \
-    /usr/lib/rpm/amazon/brp-compress \
-    %{!?__debug_package:/usr/lib/rpm/amazon/brp-strip %{__strip}} \
-    /usr/lib/rpm/amazon/brp-strip-static-archive %{__strip} \
-    /usr/lib/rpm/amazon/brp-strip-comment-note %{__strip} %{__objdump} \
+#    /usr/lib/rpm/amazon/brp-compress \
+#    %{!?__debug_package:/usr/lib/rpm/amazon/brp-strip %{__strip}} \
+#    /usr/lib/rpm/amazon/brp-strip-static-archive %{__strip} \
+#    /usr/lib/rpm/amazon/brp-strip-comment-note %{__strip} %{__objdump} \
     /usr/lib/rpm/brp-python-bytecompile %{nil}
 
 %define _use_internal_dependency_generator 0
@@ -76,7 +76,7 @@ distributed computing.  Hadoop includes these subprojects:
 Hadoop Common: The common utilities that support the other Hadoop subprojects.
 
 %prep
-%setup -n %{_final_name}
+%setup -n %{name}-%{version}
 
 %build
 if [ -d ${RPM_BUILD_DIR}%{_prefix} ]; then
