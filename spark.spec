@@ -13,9 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-%define prefix /opt/apache-spark
 %define spark_name spark
-%define spark_version 
+%define spark_base_version 1.6.0
+%define spark_version %{spark_base_version}
+
 %define lib_spark /usr/lib/%{spark_name}
 %define var_lib_spark /var/lib/%{spark_name}
 %define var_run_spark /var/run/%{spark_name}
@@ -47,7 +48,7 @@ Group: Development/Libraries
 BuildArch: noarch
 Buildroot: %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 License: ASL 2.0
-Source0: %{spark_name}.tar.gz
+Source0: %{spark_name}-%{spark_base_version}.tgz
 Source1: do-component-build 
 Source2: install_%{spark_name}.sh
 Source3: spark-master.svc
@@ -144,10 +145,9 @@ Group: Development/Libraries
 Spark YARN Shuffle Service
 
 %prep
-%setup -n %{spark_name}
+%setup -n %{spark_name}-%{spark_base_version}
 
 %build
-git pull
 bash $RPM_SOURCE_DIR/do-component-build
 
 %install
@@ -157,7 +157,7 @@ bash $RPM_SOURCE_DIR/do-component-build
 bash $RPM_SOURCE_DIR/install_spark.sh \
           --build-dir=`pwd`         \
           --source-dir=$RPM_SOURCE_DIR \
-          --prefix=$RPM_BUILD_ROOT%{prefix}  \
+          --prefix=$RPM_BUILD_ROOT  \
           --doc-dir=%{doc_spark} \
           --pyspark-python=python
 

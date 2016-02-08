@@ -1,11 +1,10 @@
-#AutoReqProv: no
-#  gem list ^json$ -r |  cut -f2 -d" " | grep -o '\((.*\)$' | tr -d '()'
-%include %{_rpmconfigdir}/macros.d/macros.rubygems
+%global _python_bytecompile_errors_terminate_build 0
 %global gemname rspec-support
-%global remoteversion %(echo `gem list ^%{gemname}$ -r |  grep %{gemname} | cut -f2 -d" " | tr -d '()' | tr -d ','`)
-%global rubyabi 2.2.2
+%global gemdesc %(echo `gem list ^%{gemname}$ -r -d | tail -1`)
+%global remoteversion %(echo `gem list ^%{gemname}$ -r |  cut -f2 -d" " | tr -d '()'`)
+%include %{_rpmconfigdir}/macros.d/macros.rubygems
 
-Summary: rspec-support-3.2.2
+Summary: %{gemdesc}
 Name: rubygem-%{gemname}
 Version: %{remoteversion}
 Release: 1.%{dist}
@@ -14,6 +13,7 @@ License: Ruby
 Vendor: %{vendor}
 Packager: %{packager}
 Requires: ruby rubygems
+Requires: rubygem-sensu-plugin
 BuildRequires: rubygems rubygems-devel
 BuildRequires: ruby
 BuildArch: x86_64
@@ -21,11 +21,13 @@ Provides: rubygem-%{gemname}
 Provides: rubygem(%{gemname})
 
 %description
-Support utilities for RSpec gems.
+%{summary}
+%setup -q -c -T
 
 %prep
-
-%setup -q -c -T
+if [ -d %{name}-%{version} ];then
+    rm -rf %{name}-%{version}
+fi
 export CONFIGURE_ARGS="--with-cflags='%{optflags}'"
 gem install --install-dir %{_builddir}/%{name}%{gem_dir} --bindir %{_builddir}/%{name}%{_bindir} --force --no-rdoc --no-ri --no-doc --ignore-dependencies %{gemname}
 
@@ -101,4 +103,3 @@ fi
 [ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}
 
 %files -f filelist
-

@@ -1,11 +1,12 @@
+%define repo https://github.com/puppetlabs/puppet.git
+%define gitversion %(echo `curl -s https://github.com/puppetlabs/puppet/releases | grep 'class="tag-name"' | head -1 |  tr -d '\\-</span class="tag-name">'`)
 %if 0%{?fedora} >= 17 || 0%{?rhel} >= 7 || 0%{?amzn} >= 1
 %global puppet_libdir   %(ruby -rrbconfig -e 'puts RbConfig::CONFIG["vendorlibdir"]')
 %else
 %global puppet_libdir   %(ruby -rrbconfig -e 'puts RbConfig::CONFIG["sitelibdir"]')
 %endif
-%global _with_systemd 0
-%global realversion 4.3.0
-%global rpmversion 4.3.0
+
+%global _with_systemd 1
 %global puppet_bindir /opt/puppetlabs/bin
 %global puppet_codedir /etc/puppetlabs/code
 %global puppet_confdir /etc/puppetlabs/puppet
@@ -15,30 +16,18 @@
 %global pending_upgrade_file %{pending_upgrade_path}/upgrade_pending
 
 Name:           puppet
-Version:        %{rpmversion}
+Version:        %{gitversion}
 Release:        1.%{dist}
 Summary:        A network tool for managing many disparate systems
 License:        ASL 2.0
 Packager:       %{packager}
 Vendor:         %{vendor}
 URL:            http://puppetlabs.com
-Source0:        %{name}.tar.gz
 Group:          System Environment/Base
-BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-BuildRequires:  facter >= 1.7.0
-BuildRequires:  ruby >= 1.8.7
-BuildRequires:  hiera >= 2.0.0
-BuildRequires:  git
+BuildRequires:  ruby >= 2.2 git
+Requires:       ruby >= 2.2 ruby-shadow rubygem-json facter >= 3.1 hiera >= 3.0.0 ruby-augeas shadow-utils rubygem-ast rubygem-hashdiff rubygem-json-schema rubygem-metaclass rubygem-msgpack rubygem-powerpack rubygem-puppet-lint rubygem-rspec-support rubygem-racc rubygem-redcarpet rubygem-ruby-progressbar rubygem-ruby-prof rubygem-vcr rubygem-yard rubygem-puppet-syntax rubygem-parser rubygem-hiera rubygem-rdoc rubygem-mocha rubygem-astrolabe rubygem-webmock rubygem-rspec-collection_matchers rubygem-rspec-its rubygem-rspec rubygem-rubocop rubygem-rspec-puppet rubygem-rspec-legacy_formatters rubygem-yarjuf rubygem-puppetlabs_spec_helper
+
 BuildArch:      noarch
-Requires:       ruby >= 1.8
-Requires:       ruby-shadow
-Requires:       rubygem-json
-Requires:       facter >= 1.7.0
-Requires:       hiera >= 2.0.0
-Obsoletes:      hiera-puppet < 1.0.0
-Provides:       hiera-puppet >= 1.0.0
-Requires:       ruby-augeas
-Requires:       shadow-utils
 
 %if 0%{?_with_systemd}
 Requires:       systemd
@@ -68,11 +57,20 @@ Requires:       puppet = %{version}-%{release}
 Provides the central puppet server daemon which provides manifests to clients.
 The server can also function as a certificate authority and file server.
 
+
+%setup -q -c -T
+
 %prep
-%setup -q -n %{name}
+if [ -d %{name}-%{version} ];then
+    rm -rf %{name}-%{version}
+fi
+git clone %{repo} %{name}-%{version}
+cd %{name}-%{version}
+git submodule init
+git submodule update
 
 %build
-git pull
+cd %{name}-%{version}
 for f in external/nagios.rb relationship.rb; do
   sed -i -e '1d' lib/puppet/$f
 done
@@ -80,6 +78,7 @@ done
 find examples/ -type f | xargs --no-run-if-empty chmod a-x
 
 %install
+cd %{name}-%{version}
 rm -rf %{buildroot}
 ruby install.rb --destdir=%{buildroot} --quick --no-rdoc --sitelibdir=%{puppet_libdir} --bindir=%{puppet_bindir}
 %__mkdir_p %{buildroot}%{puppet_bindir}
@@ -139,13 +138,10 @@ install -Dp -m0644 ext/vim/ftplugin/puppet.vim $vimdir/ftplugin/puppet.vim
 mkdir -p %{buildroot}%{_sysconfdir}/NetworkManager/dispatcher.d
 cp -pr ext/puppet-nm-dispatcher %{buildroot}%{_sysconfdir}/NetworkManager/dispatcher.d/98-%{name}
 
-# Fixed uid/gid were assigned in bz 472073 (Fedora), 471918 (RHEL-5),
-# and 471919 (RHEL-4)
 %pre
 getent group puppet &>/dev/null || groupadd -r puppet -g 52 &>/dev/null
 getent passwd puppet &>/dev/null || \
-useradd -r -u 52 -g puppet -d %{_localstatedir}/lib/puppet -s /sbin/nologin \
-    -c "Puppet" puppet &>/dev/null
+useradd -r -u 52 -g puppet -d %{_localstatedir}/lib/puppet -s /sbin/nologin -c "Puppet" puppet &>/dev/null
 # ensure that old setups have the right puppet home dir
 if [ $1 -gt 1 ] ; then
   usermod -d %{_localstatedir}/lib/puppet puppet &>/dev/null
@@ -156,8 +152,6 @@ exit 0
 %if 0%{?_with_systemd}
 /bin/systemctl daemon-reload >/dev/null 2>&1 || :
 if [ "$1" -ge 1 ]; then
-  # The pidfile changed from 0.25.x to 2.6.x, handle upgrades without leaving
-  # the old process running.
   oldpid="%{_localstatedir}/run/puppet/puppetd.pid"
   newpid="%{_localstatedir}/run/puppet/agent.pid"
   if [ -s "$oldpid" -a ! -s "$newpid" ]; then
@@ -168,17 +162,12 @@ fi
 %else
 /sbin/chkconfig --add puppet || :
 if [ "$1" -ge 1 ]; then
-  # The pidfile changed from 0.25.x to 2.6.x, handle upgrades without leaving
-  # the old process running.
   oldpid="%{_localstatedir}/run/puppet/puppetd.pid"
   newpid="%{_localstatedir}/run/puppet/agent.pid"
   if [ -s "$oldpid" -a ! -s "$newpid" ]; then
     (kill $(< "$oldpid") && rm -f "$oldpid" && \
       /sbin/service puppet start) >/dev/null 2>&1 || :
   fi
-
-  # If an old puppet process (one whose binary is located in /sbin) is running,
-  # kill it and then start up a fresh with the new binary.
   if [ -e "$newpid" ]; then
     if ps aux | grep `cat "$newpid"` | grep -v grep | awk '{ print $12 }' | grep -q sbin; then
       (kill $(< "$newpid") && rm -f "$newpid" && \
@@ -192,8 +181,6 @@ fi
 %if 0%{?_with_systemd}
 /bin/systemctl daemon-reload >/dev/null 2>&1 || :
 if [ "$1" -ge 1 ]; then
-  # The pidfile changed from 0.25.x to 2.6.x, handle upgrades without leaving
-  # the old process running.
   oldpid="%{_localstatedir}/run/puppet/puppetmasterd.pid"
   newpid="%{_localstatedir}/run/puppet/master.pid"
   if [ -s "$oldpid" -a ! -s "$newpid" ]; then
@@ -297,6 +284,7 @@ fi
 %clean
 [ "%{buildroot}" != "/" ] && %__rm -rf %{buildroot}
 [ "%{_builddir}/%{name}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}
+[ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}
 
 %files
 %defattr(-, root, root, 0755)
