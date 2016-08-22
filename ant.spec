@@ -26,8 +26,12 @@ cp -R %{SOURCE1} %{buildroot}/etc/profile.d/ant_path.sh
 cp -R opt %{buildroot}/
 
 %clean
+[ "$RPM_BUILD_ROOT" != "/" ] && %__rm -rf $RPM_BUILD_ROOT
 [ "%{buildroot}" != "/" ] && %__rm -rf %{buildroot}
 [ "%{_builddir}/%{name}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}
+[ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}
+[ "%{_builddir}/%{realname}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{realname}-%{version}
+[ "%{_builddir}/%{realname}" != "/" ] && %__rm -rf %{_builddir}/%{realname}
 
 %files
 %defattr(-,root,www)

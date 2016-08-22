@@ -38,7 +38,6 @@ Requires:   libltdl = %{version}-%{release}
 This package contains static libraries and header files need for development.
 
 
-%setup -q -c -T
 %prep
 if [ -d %{name}-%{version} ];then
     rm -rf %{name}-%{version}
@@ -61,6 +60,7 @@ rm -rf %{buildroot}%{_infodir}/dir
 
 
 %clean
+[ "$RPM_BUILD_ROOT" != "/" ] && %__rm -rf $RPM_BUILD_ROOT
 [ "%{buildroot}" != "/" ] && %__rm -rf %{buildroot}
 [ "%{_builddir}/%{name}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}
 [ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}

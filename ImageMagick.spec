@@ -31,8 +31,9 @@ BuildRequires:	ghostscript-devel
 #BuildRequires: djvulibre-devel
 BuildRequires:	libwmf-devel, jasper-devel, libtool-ltdl-devel
 BuildRequires:	libX11-devel, libXext-devel, libXt-devel
-BuildRequires:	lcms2-devel, libxml2-devel, librsvg2-devel, OpenEXR-devel
-BuildRequires:	fftw-devel, OpenEXR-devel, libwebp-devel
+BuildRequires:	lcms2-devel, libxml2-devel
+#BuildRequires:  librsvg2-devel, OpenEXR-devel
+BuildRequires:	fftw-devel, libwebp-devel
 
 %description
 ImageMagick is an image display and manipulation tool for the X
@@ -56,7 +57,8 @@ Group:	Development/Libraries
 Requires:	%{name} = %{version}-%{release}
 Requires:	libX11-devel, libXext-devel, libXt-devel, ghostscript-devel
 Requires:	bzip2-devel, freetype-devel, libtiff-devel, libjpeg-devel, lcms2-devel
-Requires:	libwebp-devel, OpenEXR-devel, jasper-devel, pkgconfig
+Requires:	libwebp-devel, jasper-devel, pkgconfig
+#Requires:	librsvg, OpenEXR-devel
 Requires:	%{name}-libs = %{version}-%{release}
 
 %description devel
@@ -266,8 +268,10 @@ chmod a+x %{buildroot}/etc/profile.d/ImageMagick.sh
 #make %{?_smp_mflags} check
 
 %clean
+[ "$RPM_BUILD_ROOT" != "/" ] && %__rm -rf $RPM_BUILD_ROOT
 [ "%{buildroot}" != "/" ] && %__rm -rf %{buildroot}
 [ "%{_builddir}/%{name}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}
+[ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}
 
 %post libs -p /sbin/ldconfig
 

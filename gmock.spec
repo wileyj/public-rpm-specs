@@ -15,7 +15,7 @@ BuildRequires:  gtest-devel >= 1.6.0
 BuildRequires:  autoconf
 BuildRequires:  automake
 BuildRequires:  libtool
-BuildRequires:  python
+BuildRequires:  python27
 Requires:       gtest >= 1.6.0
 
 %description
@@ -56,8 +56,10 @@ rm -rf %{buildroot}
 make install INSTALL="%{__install} -p" DESTDIR=%{buildroot}
 
 %clean
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot} 
+[ "$RPM_BUILD_ROOT" != "/" ] && %__rm -rf $RPM_BUILD_ROOT
+[ "%{buildroot}" != "/" ] && %__rm -rf %{buildroot}
 [ "%{_builddir}/%{name}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}
+[ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}
 
 %post -p /sbin/ldconfig
 

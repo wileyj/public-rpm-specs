@@ -1,3 +1,6 @@
+%define macro %{_rpmconfigdir}/macros.d/macros.python
+BuildRequires: git python-srpm-macros
+%include %{macro}
 
 Summary: Tool to allow building RPM packages in chroots
 Name: mock
@@ -14,19 +17,11 @@ Patch0: mock-1.1.8-mknod.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 
 BuildArch: noarch
-%if 0%{?el6}
 BuildRequires: python27-devel
 Requires: python27 >= 2.4
 Requires: python27-ctypes
 Requires: python27-decoratortools
 Requires: python27-hashlib
-%else
-BuildRequires: python-devel
-Requires: python >= 2.4
-Requires: python-ctypes
-Requires: python-decoratortools
-Requires: python-hashlib
-%endif
 
 Requires: createrepo
 Requires: pigz
@@ -64,8 +59,10 @@ Mock takes an SRPM and builds it in a chroot
 %{?rh7: %{__ln_s} -f redhat-7-%{_arch}.cfg %{buildroot}%{_sysconfdir}/mock/default.cfg}
 
 %clean
+[ "$RPM_BUILD_ROOT" != "/" ] && %__rm -rf $RPM_BUILD_ROOT
 [ "%{buildroot}" != "/" ] && %__rm -rf %{buildroot}
 [ "%{_builddir}/%{name}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}
+[ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}
 
 %pre
 if [ $1 -eq 1 ]; then
@@ -81,11 +78,7 @@ fi
 %config(noreplace) %{_sysconfdir}/security/console.apps/mock
 %config %{_sysconfdir}/bash_completion.d/mock.bash
 %{_bindir}/mock
-%if 0%{?el6}
 %{python27_sitelib}/mock/
-%else
-%{python_sitelib}/mock/
-%endif
 
 %defattr(0755, root, root, 0755)
 %{_sbindir}/mock

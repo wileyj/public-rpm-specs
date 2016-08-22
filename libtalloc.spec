@@ -1,12 +1,6 @@
-%if 0%{?el6}
-%include %{_rpmconfigdir}/macros.d/macros.python27
-%global __python /usr/bin/python27
-%global __python27 /usr/bin/python27
-%else
-%include %{_rpmconfigdir}/macros.d/macros.python
-%global __python /usr/bin/python27
-%global __python27 /usr/bin/python27
-%endif
+%define macro %{_rpmconfigdir}/macros.d/macros.python
+BuildRequires: git python-srpm-macros
+%include %{macro}
 
 Name: libtalloc
 Version: 2.1.5
@@ -23,7 +17,7 @@ BuildRoot: %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 BuildRequires: autoconf
 BuildRequires: libxslt
 BuildRequires: docbook-style-xsl
-BuildRequires: python-devel
+BuildRequires: python27-devel
 BuildRequires: doxygen
 
 # Patches
@@ -86,8 +80,10 @@ rm -f $RPM_BUILD_ROOT/usr/share/swig/*/talloc.i
 cp -a doc/man/* $RPM_BUILD_ROOT/%{_mandir}
 
 %clean
+[ "$RPM_BUILD_ROOT" != "/" ] && %__rm -rf $RPM_BUILD_ROOT
 [ "%{buildroot}" != "/" ] && %__rm -rf %{buildroot}
 [ "%{_builddir}/%{name}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}
+[ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}
 
 %files
 %defattr(-,root,root,-)

@@ -36,9 +36,10 @@ rm -f %{buildroot}%{_infodir}/dir
 rm -rf %{buildroot}%{_datadir}/%{name}
 
 %clean
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot} 
+[ "$RPM_BUILD_ROOT" != "/" ] && %__rm -rf $RPM_BUILD_ROOT
+[ "%{buildroot}" != "/" ] && %__rm -rf %{buildroot}
 [ "%{_builddir}/%{name}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}
-
+[ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}
 
 %post
 /sbin/install-info %{_infodir}/%{name}.info.gz %{_infodir}/dir || :

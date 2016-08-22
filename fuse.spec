@@ -17,7 +17,7 @@ Patch2:         fuse-2.9.2-namespace-conflict-fix.patch
 # dropped as they conflict
 Patch3:         0001-libfuse-pass-security-context-options-to-kernel.patch
 Requires:       which
-Conflicts:      filesystem < 3
+#Conflicts:      filesystem < 3
 BuildRequires:  libselinux-devel
 
 %description
@@ -29,7 +29,7 @@ mount a FUSE filesystem.
 Summary:        File System in Userspace (FUSE) libraries
 Group:          System Environment/Libraries
 License:        LGPLv2+
-Conflicts:      filesystem < 3
+#Conflicts:      filesystem < 3
 
 %description libs
 Devel With FUSE it is possible to implement a fully functional filesystem in a
@@ -42,7 +42,7 @@ Group:          Development/Libraries
 Requires:       %{name}-libs = %{version}-%{release}
 Requires:       pkgconfig
 License:        LGPLv2+
-Conflicts:      filesystem < 3
+#Conflicts:      filesystem < 3
 
 %description devel
 With FUSE it is possible to implement a fully functional filesystem in a
@@ -84,6 +84,12 @@ rm -f %{buildroot}%{_sysconfdir}/udev/rules.d/99-fuse.rules
 %post libs -p /sbin/ldconfig
 
 %postun libs -p /sbin/ldconfig
+
+%clean
+[ "$RPM_BUILD_ROOT" != "/" ] && %__rm -rf $RPM_BUILD_ROOT
+[ "%{buildroot}" != "/" ] && %__rm -rf %{buildroot}
+[ "%{_builddir}/%{name}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}
+[ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}
 
 %files
 %doc AUTHORS ChangeLog COPYING FAQ Filesystems NEWS README README.NFS

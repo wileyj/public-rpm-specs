@@ -33,7 +33,10 @@ make install DESTDIR=%{buildroot}
 rm -rf %{buildroot}%{_infodir}/dir
 
 %clean
-rm -rf %{buildroot}
+[ "$RPM_BUILD_ROOT" != "/" ] && %__rm -rf $RPM_BUILD_ROOT
+[ "%{buildroot}" != "/" ] && %__rm -rf %{buildroot}
+[ "%{_builddir}/%{name}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}
+[ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}
 
 %post
 /sbin/install-info %{_infodir}/automake.info.gz %{_infodir}/dir || :

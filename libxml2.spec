@@ -1,3 +1,7 @@
+%define macro %{_rpmconfigdir}/macros.d/macros.python
+BuildRequires: git python-srpm-macros
+%include %{macro}
+
 %global with_python3 0
 
 Summary: Library providing XML and HTML support
@@ -8,11 +12,7 @@ License: MIT
 Group: Development/Libraries
 Source: ftp://xmlsoft.org/libxml2/libxml2.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
-%if 0%{?el6}
 BuildRequires: python27-devel
-%else
-BuildRequires: python-devel
-%endif
 
 %if 0%{?with_python3}
 BuildRequires: python3-devel
@@ -64,7 +64,7 @@ Requires: libxml2 = %{version}-%{release}
 Static library for libxml2 provided for specific uses or shaving a few
 microseconds when parsing, do not link to them for generic purpose packages.
 
-%package -n python-%{name}
+%package -n %{name}-python27
 Summary: Python bindings for the libxml2 library
 Group: Development/Libraries
 Requires: libxml2 = %{version}-%{release}
@@ -72,7 +72,7 @@ Obsoletes: %{name}-python < 2.9.2-6
 Provides: %{name}-python = %{version}-%{release}
 Provides: %{name}-python27 = %{version}-%{release}
 
-%description -n python-%{name}
+%description -n %{name}-python27
 The libxml2-python package contains a Python 2 module that permits applications
 written in the Python programming language, version 2, to use the interface
 supplied by the libxml2 library to manipulate XML files.
@@ -113,7 +113,7 @@ cp doc/*.py py3doc
 sed -i 's|#!/usr/bin/python |#!%{__python3} |' py3doc/*.py
 
 %build
-git pull
+#git pull
 %configure
 make %{_smp_mflags}
 
@@ -145,7 +145,10 @@ gzip -9 -c doc/libxml2-api.xml > doc/libxml2-api.xml.gz
 #make runtests
 
 %clean
-rm -fr %{buildroot}
+[ "$RPM_BUILD_ROOT" != "/" ] && %__rm -rf $RPM_BUILD_ROOT
+[ "%{buildroot}" != "/" ] && %__rm -rf %{buildroot}
+[ "%{_builddir}/%{name}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}
+[ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}
 
 %post -p /sbin/ldconfig
 
@@ -193,7 +196,7 @@ rm -fr %{buildroot}
 
 %{_libdir}/*a
 
-%files -n python-%{name}
+%files -n %{name}-python27
 %defattr(-, root, root)
 %{_libdir}/python2*/site-packages/libxml2.py*
 %{_libdir}/python2*/site-packages/drv_libxml2.py*

@@ -1,11 +1,5 @@
-%if 0%{?el6}
-    %define macro %{_rpmconfigdir}/macros.d/macros.python27
-    %global __python /usr/bin/python27
-%else
-    %define macro %{_rpmconfigdir}/macros.d/macros.python
-    %global __python /usr/bin/python
-%endif
-
+%define macro %{_rpmconfigdir}/macros.d/macros.python
+BuildRequires: git python-srpm-macros
 %include %{macro}
 
 Name:           gyp
@@ -20,15 +14,9 @@ URL:            https://gyp.gsrc.io/
 Source0:        %{name}.tar.gz
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildArch:      noarch
-%if 0%{?el6}
 BuildRequires:  python27-devel
 BuildRequires:  python27-setuptools
 Requires:       python27
-%else
-BuildRequires:  python-devel
-BuildRequires:  python-setuptools
-Requires:       python
-%endif
 
 %description
 GYP is intended to support large projects that need to be built on multiple platforms (e.g., Mac, Windows, Linux), and where it is important that the project can be built using the IDEs that are popular on each platform as if the project is a “native” one.
@@ -50,6 +38,7 @@ rm -rf $RPM_BUILD_ROOT
 
  
 %clean
+[ "$RPM_BUILD_ROOT" != "/" ] && %__rm -rf $RPM_BUILD_ROOT
 [ "%{buildroot}" != "/" ] && %__rm -rf %{buildroot}
 [ "%{_builddir}/%{name}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}
 [ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}

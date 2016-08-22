@@ -8,7 +8,7 @@ URL:        https://github.com/open-source-parsers/jsoncpp
 Source0:    %{name}.tar.gz
 Source1:    jsoncpp.pc
 
-BuildRequires:  python scons doxygen
+BuildRequires:  python27 scons doxygen
 BuildRequires:  graphviz
 
 %description
@@ -70,6 +70,12 @@ sed -i 's|@@LIBDIR@@|%{_libdir}|g' $RPM_BUILD_ROOT%{_libdir}/pkgconfig/jsoncpp.p
 
 %post -p /sbin/ldconfig
 %postun -p /sbin/ldconfig
+
+%clean
+[ "$RPM_BUILD_ROOT" != "/" ] && %__rm -rf $RPM_BUILD_ROOT
+[ "%{buildroot}" != "/" ] && %__rm -rf %{buildroot}
+[ "%{_builddir}/%{name}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}
+[ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}
 
 %files
 %{_docdir}/%{name}/

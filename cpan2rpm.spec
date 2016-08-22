@@ -18,12 +18,8 @@ requires:  %([ -e /etc/SuSE-release -o -e /etc/UnitedLinux-release ] && SuSE=1;v
 BuildRequires: perl-libwww-perl, perl-HTTP-Lite
 Requires: perl-libwww-perl, perl-HTTP-Lite
 source:    cpan2rpm-2.028.tar.gz
-%if 0%{?el6}
 buildarch: x86_64
 BuildRequires: perl, perl-devel, perl-libs, perl-ExtUtils-MakeMaker
-%else
-buildarch: noarch
-%endif
 
 %description
 This script generates an RPM package from a Perl module.  It uses the standard RPM file structure and creates a spec file, a source RPM, and a binary, leaving these in their respective directories.
@@ -114,8 +110,10 @@ find %{buildroot}%{_prefix}             \
     }
 
 %clean
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot} 
+[ "$RPM_BUILD_ROOT" != "/" ] && %__rm -rf $RPM_BUILD_ROOT
+[ "%{buildroot}" != "/" ] && %__rm -rf %{buildroot}
 [ "%{_builddir}/%{name}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}
+[ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}
 
 %files -f %filelist
 %defattr(-,root,root)

@@ -41,7 +41,6 @@ The openjpeg-devel package contains libraries and header files for
 developing applications that use OpenJPEG.
 
 %prep 
-%setup -q -c -T
 
 if [ -d %{name}-%{version} ];then
     rm -rf %{name}-%{version}
@@ -66,6 +65,7 @@ install -m 0644  src/lib/openjp2/openjpeg.h %{buildroot}%{_includedir}/%{bname}-
 
 
 %clean
+[ "$RPM_BUILD_ROOT" != "/" ] && %__rm -rf $RPM_BUILD_ROOT
 [ "%{buildroot}" != "/" ] && %__rm -rf %{buildroot}
 [ "%{_builddir}/%{name}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}
 [ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}

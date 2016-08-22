@@ -8,6 +8,7 @@ Release:	15%{?hgdate:.hg%{hgdate}}.%{dist}
 License:	GPLv2+ or LGPLv2+ or MPLv1.1
 Vendor: %{vendor}
 Packager: %{packager}
+BuildArch:	x86_64
 Group:		Development/Languages
 URL:		http://www.mozilla.org/js/
 Source0:	http://ftp.mozilla.org/pub/mozilla.org/js/js185-1.0.0.tar.gz
@@ -21,7 +22,7 @@ Provides:	libjs = %{version}-%{release}
 Provides:   libjs.so.1
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root
 Buildrequires:	nspr-devel >= 4.7
-BuildRequires:	python
+BuildRequires:	python27
 BuildRequires:	zip
 Buildrequires:	libedit-devel
 BuildRequires:	ncurses-devel
@@ -64,9 +65,9 @@ cd js
 #rm -rf src/assembler src/yarr/yarr src/yarr/pcre src/yarr/wtf src/v8-dtoa
 rm -rf src/ctypes/libffi src/t src/tests/src/jstests.jar src/tracevis src/v8
 
-pushd src
+#pushd src
 #autoconf
-popd
+#popd
 
 # Create pkgconfig file
 cat > libjs.pc << 'EOF'
@@ -87,7 +88,10 @@ EOF
 %build
 cd js/src
 CPPFLAGS="$(pkg-config --cflags libedit)" \
-%configure \
+./configure \
+    --bindir=%{_bindir} \
+    --libdir=%{_libdir} \
+    --includedir=%{_includedir} \
     --with-system-nspr \
     --enable-threadsafe \
     --enable-readline
@@ -99,13 +103,15 @@ cd js
 make -C src install DESTDIR=%{buildroot}
 # We don't want this
 rm -f %{buildroot}%{_bindir}/js-config
-install -m 0755 src/jscpucfg src/shell/js \
-       %{buildroot}%{_bindir}/
+%{__install} -d -m0755 %{buildroot}%{_bindir}
+%{__install} -d -m0755 %{buildroot}%{_libdir}
+%{__install} -d -m0755 %{buildroot}%{_libdir}/pkgconfig
+%{__install} -m0755 src/jscpucfg %{buildroot}%{_bindir}/%{name}cpucfg
+%{__install} -m0755 src/shell/js %{buildroot}%{_bindir}/%{name}
+%{__install} -m0644 libjs.pc %{buildroot}%{_libdir}/pkgconfig/libjs.pc
 rm -rf %{buildroot}%{_libdir}/*.a
 rm -rf %{buildroot}%{_libdir}/*.la
 
-# For compatibility
-# XXX do we really need libjs?!?!?!
 pushd %{buildroot}%{_libdir}
 ln -s libmozjs185.so.1.0 libmozjs.so.1
 ln -s libmozjs185.so.1.0 libjs.so.1
@@ -113,11 +119,12 @@ ln -s libmozjs185.so libmozjs.so
 ln -s libmozjs185.so libjs.so
 popd
 
-install -m 0644 libjs.pc %{buildroot}%{_libdir}/pkgconfig/
 
 %clean
+[ "$RPM_BUILD_ROOT" != "/" ] && %__rm -rf $RPM_BUILD_ROOT
 [ "%{buildroot}" != "/" ] && %__rm -rf %{buildroot}
 [ "%{_builddir}/%{name}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}
+[ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}
 
 %post -p /sbin/ldconfig
 

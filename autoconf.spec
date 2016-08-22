@@ -10,7 +10,7 @@ Source:		http://ftp.gnu.org/gnu/autoconf/autoconf-%{version}.tar.gz
 Patch0:     	autoconf-2.59-intrinsic.patch
 Patch1:		autoconf-2.59-lock.patch
 URL:		http://www.gnu.org/software/autoconf/
-BuildRequires:	sed, m4, emacs
+BuildRequires:	sed, m4
 Requires:	gawk, m4, mktemp, perl, textutils, imake
 BuildRequires: 	help2man
 BuildArch:	noarch
@@ -57,8 +57,10 @@ rm -rf ${RPM_BUILD_ROOT}
 rm -f $RPM_BUILD_ROOT%{_infodir}/dir
 
 %clean
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot} 
+[ "$RPM_BUILD_ROOT" != "/" ] && %__rm -rf $RPM_BUILD_ROOT
+[ "%{buildroot}" != "/" ] && %__rm -rf %{buildroot}
 [ "%{_builddir}/%{name}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}
+[ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}
 
 %post
 /sbin/install-info %{_infodir}/autoconf.info.gz %{_infodir}/dir
@@ -75,8 +77,8 @@ fi
 # don't include standards.info, because it comes from binutils...
 %exclude %{_infodir}/standards*
 %{_datadir}/autoconf
-%{_datadir}/emacs/site-lisp
 %{_mandir}/man1/*
 %doc AUTHORS COPYING ChangeLog NEWS README THANKS TODO
-
+%{_datadir}/emacs/site-lisp/autoconf-mode.*
+%{_datadir}/emacs/site-lisp/autotest-mode.*
 %changelog

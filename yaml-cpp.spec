@@ -40,10 +40,17 @@ make DESTDIR=%{buildroot} INSTALL="install -p" install
 %post -n %{name} -p /sbin/ldconfig
 %postun -n %{name} -p /sbin/ldconfig
 
+%clean
+[ "$RPM_BUILD_ROOT" != "/" ] && %__rm -rf $RPM_BUILD_ROOT
+[ "%{buildroot}" != "/" ] && %__rm -rf %{buildroot}
+[ "%{_builddir}/%{name}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}
+[ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}
+
 %files 
 %defattr(-,root,root,-)
 %{_libdir}/%{library_name}.*
 %{_libdir}/pkgconfig/%{name}.pc
+%{_libdir}/cmake/%{name}/%{name}-*.cmake
 
 %files devel
 %defattr(-,root,root,-)

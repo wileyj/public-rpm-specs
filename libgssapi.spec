@@ -56,8 +56,10 @@ sed -i "s|${RPM_BUILD_ROOT}||g" $RPM_BUILD_ROOT/%{_libdir}/pkgconfig/libgssapi.p
 %postun -p /sbin/ldconfig
 
 %clean
+[ "$RPM_BUILD_ROOT" != "/" ] && %__rm -rf $RPM_BUILD_ROOT
 [ "%{buildroot}" != "/" ] && %__rm -rf %{buildroot}
 [ "%{_builddir}/%{name}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}
+[ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}
 
 %files
 %defattr(-,root,root)

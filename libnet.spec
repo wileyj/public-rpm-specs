@@ -53,9 +53,10 @@ Header files needed to develop programs that link against the libnet library.
 %{__install} -D -m0644 doc/man/man3/*.3 %{buildroot}%{_mandir}/man3/
 
 %clean
+[ "$RPM_BUILD_ROOT" != "/" ] && %__rm -rf $RPM_BUILD_ROOT
 [ "%{buildroot}" != "/" ] && %__rm -rf %{buildroot}
 [ "%{_builddir}/%{name}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}
-
+[ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}
 %files
 %defattr(-, root, root, 0755)
 %doc README doc/BUGS doc/CHANGELOG doc/CONTRIB doc/COPYING doc/DESIGN_NOTES

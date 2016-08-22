@@ -1,24 +1,26 @@
+%define repo https://github.com/jenkinsci/jenkins.git
 %define _prefix	/opt/jenkins
 %define workdir	/opt/jenkins/home
+%define gitversion %(echo `curl -s https://github.com/jenkinsci/jenkins/releases | grep 'class="tag-name"' | head -1 |  tr -d '\\-</span class="tag-name">'`)
 
 Name:		jenkins
-Version:	1.645
-Release:	1.%{dist}
+Version:	%{gitversion}
+Release:	2.%{dist}
 Summary:	Continous Build Server
-Source:		jenkins.war
-Source1:	jenkins.init.in
-Source2:	jenkins.sysconfig.in
+#Source:		jenkins.war
+Source1:	jenkins.init
+Source2:	jenkins.sysconfig
 Source3:	jenkins.logrotate
 URL:		http://jenkins-ci.org/
 Group:		Development/Tools/Building
 License:	MIT/X License, GPL/CDDL, ASL2
-Vendor: %{vendor}
-Packager: %{packager}
+Vendor: 	%{vendor}
+Packager: 	%{packager}
 BuildRoot:	%{_tmppath}/build-%{name}-%{version}
 Obsoletes:  	hudson
-Requires:	/usr/sbin/lgroupadd /usr/sbin/luseradd
-BuildArch:	noarch
-Requires: 	jdk
+BuildRequires:	apache-maven
+Requires:	/usr/sbin/lgroupadd /usr/sbin/luseradd jdk jenkins-blueocean
+BuildArch:	x86_64
 
 %description
 Jenkins monitors executions of repeated jobs, such as building a software
@@ -37,34 +39,44 @@ following two jobs:
 
 
 
-
 Authors:
 --------
     Kohsuke Kawaguchi <Kohsuke.Kawaguchi@sun.com>
 
 %prep
-%setup -q -T -c
+if [ -d %{name}-%{version} ];then
+    rm -rf %{name}-%{version}
+fi
+git clone %{repo} %{name}-%{version}
+cd %{name}-%{version}
+git submodule init
+git submodule update
 
 %build
+cd %{name}-%{version}
+mvn -Plight-test install
 
 %install
-rm -rf "%{buildroot}"
-%__install -D -m0644 "%{SOURCE0}" "%{buildroot}%{_prefix}/%{name}.war"
-%__install -d "%{buildroot}%{workdir}"
-%__install -d "%{buildroot}%{workdir}/plugins"
+cd %{name}-%{version}
+rm -rf %{buildroot}
 
-%__install -d "%{buildroot}/var/log/jenkins"
-%__install -d "%{buildroot}/var/cache/jenkins"
+%__install -d %{buildroot}%{_prefix}
+%__install -D -m0644 war/target/jenkins.war %{buildroot}%{_prefix}/%{name}.war
+%__install -d %{buildroot}%{workdir}
+%__install -d %{buildroot}%{workdir}/plugins
 
-%__install -D -m0755 "%{SOURCE1}" "%{buildroot}/etc/init.d/%{name}"
-%__sed -i 's,@@WAR@@,%{_prefix}/%{name}.war,g' "%{buildroot}/etc/init.d/%{name}"
-%__install -d "%{buildroot}/usr/sbin"
-%__ln_s "../../etc/init.d/%{name}" "%{buildroot}/usr/sbin/rc%{name}"
+%__install -d %{buildroot}/var/log/jenkins
+%__install -d %{buildroot}/var/cache/jenkins
 
-%__install -D -m0600 "%{SOURCE2}" "%{buildroot}/etc/sysconfig/%{name}"
-%__sed -i 's,@@HOME@@,%{workdir},g' "%{buildroot}/etc/sysconfig/%{name}"
+%__install -D -m0755 %{SOURCE1} %{buildroot}/etc/init.d/%{name}
+%__sed -i 's,@@WAR@@,%{_prefix}/%{name}.war,g' %{buildroot}/etc/init.d/%{name}
+%__install -d %{buildroot}/usr/sbin
+%__ln_s ../../etc/init.d/%{name} %{buildroot}/usr/sbin/rc%{name}
 
-%__install -D -m0644 "%{SOURCE3}" "%{buildroot}/etc/logrotate.d/%{name}"
+%__install -D -m0600 %{SOURCE2} %{buildroot}/etc/sysconfig/%{name}
+%__sed -i 's,@@HOME@@,%{workdir},g' %{buildroot}/etc/sysconfig/%{name}
+
+%__install -D -m0644 %{SOURCE3} %{buildroot}/etc/logrotate.d/%{name}
 
 %pre
 /usr/sbin/lgroupadd -r jenkins &>/dev/null || :
@@ -105,9 +117,11 @@ if [ "$1" -ge 1 ]; then
 fi
 exit 0
 
-%clean
-[ "%{buildroot}" != "/" ] && %__rm -rf %{buildroot}
-[ "%{_builddir}/%{name}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}
+#%clean
+#[ "$RPM_BUILD_ROOT" != "/" ] && %__rm -rf $RPM_BUILD_ROOT
+#[ "%{buildroot}" != "/" ] && %__rm -rf %{buildroot}
+#[ "%{_builddir}/%{name}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}
+#[ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}
 
 %files
 %defattr(-,root,root)
