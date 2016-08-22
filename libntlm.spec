@@ -44,9 +44,10 @@ find $RPM_BUILD_ROOT -name '*.la' -exec rm -f {} ';'
 
 
 %clean
+[ "$RPM_BUILD_ROOT" != "/" ] && %__rm -rf $RPM_BUILD_ROOT
 [ "%{buildroot}" != "/" ] && %__rm -rf %{buildroot}
 [ "%{_builddir}/%{name}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}
-
+[ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}
 %post -p /sbin/ldconfig
 
 %postun -p /sbin/ldconfig

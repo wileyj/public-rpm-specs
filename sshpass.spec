@@ -25,8 +25,10 @@ make %{?_smp_mflags}
 make DESTDIR=%{buildroot} install
 
 %clean
+[ "$RPM_BUILD_ROOT" != "/" ] && %__rm -rf $RPM_BUILD_ROOT
 [ "%{buildroot}" != "/" ] && %__rm -rf %{buildroot}
 [ "%{_builddir}/%{name}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}
+[ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}
 
 %files
 %{_bindir}/sshpass

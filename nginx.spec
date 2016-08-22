@@ -35,13 +35,15 @@ Source6: nginx.vh.example_ssl.conf
 Source7: nginx.suse.init
 Source8: nginx.service
 Source9: nginx.upgrade.sh
-Source10: nginx.conf
+Source10: logging.conf
+Source11: status.conf
+Source12: virtual.conf
 License: 2-clause BSD-like license
 Vendor: %{vendor}
 Packager: %{packager}
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires: zlib-devel
-BuildRequires: pcre-devel
+BuildRequires: pcre-devel GeoIP-devel
 Provides: webserver
 
 %description
@@ -115,9 +117,11 @@ make %{?_smp_mflags}
 %{__mkdir} -p $RPM_BUILD_ROOT%{prefix}/sites-enabled
 %{__rm} $RPM_BUILD_ROOT%{prefix}/nginx.conf
 %{__install} -m 644 -p %{SOURCE4} $RPM_BUILD_ROOT%{prefix}/nginx.conf
-%{__install} -m 644 -p %{SOURCE5} $RPM_BUILD_ROOT%{prefix}/conf.d/default.conf
-%{__install} -m 644 -p %{SOURCE6} $RPM_BUILD_ROOT%{prefix}/conf.d/example_ssl.conf
+#%{__install} -m 644 -p %{SOURCE5} $RPM_BUILD_ROOT%{prefix}/conf.d/default.conf
+#%{__install} -m 644 -p %{SOURCE6} $RPM_BUILD_ROOT%{prefix}/conf.d/example_ssl.conf
 %{__install} -m 644 -p %{SOURCE10} $RPM_BUILD_ROOT%{prefix}/conf.d/logging.conf
+%{__install} -m 644 -p %{SOURCE11} $RPM_BUILD_ROOT%{prefix}/conf.d/status.conf
+%{__install} -m 644 -p %{SOURCE12} $RPM_BUILD_ROOT%{prefix}/conf.d/virtual.conf
 %{__mkdir} -p $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig
 %{__install} -m 644 -p %{SOURCE3} $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig/nginx
 
@@ -133,6 +137,7 @@ make %{?_smp_mflags}
 %{__mkdir} -p $RPM_BUILD_ROOT%{_sysconfdir}/logrotate.d
 %{__install} -m 644 -p %{SOURCE1} $RPM_BUILD_ROOT%{_sysconfdir}/logrotate.d/nginx
 #%{__install} -m644 %{_builddir}/%{name}/objs/nginx.debug $RPM_BUILD_ROOT%{_sbindir}/nginx.debug
+
 
 ln -s %{prefix} %{buildroot}%{_sysconfdir}/%{name}
 
@@ -204,9 +209,10 @@ if [ $1 -ge 1 ]; then
 fi
 
 %clean
+[ "$RPM_BUILD_ROOT" != "/" ] && %__rm -rf $RPM_BUILD_ROOT
 [ "%{buildroot}" != "/" ] && %__rm -rf %{buildroot}
 [ "%{_builddir}/%{name}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}
-[ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}
+[ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name} 
 
 %files
 %defattr(-,root,root)
@@ -215,8 +221,10 @@ fi
 %dir %{prefix}/sites-available
 %dir %{prefix}/sites-enabled
 %config(noreplace) %{prefix}/%{name}.conf
-%config(noreplace) %{prefix}/conf.d/default.conf
-%config(noreplace) %{prefix}/conf.d/example_ssl.conf
+%config(noreplace) %{prefix}/conf.d/virtual.conf
+%config(noreplace) %{prefix}/conf.d/logging.conf
+%config(noreplace) %{prefix}/conf.d/status.conf
+#%config(noreplace) %{prefix}/conf.d/example_ssl.conf
 %config(noreplace) %{prefix}/conf.d/logging.conf
 %config(noreplace) %{prefix}/mime.types
 %config(noreplace) %{prefix}/fastcgi_params

@@ -1,3 +1,5 @@
+%define repo https://github.com/vim/vim.git
+
 %define patchlevel 909
 %define WITH_SELINUX 0
 %define desktop_file 0
@@ -7,22 +9,19 @@
 %define withruby 1
 %define baseversion 7.4
 %define vimdir vim74
+%define realname vim
 
 Summary: The VIM editor
-Name: vim
+Name: git-vim
 Version: %{baseversion}.%{patchlevel}
 Release: 3.%{?dist}
 License: Vim
 Group: Applications/Editors
-URL: https://github.com/%{name}/%{name}.git
-Source0: vim-%{baseversion}.tar.gz
-Source4: vimrc
-Source12: vi_help.txt
-Source14: spec-template
-Source15: spec-template.new
+URL: https://github.com/%{realname}/%{realname}.git
+Source1: vimrc
 
-Buildroot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-BuildRequires: python-devel ncurses-devel gettext perl-devel
+Buildroot: %{_tmppath}/%{realname}-%{version}-%{release}-root-%(%{__id_u} -n)
+BuildRequires: python27-devel ncurses-devel gettext perl-devel
 BuildRequires: perl-ExtUtils-Embed perl-ExtUtils-ParseXS
 BuildRequires: libacl-devel gpm-devel autoconf
 Buildrequires: ruby-devel ruby
@@ -41,7 +40,7 @@ Group: Applications/Editors
 Conflicts: man-pages-fr < 0.9.7-14
 Conflicts: man-pages-it < 0.3.0-17
 Conflicts: man-pages-pl < 0.24-2
-Requires: %{name}-filesystem
+Requires: %{realname}-filesystem
 
 %description common
 VIM (VIsual editor iMproved) is an updated and improved version of the
@@ -107,14 +106,24 @@ Group: Applications/Editors
 This package provides some directories which are required by other
 packages that add vim files, p.e.  additional syntax files or filetypes.
 
+#%setup -q -b 0 -n %{vimdir}
+#git clone https://github.com/vim/vim.git
+
+
 %prep
-%setup -q -b 0 -n %{vimdir}
+if [ -d %{realname}-%{version} ];then
+    rm -rf %{realname}-%{version}
+fi
+git clone %{repo} %{realname}-%{version}
+cd %{realname}-%{version}
+git submodule init
+git submodule update
+
 chmod -x runtime/tools/mve.awk
 perl -pi -e "s,bin/nawk,bin/awk,g" runtime/tools/mve.awk
 
 %build
-git pull
-cd src
+cd %{realname}-%{version}/src
 autoconf
 
 sed -e "s+VIMRCLOC  = \$(VIMLOC)+VIMRCLOC   = /etc+" Makefile > Makefile.tmp
@@ -142,15 +151,11 @@ cp vim enhanced-vim
 make clean
 
 %install
+cd %{realname}-%{version}
 rm -rf %{buildroot}
 mkdir -p %{buildroot}/%{_bindir}
-mkdir -p %{buildroot}/%{_datadir}/%{name}/vimfiles/{after,autoload,colors,compiler,doc,ftdetect,ftplugin,indent,keymap,lang,plugin,print,spell,syntax,tutor}
-mkdir -p %{buildroot}/%{_datadir}/%{name}/vimfiles/after/{autoload,colors,compiler,doc,ftdetect,ftplugin,indent,keymap,lang,plugin,print,spell,syntax,tutor}
-%if %{?fedora}%{!?fedora:0} >= 16 || %{?rhel}%{!?rhel:0} >= 6
-    cp -f %{SOURCE15} %{buildroot}/%{_datadir}/%{name}/vimfiles/template.spec
-%else
-    cp -f %{SOURCE14} %{buildroot}/%{_datadir}/%{name}/vimfiles/template.spec
-%endif
+mkdir -p %{buildroot}/%{_datadir}/%{realname}/vimfiles/{after,autoload,colors,compiler,doc,ftdetect,ftplugin,indent,keymap,lang,plugin,print,spell,syntax,tutor}
+mkdir -p %{buildroot}/%{_datadir}/%{realname}/vimfiles/after/{autoload,colors,compiler,doc,ftdetect,ftplugin,indent,keymap,lang,plugin,print,spell,syntax,tutor}
 cp runtime/doc/uganda.txt LICENSE
 rm -f README*.info
 
@@ -176,11 +181,11 @@ install -m755 enhanced-vim %{buildroot}%{_bindir}/vim
     ln -sf vim.1.gz .%{_mandir}/man1/rvi.1.gz
     ln -sf vim.1.gz .%{_mandir}/man1/vimdiff.1.gz
     ( 
-        cd ./%{_datadir}/%{name}/%{vimdir}/lang; ln -sf menu_ja_jp.ujis.vim menu_ja_jp.eucjp.vim 
+        cd ./%{_datadir}/%{realname}/%{vimdir}/lang; ln -sf menu_ja_jp.ujis.vim menu_ja_jp.eucjp.vim 
     )
 )
 
-pushd %{buildroot}/%{_datadir}/%{name}/%{vimdir}/tutor
+pushd %{buildroot}/%{_datadir}/%{realname}/%{vimdir}/tutor
 mkdir conv
    iconv -f CP1252 -t UTF8 tutor.ca > conv/tutor.ca
    iconv -f CP1252 -t UTF8 tutor.it > conv/tutor.it
@@ -200,7 +205,7 @@ mv -f conv/* .
 rmdir conv
 popd
 
-chmod 644 %{buildroot}/%{_datadir}/%{name}/%{vimdir}/doc/vim2html.pl %{buildroot}/%{_datadir}/%{name}/%{vimdir}/tools/*.pl %{buildroot}/%{_datadir}/%{name}/%{vimdir}/tools/vim132
+chmod 644 %{buildroot}/%{_datadir}/%{realname}/%{vimdir}/doc/vim2html.pl %{buildroot}/%{_datadir}/%{realname}/%{vimdir}/tools/*.pl %{buildroot}/%{_datadir}/%{realname}/%{vimdir}/tools/vim132
 chmod 644 ../runtime/doc/vim2html.pl
 
 mkdir -p %{buildroot}/%{_sysconfdir}/profile.d
@@ -219,18 +224,14 @@ if ( -x /usr/bin/id ) then
     endif
 endif
 EOF
-chmod 0644 %{buildroot}/%{_sysconfdir}/profile.d/*
-install -p -m644 %{SOURCE4} %{buildroot}/%{_sysconfdir}/vimrc
-install -p -m644 %{SOURCE4} %{buildroot}/%{_sysconfdir}/virc
-%if %{?rhel}%{!?rhel:0} >= 7
-    sed -i -e "s/augroup fedora/augroup redhat/" %{buildroot}/%{_sysconfdir}/vimrc
-    sed -i -e "s/augroup fedora/augroup redhat/" %{buildroot}/%{_sysconfdir}/virc
-%endif
+mkdir -p %{buildroot}/%{_sysconfdir}/profile.d
+install -p -m644 %{SOURCE1} %{buildroot}/%{_sysconfdir}/vimrc
+install -p -m644 %{SOURCE1} %{buildroot}/%{_sysconfdir}/virc
+
 (
-    cd %{buildroot}/%{_datadir}/%{name}/%{vimdir}/doc;
+    cd %{buildroot}/%{_datadir}/%{realname}/%{vimdir}/doc;
     gzip -9 *.txt
     gzip -d help.txt.gz version7.txt.gz sponsor.txt.gz
-    cp %{SOURCE12} .
     cat tags | sed -e 's/\t\(.*.txt\)\t/\t\1.gz\t/;s/\thelp.txt.gz\t/\thelp.txt\t/;s/\tversion7.txt.gz\t/\tversion7.txt\t/;s/\tsponsor.txt.gz\t/\tsponsor.txt\t/' > tags.new; mv -f tags.new tags
 cat >> tags << EOF
 vi_help.txt vi_help.txt /*vi_help.txt*
@@ -273,21 +274,21 @@ echo ".so man1/vim.1" > %{buildroot}/%{_mandir}/man1/rvim.1
 mkdir -p %{buildroot}/%{_mandir}/man5
 echo ".so man1/vim.1" > %{buildroot}/%{_mandir}/man5/virc.5
 echo ".so man1/vim.1" > %{buildroot}/%{_mandir}/man5/vimrc.5
-touch %{buildroot}/%{_datadir}/%{name}/vimfiles/doc/tags
+touch %{buildroot}/%{_datadir}/%{realname}/vimfiles/doc/tags
 
 # delete files we don't want
-rm -rf %{buildroot}%{_datadir}/%{name}/%{vimdir}/spell/check_locales.vim
-rm -rf %{buildroot}%{_datadir}/%{name}/%{vimdir}/spell/cleanadd.vim
-rm -rf %{buildroot}%{_datadir}/%{name}/%{vimdir}/spell/en.ascii.spl
-rm -rf %{buildroot}%{_datadir}/%{name}/%{vimdir}/spell/en.ascii.sug
-rm -rf %{buildroot}%{_datadir}/%{name}/%{vimdir}/spell/en.latin1.spl
-rm -rf %{buildroot}%{_datadir}/%{name}/%{vimdir}/spell/en.latin1.sug
-rm -rf %{buildroot}%{_datadir}/%{name}/%{vimdir}/spell/en.utf-8.spl
-rm -rf %{buildroot}%{_datadir}/%{name}/%{vimdir}/spell/en.utf-8.sug
-rm -rf %{buildroot}%{_datadir}/%{name}/%{vimdir}/spell/fixdup.vim
-rm -rf %{buildroot}%{_datadir}/%{name}/%{vimdir}/spell/he.vim
-rm -rf %{buildroot}%{_datadir}/%{name}/%{vimdir}/spell/spell.vim
-rm -rf %{buildroot}%{_datadir}/%{name}/%{vimdir}/spell/yi.vim;
+rm -rf %{buildroot}%{_datadir}/%{realname}/%{vimdir}/spell/check_locales.vim
+rm -rf %{buildroot}%{_datadir}/%{realname}/%{vimdir}/spell/cleanadd.vim
+rm -rf %{buildroot}%{_datadir}/%{realname}/%{vimdir}/spell/en.ascii.spl
+rm -rf %{buildroot}%{_datadir}/%{realname}/%{vimdir}/spell/en.ascii.sug
+rm -rf %{buildroot}%{_datadir}/%{realname}/%{vimdir}/spell/en.latin1.spl
+rm -rf %{buildroot}%{_datadir}/%{realname}/%{vimdir}/spell/en.latin1.sug
+rm -rf %{buildroot}%{_datadir}/%{realname}/%{vimdir}/spell/en.utf-8.spl
+rm -rf %{buildroot}%{_datadir}/%{realname}/%{vimdir}/spell/en.utf-8.sug
+rm -rf %{buildroot}%{_datadir}/%{realname}/%{vimdir}/spell/fixdup.vim
+rm -rf %{buildroot}%{_datadir}/%{realname}/%{vimdir}/spell/he.vim
+rm -rf %{buildroot}%{_datadir}/%{realname}/%{vimdir}/spell/spell.vim
+rm -rf %{buildroot}%{_datadir}/%{realname}/%{vimdir}/spell/yi.vim;
 rm -rf %{buildroot}%{_bindir}/gvimtutor
 rm -rf %{buildroot}%{_mandir}/man1/evim*
 rm -rf %{buildroot}%{_mandir}/man1/eview*
@@ -303,87 +304,99 @@ rm -rf %{buildroot}%{_bindir}/gvim*
 rm -rf %{buildroot}%{_bindir}/rgview*
 rm -rf %{buildroot}%{_bindir}/rgvim*
 
+for i in `ls %{buildroot}%{_mandir}/man1`; do
+    mv %{buildroot}%{_mandir}/man1/$i %{buildroot}%{_mandir}/man1/%{realname}-$i
+done
+for i in `ls %{buildroot}%{_mandir}/man5`; do
+    mv %{buildroot}%{_mandir}/man5/$i %{buildroot}%{_mandir}/man5/%{realname}-$i
+done
+
 %clean
-rm -rf %{buildroot}
+[ "$RPM_BUILD_ROOT" != "/" ] && %__rm -rf $RPM_BUILD_ROOT
+[ "%{buildroot}" != "/" ] && %__rm -rf %{buildroot}
+[ "%{_builddir}/%{realname}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{realname}-%{version}
+[ "%{_builddir}/%{realname}" != "/" ] && %__rm -rf %{_builddir}/%{realname}
 
 %files common
 %defattr(-,root,root)
 %config(noreplace) %{_sysconfdir}/vimrc
-%doc README* LICENSE 
-%doc runtime/docs
-%dir %{_datadir}/%{name}
-%{_datadir}/%{name}/vimfiles/template.spec
-%dir %{_datadir}/%{name}/%{vimdir}
-%{_datadir}/%{name}/%{vimdir}/autoload
-%{_datadir}/%{name}/%{vimdir}/colors
-%{_datadir}/%{name}/%{vimdir}/compiler
-%{_datadir}/%{name}/%{vimdir}/doc
-%{_datadir}/%{name}/%{vimdir}/*.vim
-%{_datadir}/%{name}/%{vimdir}/ftplugin
-%{_datadir}/%{name}/%{vimdir}/indent
-%{_datadir}/%{name}/%{vimdir}/keymap
-%{_datadir}/%{name}/%{vimdir}/lang/*.vim
-%{_datadir}/%{name}/%{vimdir}/lang/*.txt
-%dir %{_datadir}/%{name}/%{vimdir}/lang
-%{_datadir}/%{name}/%{vimdir}/macros
-%{_datadir}/%{name}/%{vimdir}/plugin
-%{_datadir}/%{name}/%{vimdir}/print
-%{_datadir}/%{name}/%{vimdir}/syntax
-%{_datadir}/%{name}/%{vimdir}/tutor
+#%doc runtime/docs
+%dir %{_datadir}/%{realname}
+%dir %{_datadir}/%{realname}/%{vimdir}
+%{_datadir}/%{realname}/%{vimdir}/autoload
+%{_datadir}/%{realname}/%{vimdir}/colors
+%{_datadir}/%{realname}/%{vimdir}/compiler
+%{_datadir}/%{realname}/%{vimdir}/doc
+%{_datadir}/%{realname}/%{vimdir}/*.vim
+%{_datadir}/%{realname}/%{vimdir}/ftplugin
+%{_datadir}/%{realname}/%{vimdir}/indent
+%{_datadir}/%{realname}/%{vimdir}/keymap
+%{_datadir}/%{realname}/%{vimdir}/lang/*.vim
+%{_datadir}/%{realname}/%{vimdir}/lang/*.txt
+%dir %{_datadir}/%{realname}/%{vimdir}/lang
+%{_datadir}/%{realname}/%{vimdir}/macros
+%{_datadir}/%{realname}/%{vimdir}/plugin
+%{_datadir}/%{realname}/%{vimdir}/print
+%{_datadir}/%{realname}/%{vimdir}/syntax
+%{_datadir}/%{realname}/%{vimdir}/tutor
+%{_datadir}/%{realname}/vim74/pack/dist/opt/matchit/doc/matchit.txt
+%{_datadir}/%{realname}/vim74/pack/dist/opt/matchit/doc/tags
+%{_datadir}/%{realname}/vim74/pack/dist/opt/matchit/plugin/matchit.vim
+
 /%{_bindir}/xxd
-%{_mandir}/man1/ex.*
-%{_mandir}/man1/rvi.*
-%{_mandir}/man1/rview.*
-%{_mandir}/man1/rvim.*
-%{_mandir}/man1/vi.*
-%{_mandir}/man1/view.*
-%{_mandir}/man1/vim.*
-%{_mandir}/man1/vimdiff.*
-%{_mandir}/man1/vimtutor.*
-%{_mandir}/man1/xxd.*
-%{_mandir}/man5/vimrc.*
+%{_mandir}/man1/%{realname}-ex.*
+%{_mandir}/man1/%{realname}-rvi.*
+%{_mandir}/man1/%{realname}-rview.*
+%{_mandir}/man1/%{realname}-vi.*
+%{_mandir}/man1/%{realname}-view.*
+%{_mandir}/man1/%{realname}-rvim.*
+%{_mandir}/man1/%{realname}-vim.*
+%{_mandir}/man1/%{realname}-vimdiff.*
+%{_mandir}/man1/%{realname}-vimtutor.*
+%{_mandir}/man1/%{realname}-xxd.*
+%{_mandir}/man5/%{realname}-vimrc.*
 %lang(fr) %{_mandir}/fr/man1/*
 %lang(it) %{_mandir}/it/man1/*
 %lang(ja) %{_mandir}/ja/man1/*
 %lang(pl) %{_mandir}/pl/man1/*
 %lang(ru) %{_mandir}/ru/man1/*
-%lang(af) %{_datadir}/%{name}/%{vimdir}/lang/af
-%lang(ca) %{_datadir}/%{name}/%{vimdir}/lang/ca
-%lang(cs) %{_datadir}/%{name}/%{vimdir}/lang/cs
-%lang(cs.cp1250) %{_datadir}/%{name}/%{vimdir}/lang/cs.cp1250
-%lang(de) %{_datadir}/%{name}/%{vimdir}/lang/de
-%lang(en_GB) %{_datadir}/%{name}/%{vimdir}/lang/en_GB
-%lang(eo) %{_datadir}/%{name}/%{vimdir}/lang/eo
-%lang(es) %{_datadir}/%{name}/%{vimdir}/lang/es
-%lang(fi) %{_datadir}/%{name}/%{vimdir}/lang/fi
-%lang(fr) %{_datadir}/%{name}/%{vimdir}/lang/fr
-%lang(ga) %{_datadir}/%{name}/%{vimdir}/lang/ga
-%lang(it) %{_datadir}/%{name}/%{vimdir}/lang/it
-%lang(ja) %{_datadir}/%{name}/%{vimdir}/lang/ja
-%lang(ja.euc-jp) %{_datadir}/%{name}/%{vimdir}/lang/ja.euc-jp
-%lang(ja.sjis) %{_datadir}/%{name}/%{vimdir}/lang/ja.sjis
-%lang(ko) %{_datadir}/%{name}/%{vimdir}/lang/ko
-%lang(ko) %{_datadir}/%{name}/%{vimdir}/lang/ko.UTF-8
-%lang(nb) %{_datadir}/%{name}/%{vimdir}/lang/nb
-%lang(nl) %{_datadir}/%{name}/%{vimdir}/lang/nl
-%lang(no) %{_datadir}/%{name}/%{vimdir}/lang/no
-%lang(pl) %{_datadir}/%{name}/%{vimdir}/lang/pl
-%lang(pl.UTF-8) %{_datadir}/%{name}/%{vimdir}/lang/pl.UTF-8
-%lang(pl.cp1250) %{_datadir}/%{name}/%{vimdir}/lang/pl.cp1250
-%lang(pt_BR) %{_datadir}/%{name}/%{vimdir}/lang/pt_BR
-%lang(ru) %{_datadir}/%{name}/%{vimdir}/lang/ru
-%lang(ru.cp1251) %{_datadir}/%{name}/%{vimdir}/lang/ru.cp1251
-%lang(sk) %{_datadir}/%{name}/%{vimdir}/lang/sk
-%lang(sk.cp1250) %{_datadir}/%{name}/%{vimdir}/lang/sk.cp1250
-%lang(sv) %{_datadir}/%{name}/%{vimdir}/lang/sv
-%lang(uk) %{_datadir}/%{name}/%{vimdir}/lang/uk
-%lang(uk.cp1251) %{_datadir}/%{name}/%{vimdir}/lang/uk.cp1251
-%lang(vi) %{_datadir}/%{name}/%{vimdir}/lang/vi
-%lang(zh_CN) %{_datadir}/%{name}/%{vimdir}/lang/zh_CN
-%lang(zh_CN.cp936) %{_datadir}/%{name}/%{vimdir}/lang/zh_CN.cp936
-%lang(zh_TW) %{_datadir}/%{name}/%{vimdir}/lang/zh_TW
-%lang(zh_CN.UTF-8) %{_datadir}/%{name}/%{vimdir}/lang/zh_CN.UTF-8
-%lang(zh_TW.UTF-8) %{_datadir}/%{name}/%{vimdir}/lang/zh_TW.UTF-8
+%lang(af) %{_datadir}/%{realname}/%{vimdir}/lang/af
+%lang(ca) %{_datadir}/%{realname}/%{vimdir}/lang/ca
+%lang(cs) %{_datadir}/%{realname}/%{vimdir}/lang/cs
+%lang(cs.cp1250) %{_datadir}/%{realname}/%{vimdir}/lang/cs.cp1250
+%lang(de) %{_datadir}/%{realname}/%{vimdir}/lang/de
+%lang(en_GB) %{_datadir}/%{realname}/%{vimdir}/lang/en_GB
+%lang(eo) %{_datadir}/%{realname}/%{vimdir}/lang/eo
+%lang(es) %{_datadir}/%{realname}/%{vimdir}/lang/es
+%lang(fi) %{_datadir}/%{realname}/%{vimdir}/lang/fi
+%lang(fr) %{_datadir}/%{realname}/%{vimdir}/lang/fr
+%lang(ga) %{_datadir}/%{realname}/%{vimdir}/lang/ga
+%lang(it) %{_datadir}/%{realname}/%{vimdir}/lang/it
+%lang(ja) %{_datadir}/%{realname}/%{vimdir}/lang/ja
+%lang(ja.euc-jp) %{_datadir}/%{realname}/%{vimdir}/lang/ja.euc-jp
+%lang(ja.sjis) %{_datadir}/%{realname}/%{vimdir}/lang/ja.sjis
+%lang(ko) %{_datadir}/%{realname}/%{vimdir}/lang/ko
+%lang(ko) %{_datadir}/%{realname}/%{vimdir}/lang/ko.UTF-8
+%lang(nb) %{_datadir}/%{realname}/%{vimdir}/lang/nb
+%lang(nl) %{_datadir}/%{realname}/%{vimdir}/lang/nl
+%lang(no) %{_datadir}/%{realname}/%{vimdir}/lang/no
+%lang(pl) %{_datadir}/%{realname}/%{vimdir}/lang/pl
+%lang(pl.UTF-8) %{_datadir}/%{realname}/%{vimdir}/lang/pl.UTF-8
+%lang(pl.cp1250) %{_datadir}/%{realname}/%{vimdir}/lang/pl.cp1250
+%lang(pt_BR) %{_datadir}/%{realname}/%{vimdir}/lang/pt_BR
+%lang(ru) %{_datadir}/%{realname}/%{vimdir}/lang/ru
+%lang(ru.cp1251) %{_datadir}/%{realname}/%{vimdir}/lang/ru.cp1251
+%lang(sk) %{_datadir}/%{realname}/%{vimdir}/lang/sk
+%lang(sk.cp1250) %{_datadir}/%{realname}/%{vimdir}/lang/sk.cp1250
+%lang(sv) %{_datadir}/%{realname}/%{vimdir}/lang/sv
+%lang(uk) %{_datadir}/%{realname}/%{vimdir}/lang/uk
+%lang(uk.cp1251) %{_datadir}/%{realname}/%{vimdir}/lang/uk.cp1251
+%lang(vi) %{_datadir}/%{realname}/%{vimdir}/lang/vi
+%lang(zh_CN) %{_datadir}/%{realname}/%{vimdir}/lang/zh_CN
+%lang(zh_CN.cp936) %{_datadir}/%{realname}/%{vimdir}/lang/zh_CN.cp936
+%lang(zh_TW) %{_datadir}/%{realname}/%{vimdir}/lang/zh_TW
+%lang(zh_CN.UTF-8) %{_datadir}/%{realname}/%{vimdir}/lang/zh_CN.UTF-8
+%lang(zh_TW.UTF-8) %{_datadir}/%{realname}/%{vimdir}/lang/zh_TW.UTF-8
 
 %files minimal
 %defattr(-,root,root)
@@ -393,13 +406,13 @@ rm -rf %{buildroot}
 %{_bindir}/view
 %{_bindir}/rvi
 %{_bindir}/rview
-%{_mandir}/man1/vim.*
-%{_mandir}/man1/vi.*
-%{_mandir}/man1/ex.*
-%{_mandir}/man1/rvi.*
-%{_mandir}/man1/rview.*
-%{_mandir}/man1/view.*
-%{_mandir}/man5/virc.*
+%{_mandir}/man1/%{realname}-vim.*
+%{_mandir}/man1/%{realname}-vi.*
+%{_mandir}/man1/%{realname}-ex.*
+%{_mandir}/man1/%{realname}-rvi.*
+%{_mandir}/man1/%{realname}-rview.*
+%{_mandir}/man1/%{realname}-view.*
+%{_mandir}/man5/%{realname}-virc.*
 
 %files enhanced
 %defattr(-,root,root)
@@ -408,25 +421,33 @@ rm -rf %{buildroot}
 %{_bindir}/vimdiff
 %{_bindir}/vimtutor
 %config(noreplace) %{_sysconfdir}/profile.d/vim.*
+%{_datadir}/%{realname}/%{realname}74/pack/dist/opt/dvorak/dvorak/disable.vim
+%{_datadir}/%{realname}/%{realname}74/pack/dist/opt/dvorak/dvorak/enable.vim
+%{_datadir}/%{realname}/%{realname}74/pack/dist/opt/dvorak/plugin/dvorak.vim
+%{_datadir}/%{realname}/%{realname}74/pack/dist/opt/editexisting/plugin/editexisting.vim
+%{_datadir}/%{realname}/%{realname}74/pack/dist/opt/justify/plugin/justify.vim
+%{_datadir}/%{realname}/%{realname}74/pack/dist/opt/shellmenu/plugin/shellmenu.vim
+%{_datadir}/%{realname}/%{realname}74/pack/dist/opt/swapmouse/plugin/swapmouse.vim
+%{_datadir}/%{realname}/%{realname}74/rgb.txt
 
 %files filesystem
 %defattr(-,root,root)
-%dir %{_datadir}/%{name}/vimfiles
-%dir %{_datadir}/%{name}/vimfiles/after
-%dir %{_datadir}/%{name}/vimfiles/after/*
-%dir %{_datadir}/%{name}/vimfiles/autoload
-%dir %{_datadir}/%{name}/vimfiles/colors
-%dir %{_datadir}/%{name}/vimfiles/compiler
-%dir %{_datadir}/%{name}/vimfiles/doc
-%ghost %{_datadir}/%{name}/vimfiles/doc/tags
-%dir %{_datadir}/%{name}/vimfiles/ftdetect
-%dir %{_datadir}/%{name}/vimfiles/ftplugin
-%dir %{_datadir}/%{name}/vimfiles/indent
-%dir %{_datadir}/%{name}/vimfiles/keymap
-%dir %{_datadir}/%{name}/vimfiles/lang
-%dir %{_datadir}/%{name}/vimfiles/plugin
-%dir %{_datadir}/%{name}/vimfiles/print
-%dir %{_datadir}/%{name}/vimfiles/spell
-%dir %{_datadir}/%{name}/vimfiles/syntax
-%dir %{_datadir}/%{name}/vimfiles/tutor
+%dir %{_datadir}/%{realname}/vimfiles
+%dir %{_datadir}/%{realname}/vimfiles/after
+%dir %{_datadir}/%{realname}/vimfiles/after/*
+%dir %{_datadir}/%{realname}/vimfiles/autoload
+%dir %{_datadir}/%{realname}/vimfiles/colors
+%dir %{_datadir}/%{realname}/vimfiles/compiler
+%dir %{_datadir}/%{realname}/vimfiles/doc
+%ghost %{_datadir}/%{realname}/vimfiles/doc/tags
+%dir %{_datadir}/%{realname}/vimfiles/ftdetect
+%dir %{_datadir}/%{realname}/vimfiles/ftplugin
+%dir %{_datadir}/%{realname}/vimfiles/indent
+%dir %{_datadir}/%{realname}/vimfiles/keymap
+%dir %{_datadir}/%{realname}/vimfiles/lang
+%dir %{_datadir}/%{realname}/vimfiles/plugin
+%dir %{_datadir}/%{realname}/vimfiles/print
+%dir %{_datadir}/%{realname}/vimfiles/spell
+%dir %{_datadir}/%{realname}/vimfiles/syntax
+%dir %{_datadir}/%{realname}/vimfiles/tutor
 

@@ -1,7 +1,7 @@
 %define nowide_repo https://github.com/artyom-beilis/nowide.git
 %define macro %{_rpmconfigdir}/macros.d/macros.python
-%global __python /usr/bin/python
 %include %{macro}
+BuildRequires: git python-srpm-macros
 
 %define boost_docdir __tmp_docdir
 %define boost_examplesdir __tmp_examplesdir
@@ -50,11 +50,7 @@ BuildRequires: m4
 BuildRequires: libstdc++-devel
 BuildRequires: bzip2-devel
 BuildRequires: zlib-devel
-%if 0%{?el6}
 BuildRequires: python27-devel
-%else
-BuildRequires: python-devel
-%endif
 
 BuildRequires: libicu-devel
 Patch4: boost-1.50.0-fix-non-utf8-files.patch
@@ -74,6 +70,7 @@ Patch80: boost-1.59-python-make_setter.patch
 Patch81: boost-1.59-test-fenv.patch
 %bcond_without tests
 %bcond_with docs_generated
+%global python27_version %(/usr/bin/python27 %{SOURCE1})
 
 %description
 Boost provides free peer-reviewed portable C++ source libraries.  The
@@ -542,11 +539,6 @@ a number of significant features and is now developed independently
 %patch70 -p2
 %patch80 -p2
 %patch81 -p2
-%if 0%{?el6}
-%global python27_version %(/usr/bin/python27 %{SOURCE1})
-%else
-%global python27_version %(/usr/bin/python %{SOURCE1})
-%endif
 %build
 : PYTHON2_VERSION=%{python27_version}
 
@@ -778,6 +770,7 @@ git clone https://github.com/artyom-beilis/nowide.git %{builddir}/nowide-%{versi
 %{__cp} -pR %{builddir}/nowide-%{version}/include/boost/nowide %{buildroot}%{_includedir}/%{name}/
 
 %clean
+[ "$RPM_BUILD_ROOT" != "/" ] && %__rm -rf $RPM_BUILD_ROOT
 [ "%{buildroot}" != "/" ] && %__rm -rf %{buildroot}
 [ "%{_builddir}/%{name}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}
 [ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}

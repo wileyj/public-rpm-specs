@@ -1,13 +1,13 @@
 # https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-amazon-3.2.0.tgz
 # https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-rhel70-3.2.0.tgz
 
-#%define lver amazon
-%define lver rhel70
+#%define lver rhel70
+%define lver amazon
 %define app_dir /opt/%{name}/product/%{version}
 
 Summary: Mongo DB Binary Builds
 Name: mongodb
-Version: 3.2.0
+Version: 3.2.3
 Release: 1.%{dist}
 License: GPL
 Vendor: %{vendor}
@@ -39,7 +39,6 @@ and auto-sharding. This package is the client ONLY.
 
 %prep
 %setup -n %{name}-linux-x86_64-%{lver}-%{version}
-
 %postun  -n mongodb-client
 if [ -f %{app_dir} ]
 then
@@ -52,8 +51,10 @@ mkdir -p %{buildroot}%{app_dir}
 %{__install} -m0755 bin/* %{buildroot}/%{app_dir}
 
 %clean
+[ "$RPM_BUILD_ROOT" != "/" ] && %__rm -rf $RPM_BUILD_ROOT
 [ "%{buildroot}" != "/" ] && %__rm -rf %{buildroot}
 [ "%{_builddir}/%{name}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}
+[ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}
 
 %files client
 %defattr(-, mongodb, mongodb, 0755)

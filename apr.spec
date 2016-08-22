@@ -17,11 +17,7 @@ Patch3: apr-1.2.2-libdir.patch
 Patch4: apr-1.2.7-pkgconf.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 BuildRequires: autoconf, libtool, libuuid-devel, 
-%if 0%{?el6}
 BuildRequires: python27
-%else
-BuildRequires: python
-%endif
 # To enable SCTP support
 BuildRequires: lksctp-tools-devel
 
@@ -101,8 +97,10 @@ if grep 'define SIZEOF_VOIDP 4' include/apr.h \
 fi
 
 %clean
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot} 
+[ "$RPM_BUILD_ROOT" != "/" ] && %__rm -rf $RPM_BUILD_ROOT
+[ "%{buildroot}" != "/" ] && %__rm -rf %{buildroot}
 [ "%{_builddir}/%{name}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}
+[ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}
 
 %post -p /sbin/ldconfig
 

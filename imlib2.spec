@@ -8,7 +8,7 @@
 
 Summary: Powerful image loading and rendering library
 Name: imlib2
-Version: 1.4.4
+Version: 1.4.7
 Release: 1.%{dist}
 License: BSD
 Vendor: %{vendor}
@@ -18,9 +18,9 @@ URL: http://enlightenment.org/pages/imlib2.html
 
 
 Source: http://dl.sf.net/project/enlightenment/imlib2-src/%{version}/imlib2-%{version}.tar.bz2
-Patch0: imlib2-1.2.1-X11-path.patch
-Patch1: imlib2-1.3.0-multilib.patch
-Patch2: imlib2-1.3.0-loader_overflows.patch
+#Patch0: imlib2-1.2.1-X11-path.patch
+#Patch1: imlib2-1.3.0-multilib.patch
+#Patch2: imlib2-1.3.0-loader_overflows.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 
 BuildRequires: bzip2-devel
@@ -92,8 +92,10 @@ touch `find -name Makefile.in`
 #LIBTOOL="%{_bindir}/libtool"
 
 %clean
+[ "$RPM_BUILD_ROOT" != "/" ] && %__rm -rf $RPM_BUILD_ROOT
 [ "%{buildroot}" != "/" ] && %__rm -rf %{buildroot}
 [ "%{_builddir}/%{name}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}
+[ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}
 
 %post -p /sbin/ldconfig
 %postun -p /sbin/ldconfig

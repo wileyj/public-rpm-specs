@@ -141,6 +141,12 @@ bash ${RPM_INSTALL_PREFIX0}/sbin/update-hadoop-env.sh \
        --pid-dir=${RPM_INSTALL_PREFIX3} \
        --uninstall
 
+%clean
+[ "$RPM_BUILD_ROOT" != "/" ] && %__rm -rf $RPM_BUILD_ROOT
+[ "%{buildroot}" != "/" ] && %__rm -rf %{buildroot}
+[ "%{_builddir}/%{name}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}
+[ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}
+
 %files 
 %defattr(-,root,root)
 %attr(0755,root,hadoop) %{_log_dir}

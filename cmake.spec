@@ -24,7 +24,7 @@ Source0:        %{name}.tar.gz
 Source1:        cmake-init.el
 Source2:        macros.cmake
 # Patch to find DCMTK in Fedora (bug #720140)
-Patch0:         cmake-dcmtk.patch
+#Patch0:         cmake-dcmtk.patch
 # Patch to fix RindRuby vendor settings
 # http://public.kitware.com/Bug/view.php?id=12965
 # https://bugzilla.redhat.com/show_bug.cgi?id=822796
@@ -57,7 +57,8 @@ Patch6:         cmake-strict_aliasing.patch
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-BuildRequires:  gcc-gfortran
+BuildRequires:  gcc-gfortran 
+BuildRequires:  jsoncpp jsoncpp-devel
 BuildRequires:  ncurses-devel, libX11-devel
 BuildRequires:  bzip2-devel
 BuildRequires:  curl-devel
@@ -65,7 +66,6 @@ BuildRequires:  expat-devel
 BuildRequires:  libarchive-devel
 #BuildRequires:  python27-sphinx
 BuildRequires:  zlib-devel
-BuildRequires:  emacs
 %if %{without bootstrap}
 #BuildRequires: xmlrpc-c-devel
 %endif
@@ -96,8 +96,9 @@ This package contains documentation for CMake.
 
 %prep
 %setup -q -n %{name}
+git pull
 # We cannot use backups with patches to Modules as they end up being installed
-%patch0 -p1
+#%patch0 -p1
 #%patch1 -p1
 %patch2 -p1
 #%patch3 -p1
@@ -110,7 +111,6 @@ This package contains documentation for CMake.
 
 
 %build
-git pull
 export CFLAGS="$RPM_OPT_FLAGS"
 export CXXFLAGS="$RPM_OPT_FLAGS"
 mkdir build
@@ -140,12 +140,6 @@ for f in %{buildroot}%{_datadir}/%{name}/completions/*
 do
   ln -s ../../%{name}/completions/$(basename $f) %{buildroot}%{_datadir}/bash-completion/completions/
 done
-# Install emacs cmake mode
-mkdir -p %{buildroot}%{_emacs_sitelispdir}/%{name}
-install -p -m 0644 Auxiliary/cmake-mode.el %{buildroot}%{_emacs_sitelispdir}/%{name}/
-%{_emacs_bytecompile} %{buildroot}%{_emacs_sitelispdir}/%{name}/cmake-mode.el
-mkdir -p %{buildroot}%{_emacs_sitestartdir}
-install -p -m 0644 %SOURCE1 %{buildroot}%{_emacs_sitestartdir}/
 # RPM macros
 install -p -m0644 -D %{SOURCE2} %{buildroot}%{rpm_macros_dir}/macros.cmake
 sed -i -e "s|@@CMAKE_VERSION@@|%{version}|" %{buildroot}%{rpm_macros_dir}/macros.cmake
@@ -162,8 +156,10 @@ do
 done
 
 %clean
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot} 
+[ "$RPM_BUILD_ROOT" != "/" ] && %__rm -rf $RPM_BUILD_ROOT
+[ "%{buildroot}" != "/" ] && %__rm -rf %{buildroot}
 [ "%{_builddir}/%{name}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}
+[ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}
 
 %files
 %dir %{_docdir}/%{name}
@@ -182,8 +178,6 @@ done
 #%{_mandir}/man1/cpack.1.gz
 #%{_mandir}/man1/ctest.1.gz
 #%{_mandir}/man7/*.7.gz
-%{_emacs_sitelispdir}/%{name}
-%{_emacs_sitestartdir}/%{name}-init.el
 %{_libdir}/%{name}/
 
 %files doc

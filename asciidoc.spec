@@ -1,18 +1,11 @@
-# $id$
-# Authority: dag
+%define macro %{_rpmconfigdir}/macros.d/macros.python
+%include %{macro}
 
-### EL6 ships with asciidoc-8.4.5-4.1.el6
-%{?el6:# Tag: rfx}
-
-%{?el5:%define dockbook_version 4.4}
-
-%define python_sitelib %(%{__python} -c 'from distutils import sysconfig; print sysconfig.get_python_lib()')
 %define vimdir %(ls -d %{_datadir}/vim/{vimfiles,vim[0-9]*} 2>/dev/null | tail -1)
-
 Summary: Tool to convert AsciiDoc text files to DocBook, HTML or Unix man pages
 Name: asciidoc
 Version: 8.6.9
-Release: 1%{?dist}
+Release: 1.%{?dist}
 License: GPL
 Group: Applications/Text
 URL: http://www.methods.co.nz/asciidoc/
@@ -24,11 +17,10 @@ Source: http://dl.sf.net/asciidoc/asciidoc-%{version}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 
 BuildArch: noarch
-BuildRequires: python-devel >= 2.4
+BuildRequires: python27-devel, python-srpm-macros
+BuildRequires: git python-srpm-macros
 Requires: docbook-style-xsl
 Requires: libxslt
-Requires: python >= 2.4
-
 %description
 AsciiDoc is a text document format for writing short documents, articles,
 books and UNIX man pages. AsciiDoc files can be translated to HTML and
@@ -90,7 +82,10 @@ done
 #%{__ln_s} -f %{_sysconfdir}/asciidoc/stylesheets/ symlinks/stylesheets
 
 %clean
-%{__rm} -rf %{buildroot}
+[ "$RPM_BUILD_ROOT" != "/" ] && %__rm -rf $RPM_BUILD_ROOT
+[ "%{buildroot}" != "/" ] && %__rm -rf %{buildroot}
+[ "%{_builddir}/%{name}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}
+[ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}
 
 %files
 %defattr(-, root, root, 0755)
@@ -114,96 +109,3 @@ done
 %exclude %{_sysconfdir}/asciidoc/filters/*/*.py[co]
 
 %changelog
-* Thu Nov 21 2013 Dag Wieers <dag@wieers.com> - 8.6.9-1
-- Updated to release 8.6.9.
-
-* Fri Nov 02 2012 Dag Wieers <dag@wieers.com> - 8.6.8-1
-- Updated to release 8.6.8.
-
-* Tue Apr 03 2012 Dag Wieers <dag@wieers.com> - 8.6.7-1
-- Updated to release 8.6.7.
-
-* Mon Sep 12 2011 Dag Wieers <dag@wieers.com> - 8.6.6-1
-- Updated to release 8.6.6.
-
-* Mon May 23 2011 Dag Wieers <dag@wieers.com> - 8.6.5-1
-- Updated to release 8.6.5.
-
-* Mon Feb 21 2011 Dag Wieers <dag@wieers.com> - 8.6.4-1
-- Updated to release 8.6.4.
-
-* Thu Nov 18 2010 Dag Wieers <dag@wieers.com> - 8.6.3-1
-- Updated to release 8.6.3.
-
-* Sat Oct 09 2010 Dag Wieers <dag@wieers.com> - 8.6.2-1
-- Updated to release 8.6.2.
-
-* Mon Aug 23 2010 Dag Wieers <dag@wieers.com> - 8.6.1-1
-- Updated to release 8.6.1.
-
-* Thu Jun 24 2010 Dag Wieers <dag@wieers.com> - 8.5.4-3
-- Fix dependency on docbook v4.5.
-
-* Thu Jun 10 2010 Dag Wieers <dag@wieers.com> - 8.5.3-2
-- Added VIM integration.
-
-* Tue Jan 26 2010 Dag Wieers <dag@wieers.com> - 8.5.3-1
-- Updated to release 8.5.3.
-
-* Tue Nov 03 2009 Dag Wieers <dag@wieers.com> - 8.5.1-1
-- Updated to release 8.5.1.
-
-* Sun Oct 11 2009 Dag Wieers <dag@wieers.com> - 8.5.0-1
-- Updated to release 8.5.0.
-
-* Sun Mar 15 2009 Dag Wieers <dag@wieers.com> - 8.4.1-1
-- Updated to release 8.4.1.
-
-* Mon Mar 02 2009 Dag Wieers <dag@wieers.com> - 8.3.5-1
-- Updated to release 8.3.5.
-
-* Fri Jan 02 2009 Dag Wieers <dag@wieers.com> - 8.3.3-1
-- Updated to release 8.3.3.
-
-* Sun Dec 21 2008 Dag Wieers <dag@wieers.com> - 8.3.1-1
-- Updated to release 8.3.1.
-
-* Sun May 04 2008 Dag Wieers <dag@wieers.com> - 8.2.6-1
-- Updated to release 8.2.6.
-
-* Sun Nov 18 2007 Dag Wieers <dag@wieers.com> - 8.2.5-1
-- Updated to release 8.2.5.
-
-* Tue Nov 13 2007 Dag Wieers <dag@wieers.com> - 8.2.4-2
-- Fixed  SyntaxError: future feature with_statement is not defined.
-
-* Sun Nov 11 2007 Dag Wieers <dag@wieers.com> - 8.2.4-1
-- Updated to release 8.2.4
-
-* Sun Nov 11 2007 Dag Wieers <dag@wieers.com> - 8.2.3-1
-- Updated to release 8.2.3.
-
-* Wed Jul 25 2007 Dag Wieers <dag@wieers.com> - 8.2.2-1
-- Updated to release 8.2.2.
-
-* Sat May 12 2007 Dag Wieers <dag@wieers.com> - 8.2.1-1
-- Updated to release 8.2.1.
-
-* Sat Nov 11 2006 Dag Wieers <dag@wieers.com> - 8.1.0-1
-- Updated to release 8.1.0.
-
-* Thu Oct 19 2006 Dag Wieers <dag@wieers.com> - 8.0.0-1
-- Updated to release 8.0.0.
-
-* Wed Jun 14 2006 Dag Wieers <dag@wieers.com> - 7.1.2-2
-- Installation fixes.
-
-* Thu Mar 09 2006 Dag Wieers <dag@wieers.com> - 7.1.2-1
-- Updated to release 7.1.2.
-
-* Fri Aug 12 2005 Dag Wieers <dag@wieers.com> - 7.0.1-3
-- Add missing deffatr(). (Alain Rykaert)
-- Put asciidoc in %%{_bindir}, instead of a symlink.
-
-* Wed Aug 10 2005 Dag Wieers <dag@wieers.com> - 7.0.1-1
-- Initial package. (using DAR)

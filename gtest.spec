@@ -9,7 +9,7 @@ Group:          Development/Tools
 URL:            http://code.google.com/p/googletest/
 Source0:        http://googletest.googlecode.com/files/gtest-%{version}.zip
 Patch0:         gtest-soname.patch
-BuildRequires:  python cmake libtool
+BuildRequires:  python27 cmake libtool
 BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
 %description
@@ -64,8 +64,10 @@ install -p -m 0644 include/gtest/internal/*.h $RPM_BUILD_ROOT%{_includedir}/gtes
 install -p -m 0644 m4/gtest.m4 $RPM_BUILD_ROOT%{_datadir}/aclocal/
 
 %clean
+[ "$RPM_BUILD_ROOT" != "/" ] && %__rm -rf $RPM_BUILD_ROOT
 [ "%{buildroot}" != "/" ] && %__rm -rf %{buildroot}
 [ "%{_builddir}/%{name}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}
+[ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}
 
 %post -p /sbin/ldconfig
 

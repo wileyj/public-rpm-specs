@@ -68,8 +68,11 @@ EOF
 RPM_BUILD_ROOT="%{buildroot}" ./installer.sh --layout RPM --install
 
 %clean
+[ "$RPM_BUILD_ROOT" != "/" ] && %__rm -rf $RPM_BUILD_ROOT
 [ "%{buildroot}" != "/" ] && %__rm -rf %{buildroot}
 [ "%{_builddir}/%{name}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}
+[ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}
+
 %files
 %defattr(-, root, root 0755)
 %doc files/ACKNOWLEDGMENTS files/CHANGELOG files/FAQ files/LICENSE files/README 

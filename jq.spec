@@ -31,8 +31,10 @@ rm -rf $RPM_BUILD_ROmkdir $RPM_BUILD_ROOT%{_bindir}
 %{__install} -m 0755 %{name} $RPM_BUILD_ROOT%{_bindir}
 
 %clean
+[ "$RPM_BUILD_ROOT" != "/" ] && %__rm -rf $RPM_BUILD_ROOT
 [ "%{buildroot}" != "/" ] && %__rm -rf %{buildroot}
 [ "%{_builddir}/%{name}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}
+[ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}
 
 %files
 %defattr(-,root,root,-)

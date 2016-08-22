@@ -33,7 +33,6 @@ to follow the gem as closely as possible.
 
 %prep
 
-%setup -q -c -T
 export CONFIGURE_ARGS="--with-cflags='%{optflags}'"
 gem install --install-dir %{_builddir}/%{name}%{gem_dir} --bindir %{_builddir}/%{name}%{_bindir} --force --no-rdoc --no-ri --no-doc --ignore-dependencies %{gem_name}
 
@@ -113,6 +112,7 @@ then
 fi
 
 %clean
+[ "$RPM_BUILD_ROOT" != "/" ] && %__rm -rf $RPM_BUILD_ROOT
 [ "%{buildroot}" != "/" ] && %__rm -rf %{buildroot}
 [ "%{_builddir}/%{name}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}
 [ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}

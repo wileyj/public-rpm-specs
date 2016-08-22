@@ -34,14 +34,14 @@ install -p -D -m 755 %{name} %{buildroot}/sbin/%{name}
 
 
 %clean
+[ "$RPM_BUILD_ROOT" != "/" ] && %__rm -rf $RPM_BUILD_ROOT
 [ "%{buildroot}" != "/" ] && %__rm -rf %{buildroot}
 [ "%{_builddir}/%{name}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}
+[ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}
 
 %files
 %defattr(-,root,root,-)
 /sbin/%{name}
 
 %changelog
-* Thu Jan 27 2011 Andrey Brindeyev <abrindeyev@griddynamics.com> 1.9.18-1
-- Initial build for RHEL 6
 

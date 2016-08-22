@@ -25,6 +25,7 @@ AutoProv:	0
 Provides:	jdk = %{version}
 Provides:	java-openjdk = %{version}
 Provides:	jre = %{version}
+Provides:	java = %{version}
 
 %description
 Java Development Kit version %{version}
@@ -43,12 +44,17 @@ rm -rf %{buildroot}
 %__mkdir_p %{buildroot}%{home}
 %__mkdir_p %{buildroot}%{_bindir} 
 %__mkdir_p %{buildroot}/etc/profile.d
+%__mkdir_p %{buildroot}/etc/ld.so.conf.d
 cp -R * %{buildroot}%{home}
 
 cat <<EOF> %{buildroot}/etc/profile.d/jdk.sh
 export JAVA_HOME=%{current}
-export PATH=$PATH:%{current}/bin
+export PATH=\$PATH:%{current}/bin
 export CLASSPATH=%{current}/lib
+EOF
+
+cat <<EOF> %{buildroot}/etc/ld.so.conf.d/jdk.conf
+%{home}/jre/lib/amd64
 EOF
 
 #A=`pwd`
@@ -67,18 +73,25 @@ ln -sf %{current}/bin/jstatd  $RPM_BUILD_ROOT%{_bindir}/jstatd
 ln -sf %{current}/bin/jdb  $RPM_BUILD_ROOT%{_bindir}/jdb
 ln -sf %{current}/bin/jmap  $RPM_BUILD_ROOT%{_bindir}/jmap
 
+%post
+ldconfig 
+
 %postun
 rm -f %{home}
+ldconfig
 
 %clean
+[ "$RPM_BUILD_ROOT" != "/" ] && %__rm -rf $RPM_BUILD_ROOT
 [ "%{buildroot}" != "/" ] && %__rm -rf %{buildroot}
 [ "%{_builddir}/%{name}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}
+[ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}
 
 %files
 %defattr(-,root,root)
 %{home}
 %{current}
 %attr(755, root, root) /etc/profile.d/jdk.sh
+#%{_sysconfdir}/ld.so.conf.d/jdk.conf
 %{_bindir}/java
 %{_bindir}/javac
 %{_bindir}/javah
