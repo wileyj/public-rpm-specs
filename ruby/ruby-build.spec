@@ -1,6 +1,6 @@
 %define repo https://github.com/rbenv/ruby-build
 %define gitversion %(echo `curl -s https://github.com/rbenv/ruby-build/releases | grep 'class="css-truncate-target"' | head -1 |  tr -d '\\-</span class="css-truncate-target">v'`)
-
+%define rbenv /opt/rbenv
 
 Name:		ruby-build
 Version:	%{gitversion}
@@ -11,6 +11,7 @@ License:	MIT
 URL:		https://github.com/rbenv/ruby-build
 BuildArch:	noarch
 Provides:       %{name} = %{version}
+Requires:	rbenv
 
 %description
 %{summary}
@@ -35,6 +36,7 @@ BIN_PATH="${PREFIX}/bin"
 SHARE_PATH="${PREFIX}/share/ruby-build"
 
 mkdir -p "$BIN_PATH" "$SHARE_PATH"
+mkdir -p %{buildroot}%{rbenv}/rubies
 
 install -p bin/* "$BIN_PATH"
 install -p -m 0644 share/ruby-build/* "$SHARE_PATH"
@@ -63,6 +65,7 @@ install -Dp -m0755 bin/ruby-build %{buildroot}/usr/local/bin/ruby-build
 %{_bindir}/rbenv-install
 %{_bindir}/rbenv-uninstall
 %{_bindir}/ruby-build
+%{rbenv}/rubies
 %attr(0755,root,root) /usr/local/bin/rbenv-install
 %attr(0755,root,root) /usr/local/bin/rbenv-uninstall
 %attr(0755,root,root) /usr/local/bin/ruby-build
