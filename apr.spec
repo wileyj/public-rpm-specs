@@ -1,3 +1,13 @@
+%if 0%{?amzn} >= 1
+%define python python27
+BuildRequires: %{python} %{python}-rpm-macros %{python}-devel
+Requires: %{python} %{python}-setuptools
+%else
+%define python python
+BuildRequires: %{python} %{python}-rpm-macros %{python}-devel
+Requires: %{python} %{python}-setuptools
+%endif
+
 %define aprver 1
 %define multilib_arches %{ix86} ia64 ppc ppc64 s390 s390x x86_64
 
@@ -17,7 +27,6 @@ Patch3: apr-1.2.2-libdir.patch
 Patch4: apr-1.2.7-pkgconf.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 BuildRequires: autoconf, libtool, libuuid-devel, 
-BuildRequires: python27
 # To enable SCTP support
 BuildRequires: lksctp-tools-devel
 

@@ -63,6 +63,7 @@ echo '"%{gopath}/src/%{provider}.%{provider_tld}/mitchellh/iochan*"' >> %{name}-
 [ "%{_builddir}/%{name}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}
 [ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}
 [ "%{_builddir}/%{name}-%{version}-filelist" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}-filelist
+%__rm -f %{__builddir}/%{name}-%{version}-filelist
 
 %files -f %{name}-%{version}-filelist
 %{gopath}/bin/%{project}

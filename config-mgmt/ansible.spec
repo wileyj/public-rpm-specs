@@ -1,9 +1,18 @@
-%define repo https://github.com/ansible/ansible.git
-%define gitversion %(echo `curl -s https://github.com/ansible/ansible/releases | grep 'class="tag-name"' | head -1 |  tr -d '\\-</span class="tag-name">'`)
+%if 0%{?amzn} >= 1
+%define python python27
+BuildRequires: %{python} %{python}-rpm-macros %{python}-devel
+Requires: %{python} %{python}-setuptools
+%else
+%define python python
+BuildRequires: %{python} %{python}-rpm-macros %{python}-devel
+Requires: %{python} %{python}-setuptools
+%endif
 %define name ansible
-%define macro %{_rpmconfigdir}/macros.d/macros.python
-BuildRequires: git python-srpm-macros
-%include %{macro}
+#%include %{_rpmconfigdir}/macros.d/macros.python
+
+%define repo https://github.com/ansible/ansible.git
+%define gitversion %(echo `curl -s https://github.com/ansible/ansible/releases | grep 'class="tag-name"' | head -1 |  tr -d '\\-</span class="tag-name">v'`)
+%define name ansible
 
 Name:      %{name}
 Version:   %{gitversion}
@@ -17,18 +26,13 @@ Group:     Development/Libraries
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 
 BuildArch: noarch
-BuildRequires: python27-devel
-BuildRequires: python27-setuptools
-Requires: python27-devel
-Requires: python27-setuptools
 BuildRequires: git 
 Requires: PyYAML
 Requires: gcc
 Requires: gcc-c++
 Requires: sshpass
-#Requires: python27-pycrypto python27-paramiko python27-keyczar python27-jinja2 python27-httplib2
-Requires: python27-crypto python27-paramiko python27-keyczar python27-jinja2 python27-httplib2
-
+Requires: %{python}-crypto %{python}-paramiko %{python}-keyczar %{python}-jinja2 %{python}-httplib2
+BuildRequires: asciidoc
 
 %description
 
@@ -50,12 +54,12 @@ git submodule update
 
 %build
 cd %{name}-%{version}
-%{__python} setup.py build
+%{python} setup.py build
 make docs
 
 %install
 cd %{name}-%{version}
-%{__python} setup.py install -O1 --prefix=%{_prefix} --root=%{buildroot}
+%{python} setup.py install -O1 --prefix=%{_prefix} --root=%{buildroot}
 mkdir -p %{buildroot}/etc/ansible/
 cp examples/hosts %{buildroot}/etc/ansible/
 cp examples/ansible.cfg %{buildroot}/etc/ansible/

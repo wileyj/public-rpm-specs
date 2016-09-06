@@ -6,7 +6,7 @@ Group:      System Environment/Libraries
 License:    BSD
 URL:        https://unbound.nlnetlabs.nl
 Source0:    %{name}-%{version}.tar.gz
-BuildRequires:  make gcc
+BuildRequires:  make gcc expat-devel 
 Requires:	%{name}-libs = %{version}
 
 %description

@@ -1,7 +1,7 @@
 %global major_version 2
 %global minor_version 3
 %global teeny_version 1
-%global patch_level 53
+%global patch_level 59
 %global major_minor_version %{major_version}.%{minor_version}
 %global ruby_version %{major_minor_version}.%{teeny_version}
 %global ruby_release %{ruby_version}
@@ -10,28 +10,13 @@
 %global development_release %{?milestone}%{?!milestone:%{?revision:r%{revision}}}
 %global ruby_archive %{ruby_archive}-%{?milestone}%{?!milestone:%{?revision:r%{revision}}}
 %else
-# Ruby will be using semver versioning scheme since Ruby 2.1.0. However, it is
-# unclear ATM what name will be used when next bugfix version is released.
-# http://bugs.ruby-lang.org/issues/8835
-#%%global ruby_archive %{ruby_archive}-p%{patch_level}
 %endif
 
-
-%global release 54
-#%{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
+%global release %{patch_level}
 %global release_string      %{?development_release:0.}%{release}%{?development_release:.%{development_release}}.%{?dist}
-
-
 %global rubygems_version 2.2.2
-
-# The RubyGems library has to stay out of Ruby directory three, since the
-# RubyGems should be share by all Ruby implementations.
 %global rubygems_dir %{_datadir}/rubygems
-
-# TODO: The IRB has strange versioning. Keep the Ruby's versioning ATM.
-# http://redmine.ruby-lang.org/issues/5313
 %global irb_version %{ruby_version}
-
 %global bigdecimal_version 1.2.8
 %global did_you_mean_version 1.0.0
 %global io_console_version 0.4.5
@@ -43,15 +28,10 @@
 %global rdoc_version 4.2.1
 %global net_telnet_version 0.1.1
 %global test_unit_version 3.1.5
-
-# Might not be needed in the future, if we are lucky enough.
-# https://bugzilla.redhat.com/show_bug.cgi?id=888262
 %global tapset_root %{_datadir}/systemtap
 %global tapset_dir %{tapset_root}/tapset
 %global tapset_libdir %(echo %{_libdir} | sed 's/64//')*
-
 %global _normalized_cpu %(echo %{_target_cpu} | sed 's/^ppc/powerpc/;s/i.86/i386/;s/sparcv./sparc/')
-
 %if 0%{?fedora} >= 19
 %global with_rubypick 1
 %endif
@@ -72,24 +52,10 @@ Source3: ruby-exercise.stp
 Source4: macros.ruby
 Source5: macros.rubygems
 Source6: abrt_prelude.rb
-# This wrapper fixes https://bugzilla.redhat.com/show_bug.cgi?id=977941
-# Hopefully, it will get removed soon:
-# https://fedorahosted.org/fpc/ticket/312
-# https://bugzilla.redhat.com/show_bug.cgi?id=977941
 Source7: config.h
-# RPM dependency generators.
 Source8: rubygems.attr
 Source9: rubygems.req
 Source10: rubygems.prov
-
-# %%load function should be supported in RPM 4.12+.
-# http://lists.rpm.org/pipermail/rpm-maint/2014-February/003659.html
-#Source100: load.inc
-#%include %{SOURCE100}
-
-#%{load %{SOURCE4}}
-#%{load %{SOURCE5}}
-
 %include %SOURCE4
 %include %SOURCE5
 
@@ -100,13 +66,9 @@ Patch3: ruby-2.1.0-always-use-i386.patch
 Patch4: ruby-2.1.0-custom-rubygems-location.patch
 Patch5: ruby-1.9.3-mkmf-verbose.patch
 Patch6: ruby-2.1.0-Allow-to-specify-additional-preludes-by-configuratio.patch
-#Patch7: ruby-2.2.3-Generate-preludes-using-miniruby.patch
-#Patch8: ruby-2.3.0-undef-BUILTIN_CHOOSE_EXPR_CONSTANT_P.patch
-
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Requires: ruby(rubygems) >= %{rubygems_version}
 Requires: rubygem(bigdecimal) >= %{bigdecimal_version}
-
 BuildRequires: autoconf
 BuildRequires: gdbm-devel
 BuildRequires: libffi-devel
@@ -114,17 +76,11 @@ BuildRequires: openssl-devel
 BuildRequires: libyaml-devel
 BuildRequires: readline-devel
 BuildRequires: tk-devel
-# Needed to pass test_set_program_name(TestRubyOptions)
 BuildRequires: procps
 BuildRequires: %{_bindir}/dtrace
-# RubyGems test suite optional dependencies.
 BuildRequires: %{_bindir}/git
 BuildRequires: %{_bindir}/cmake
-
-# This package provides %%{_bindir}/ruby-mri therefore it is marked by this
-# virtual provide. It can be installed as dependency of rubypick.
 Provides: ruby(runtime_executable) = %{ruby_release}
-
 %global __provides_exclude_from ^(%{ruby_libarchdir}|%{gem_archdir})/.*\\.so$
 
 %description
@@ -501,9 +457,9 @@ cp %{SOURCE1} %{buildroot}%{rubygems_dir}/rubygems/defaults
 # Move gems root into common direcotry, out of Ruby directory structure.
 #mv %{buildroot}%{ruby_libdir}/gems %{buildroot}%{gem_dir}
 #mv %{buildroot}/usr/share/ruby/gems %{buildroot}%{gem_dir}
-#mv %{buildroot}/usr/local/share/gems %{buildroot}%{gem_dir}
-mkdir -p %{buildroot}%{gem_dir}
-mv %{buildroot}/home/builder/.gem/%{name}/* %{buildroot}%{gem_dir}
+mv %{buildroot}/usr/local/share/gems %{buildroot}%{gem_dir}
+#mkdir -p %{buildroot}%{gem_dir}
+#mv %{buildroot}/home/builder/.gem/%{name}/* %{buildroot}%{gem_dir}
 
 # Create folders for gem binary extensions.
 # TODO: These folders should go into rubygem-filesystem but how to achieve it,
@@ -583,9 +539,9 @@ gem update --system --no-rdoc --no-ri
 %postun libs -p /sbin/ldconfig
 
 %clean
-#[ "%{buildroot}" != "/" ] && %__rm -rf %{buildroot}
-#[ "%{_builddir}/%{name}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}
-#[ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}
+[ "%{buildroot}" != "/" ] && %__rm -rf %{buildroot}
+[ "%{_builddir}/%{name}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}
+[ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}
 
 
 

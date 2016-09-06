@@ -1,5 +1,14 @@
+%if 0%{?amzn} >= 1
+%define python python27
+BuildRequires: %{python} %{python}-rpm-macros %{python}-devel
+Requires: %{python} %{python}-setuptools
+%else
+%define python python
+BuildRequires: %{python} %{python}-rpm-macros %{python}-devel
+Requires: %{python} %{python}-setuptools
+%endif
+
 %global pkgname carbon
-%define pexec python27
 %define pip_version 0.9.15
 %define filelist %{pkgname}-%{version}-filelist
 
@@ -10,7 +19,7 @@
 %define __touch    /bin/touch
 %define __service  /sbin/service
 
-Name:           %{pexec}-%{pkgname}
+Name:           %{python}-%{pkgname}
 Version:        %{pip_version}
 Release:        1.%{dist}
 Summary:        Metrics collection for graphite
@@ -28,11 +37,8 @@ Source6:        %{pkgname}-aggregator.sysconfig
 BuildRoot:      %{_tmppath}/%{pkgname}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildArch:      noarch
 
-BuildRequires:  python27, python27-devel, python27-setuptools
-BuildRequires: git python-srpm-macros
-Requires:       python27, python27-whisper, python27-twisted-core >= 8.0
+Requires:       %{python}-whisper, %{python}-twisted-core >= 8.0
 
-%include /usr/lib/rpm/macros.d/macros.python
 %description
 Carbon is one of the components of Graphite, and is responsible for receiving metrics over the network and writing them down to disk using a storage backend.
 

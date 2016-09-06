@@ -9,14 +9,14 @@ License: GPLv3
 Group: Applications/Security
 URL: https://duo.com
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
-Requires: pam
-Requires: openssl
+Requires: pam 
+Requires: openssl 
 Requires: %{name}-libs = %{version}
-BuildRequires: pam-devel
-BuildRequires: openssl-devel
-BuildRequires: pkgconfig
-BuildRequires: openssh-server
-BuildRequires: gcc
+BuildRequires: pam-devel 
+BuildRequires: openssl-devel 
+BuildRequires: pkgconfig 
+BuildRequires: openssh-server 
+BuildRequires: gcc 
 BuildRequires: git
 
 %description
@@ -32,11 +32,11 @@ This package allows an admin (or ordinary user) to quickly add Duo
 authentication to any Unix login without setting up secondary user
 accounts, directory synchronization, servers, or hardware.
 
-%package -n %{name}-libs
+%package -n %{name}-libs 
 Summary: Shared libraries for duo authentication
 Group: System/Libraries
 
-%description -n %{name}-libs
+%description -n %{name}-libs 
 Shared libraries for duo_unix
 
 %package -n %{name}-pam
@@ -63,7 +63,7 @@ git clone %{repo} %{name}-%{version}
 cd %{name}-%{version}
 git submodule init
 git submodule update
-
+ 
 %build
 cd %{name}-%{version}
 ./bootstrap
@@ -83,8 +83,8 @@ make install DESTDIR=$RPM_BUILD_ROOT
 rm -f $RPM_BUILD_ROOT/%{_lib}/security/pam_duo.*a
 %{__cat} <<EOF >${RPM_BUILD_ROOT}%{_sysconfdir}/duo/login_duo.conf
 [duo]
-ikey = key
-skey = secret
+ikey = ikey 
+skey = skey 
 host = api-bc5aebab.duosecurity.com
 pushinfo=yes
 autopush=yes
@@ -127,6 +127,7 @@ EOF
 %{_libdir}/libduo.a
 %{_libdir}/libduo.la
 %{_includedir}/duo/duo.h
+%{_includedir}/duo/shell.h
 %{_includedir}/duo/util.h
 %{_libdir}/pkgconfig/libduo.pc
 %{_mandir}/man3/duo.3.gz

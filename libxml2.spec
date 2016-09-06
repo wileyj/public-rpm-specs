@@ -1,6 +1,14 @@
-%define macro %{_rpmconfigdir}/macros.d/macros.python
-BuildRequires: git python-srpm-macros
-%include %{macro}
+%if 0%{?amzn} >= 1
+%define python python27
+BuildRequires: %{python} %{python}-rpm-macros %{python}-devel
+Requires: %{python} %{python}-setuptools
+%else
+%define python python
+BuildRequires: %{python} %{python}-rpm-macros %{python}-devel
+Requires: %{python} %{python}-setuptools
+%endif
+
+BuildRequires: git 
 
 %global with_python3 0
 
@@ -12,7 +20,6 @@ License: MIT
 Group: Development/Libraries
 Source: ftp://xmlsoft.org/libxml2/libxml2.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
-BuildRequires: python27-devel
 
 %if 0%{?with_python3}
 BuildRequires: python3-devel
@@ -64,15 +71,15 @@ Requires: libxml2 = %{version}-%{release}
 Static library for libxml2 provided for specific uses or shaving a few
 microseconds when parsing, do not link to them for generic purpose packages.
 
-%package -n %{name}-python27
+%package -n %{name}-%{python}
 Summary: Python bindings for the libxml2 library
 Group: Development/Libraries
 Requires: libxml2 = %{version}-%{release}
-Obsoletes: %{name}-python < 2.9.2-6
-Provides: %{name}-python = %{version}-%{release}
-Provides: %{name}-python27 = %{version}-%{release}
+Obsoletes: %{name}-%{python} < 2.9.2-6
+Provides: %{name}-%{python} = %{version}-%{release}
+Provides: %{name}-%{python} = %{version}-%{release}
 
-%description -n %{name}-python27
+%description -n %{name}-%{python}
 The libxml2-python package contains a Python 2 module that permits applications
 written in the Python programming language, version 2, to use the interface
 supplied by the libxml2 library to manipulate XML files.
@@ -110,7 +117,7 @@ at parse time or later once the document has been modified.
 
 mkdir py3doc
 cp doc/*.py py3doc
-sed -i 's|#!/usr/bin/python |#!%{__python3} |' py3doc/*.py
+sed -i 's|#!/usr/bin/%{python} |#!%{__python3} |' py3doc/*.py
 
 %build
 #git pull
@@ -196,7 +203,7 @@ gzip -9 -c doc/libxml2-api.xml > doc/libxml2-api.xml.gz
 
 %{_libdir}/*a
 
-%files -n %{name}-python27
+%files -n %{name}-%{python}
 %defattr(-, root, root)
 %{_libdir}/python2*/site-packages/libxml2.py*
 %{_libdir}/python2*/site-packages/drv_libxml2.py*

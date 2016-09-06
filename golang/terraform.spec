@@ -58,6 +58,7 @@ echo '%dir "%{gopath}/src/%{import_path}"' >> %{name}-%{version}-filelist
 [ "%{_builddir}/%{name}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}
 [ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}
 [ "%{_builddir}/%{name}-%{version}-filelist" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}-filelist
+%__rm -f %{__builddir}/%{name}-%{version}-filelist
 
 %files -f %{name}-%{version}-filelist
 %{goroot}/bin/%{name}

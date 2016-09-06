@@ -1,15 +1,27 @@
+%define repo https://github.com/open-source-parsers/jsoncpp.git
+%define gitversion %(echo `curl -s https://github.com/open-source-parsers/jsoncpp/releases | grep 'class="css-truncate-target"' | head -1 |  tr -d '\\-</span class="css-truncate-target">'`)
+
+
+%if 0%{?amzn} >= 1
+%define python python27
+BuildRequires: %{python} %{python}-rpm-macros %{python}-devel
+Requires: %{python} %{python}-setuptools
+%else
+%define python python
+BuildRequires: %{python} %{python}-rpm-macros %{python}-devel
+Requires: %{python} %{python}-setuptools
+%endif
+
 Name:       jsoncpp
-Version:    0.10.5
+Version:    %{gitversion}
 Release:    1.%{dist}
 Summary:    JSON library implemented in C++
 Group:      System Environment/Libraries
 License:    Public Domain or MIT
 URL:        https://github.com/open-source-parsers/jsoncpp
 Source0:    %{name}.tar.gz
-Source1:    jsoncpp.pc
 
-BuildRequires:  python27 scons doxygen
-BuildRequires:  graphviz
+BuildRequires:  cmake doxygen graphviz
 
 %description
 %{name} is an implementation of a JSON (http://json.org) reader and writer in
@@ -35,37 +47,50 @@ BuildArch:  noarch
 %description doc
 This package contains the documentation for %{name}
 
-
 %prep
-%setup -q -n %{name}
+if [ -d %{name}-%{version} ];then
+    rm -rf %{name}-%{version}
+fi
+git clone %{repo} %{name}-%{version}
+cd %{name}-%{version}
+git submodule init
+git submodule update
 grep -e "-Wall" SConstruct
 sed 's|CCFLAGS = "-Wall"|CCFLAGS = "%{optflags}"|' -i SConstruct
 
 %build
-git pull
-scons platform=linux-gcc %{?_smp_mflags}
-# Now, lets make a proper shared lib. :P
-g++ -o libjsoncpp.so.0.0.0 -shared -Wl,-z,now -Wl,-soname,libjsoncpp.so.0 buildscons/linux-gcc-*/src/lib_json/*.os -lpthread
-# Build the doc
-python doxybuild.py --with-dot --doxygen %{_bindir}/doxygen
+cd %{name}-%{version}
+#scons platform=linux-gcc %{?_smp_mflags}
+mkdir -p build/release
+cd build/release
+cmake -DCMAKE_BUILD_TYPE=release -DBUILD_STATIC_LIBS=ON -DBUILD_SHARED_LIBS=ON -DARCHIVE_INSTALL_DIR=%{buildroot} -G "Unix Makefiles" ../..
+make
 
-%check
-scons platform=linux-gcc check %{?_smp_mflags}
+
+# Now, lets make a proper shared lib. :P
+#g++ -o libjsoncpp.so.0.0.0 -shared -Wl,-z,now -Wl,-soname,libjsoncpp.so.0 buildscons/linux-gcc-*/src/lib_json/*.os -lpthread
+
+# Build the doc
+cd ../..
+%{python} doxybuild.py --with-dot --doxygen %{_bindir}/doxygen
+
+#%check
+#scons platform=linux-gcc check %{?_smp_mflags}
 
 %install
-install -p -D lib%{name}.so.0.0.0 $RPM_BUILD_ROOT%{_libdir}/lib%{name}.so.0.0.0
-ln -s %{_libdir}/lib%{name}.so.0.0.0 $RPM_BUILD_ROOT%{_libdir}/lib%{name}.so
-ln -s %{_libdir}/lib%{name}.so.0.0.0 $RPM_BUILD_ROOT%{_libdir}/lib%{name}.so.0
+cd %{name}-%{version}/build/release
+make DESTDIR=%{buildroot} INSTALL="install -p" install
+cd  ../..
+mv %{buildroot}/usr/local/lib %{buildroot}%{_libdir}
+mv %{buildroot}/usr/local/include %{buildroot}%{_includedir}
+rm -rf %{buildroot}/opt
+rm -rf %{buildroot}/usr/local
 
-install -d $RPM_BUILD_ROOT%{_includedir}/%{name}/json
-install -p -m 0644 include/json/*.h $RPM_BUILD_ROOT%{_includedir}/%{name}/json
 mkdir -p $RPM_BUILD_ROOT%{_docdir}/%{name}/html
 for f in AUTHORS LICENSE NEWS.txt README.md ; do
     install -p -m 0644 $f $RPM_BUILD_ROOT%{_docdir}/%{name}
 done
 install -p -m 0644 dist/doxygen/*/*.{html,png} $RPM_BUILD_ROOT%{_docdir}/%{name}/html
-install -d $RPM_BUILD_ROOT%{_libdir}/pkgconfig
-install -p -m 0644 %{SOURCE1} $RPM_BUILD_ROOT%{_libdir}/pkgconfig/
 sed -i 's|@@LIBDIR@@|%{_libdir}|g' $RPM_BUILD_ROOT%{_libdir}/pkgconfig/jsoncpp.pc
 
 %post -p /sbin/ldconfig
@@ -79,13 +104,12 @@ sed -i 's|@@LIBDIR@@|%{_libdir}|g' $RPM_BUILD_ROOT%{_libdir}/pkgconfig/jsoncpp.p
 
 %files
 %{_docdir}/%{name}/
-%exclude %{_docdir}/%{name}/html
-%{_libdir}/lib%{name}.so.0
-%{_libdir}/lib%{name}.so.0.0.0
+%{_libdir}/lib%{name}*
 
 %files devel
-%{_libdir}/lib%{name}.so
-%{_includedir}/%{name}/
+#%{_libdir}/lib%{name}.so
+%dir %{_includedir}/json
+%{_includedir}/json/*
 %{_libdir}/pkgconfig/jsoncpp.pc
 
 %files doc

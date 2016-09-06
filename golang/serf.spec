@@ -6,7 +6,7 @@
 %global import_path     %{provider}.%{provider_tld}/%{repo_owner}/%{project}
 %define _summary        %(echo `curl -s %{url} | grep "<title>" | cut -f2 -d ":" | sed 's|</title>||'`)
 %define repo %{url}.git
-%define gitversion %(echo `curl -s %{url}/releases | grep 'class="tag-name"' | head -1 |  tr -d '\\-</span class="tag-name">'`)
+%define gitversion %(echo `curl -s %{url}/releases | grep 'class="tag-name"' | head -1 |  tr -d '\\-</span class="tag-name">v'`)
 %define release_ver 1
 %global _python_bytecompile_errors_terminate_build 0
 
@@ -36,7 +36,7 @@ fi
 %build
 export GOPATH=%{buildroot}%{gopath}
 
-go get %{import_path}
+go get -d -u -t -v %{import_path}/...
 %__mkdir_p %{buildroot}%{goroot}/bin 
 %__ln_s %{gopath}/bin/%{name} %{buildroot}%{goroot}/bin/%{name}
 %{__rm} -rf %{buildroot}%{gopath}/src/%{import_path}/.git
@@ -58,9 +58,9 @@ echo '%dir "%{gopath}/src/%{import_path}"' >> %{name}-%{version}-filelist
 [ "%{_builddir}/%{name}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}
 [ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}
 [ "%{_builddir}/%{name}-%{version}-filelist" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}-filelist
+%__rm -f %{__builddir}/%{name}-%{version}-filelist
 
 %files -f %{name}-%{version}-filelist
-%{gopath}/bin/%{name}
 %{goroot}/bin/%{name}
 %changelog
 

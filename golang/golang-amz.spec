@@ -6,12 +6,11 @@
 %global import_path     %{provider}.%{provider_tld}/%{repo_owner}
 %define _summary        %(echo `curl -s %{url} | grep "<title>" | cut -f2 -d ":" | sed 's|</title>||'`)
 %define repo %{url}.git
-#%define gitversion %(echo `curl -s %{url}/releases | grep 'class="tag-name"' | head -1 |  tr -d '\\-</span class="tag-name">'`)
-%define gitversion 1.0.0
+%define gitversion %(echo `date +%s`)
 %define release_ver 1
 %global _python_bytecompile_errors_terminate_build 0
 
-Name:           golang-%{project}
+Name:           golang-amz
 Version:        %{gitversion}
 Release:        %{release_ver}.%{dist}
 Summary:        %{_summary}
@@ -64,6 +63,7 @@ echo '%dir "%{gopath}/src/%{import_path}"' >> %{name}-%{version}-filelist
 [ "%{_builddir}/%{name}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}
 [ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}
 [ "%{_builddir}/%{name}-%{version}-filelist" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}-filelist
+%__rm -f %{__builddir}/%{name}-%{version}-filelist
 
 %files -f %{name}-%{version}-filelist
 

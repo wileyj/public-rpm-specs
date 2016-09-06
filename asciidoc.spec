@@ -1,5 +1,5 @@
-%define macro %{_rpmconfigdir}/macros.d/macros.python
-%include %{macro}
+#%define macro %{_rpmconfigdir}/macros.d/macros.python
+#%include %{macro}
 
 %define vimdir %(ls -d %{_datadir}/vim/{vimfiles,vim[0-9]*} 2>/dev/null | tail -1)
 Summary: Tool to convert AsciiDoc text files to DocBook, HTML or Unix man pages
@@ -17,8 +17,7 @@ Source: http://dl.sf.net/asciidoc/asciidoc-%{version}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 
 BuildArch: noarch
-BuildRequires: python27-devel, python-srpm-macros
-BuildRequires: git python-srpm-macros
+BuildRequires: git, python-devel, python-rpm-macros
 Requires: docbook-style-xsl
 Requires: libxslt
 %description

@@ -38,7 +38,7 @@ Packager:       %{packager}
 Vendor:         %{vendor}
 URL:            http://puppetlabs.com
 Group:          System Environment/Base
-BuildRequires:  ruby >= 2.2 git
+BuildRequires:  ruby >= 2.2 git facter
 Requires:       ruby >= 2.2 rubygem-ruby-shadow rubygem-json facter >= 3.1 hiera >= 3.0.0 shadow-utils rubygem-ast rubygem-hashdiff rubygem-json-schema rubygem-metaclass rubygem-msgpack rubygem-powerpack rubygem-puppet-lint rubygem-rspec-support rubygem-racc rubygem-redcarpet rubygem-ruby-progressbar rubygem-ruby-prof rubygem-vcr rubygem-yard rubygem-puppet-syntax rubygem-parser rubygem-hiera rubygem-rdoc rubygem-mocha rubygem-astrolabe rubygem-webmock rubygem-rspec-collection_matchers rubygem-rspec-its rubygem-rspec rubygem-rubocop rubygem-rspec-puppet rubygem-rspec-legacy_formatters rubygem-yarjuf rubygem-puppetlabs_spec_helper rubygem-librarian-puppet ruby-augeas puppetdb-termini
 BuildArch:      noarch
 Source1:        puppet.conf

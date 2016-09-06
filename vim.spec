@@ -1,3 +1,13 @@
+%if 0%{?amzn} >= 1
+%define python python27
+BuildRequires: %{python} %{python}-rpm-macros %{python}-devel
+Requires: %{python} %{python}-setuptools
+%else
+%define python python
+BuildRequires: %{python} %{python}-rpm-macros %{python}-devel
+Requires: %{python} %{python}-setuptools
+%endif
+
 %define repo https://github.com/vim/vim.git
 
 %define patchlevel 909
@@ -21,7 +31,7 @@ URL: https://github.com/%{realname}/%{realname}.git
 Source1: vimrc
 
 Buildroot: %{_tmppath}/%{realname}-%{version}-%{release}-root-%(%{__id_u} -n)
-BuildRequires: python27-devel ncurses-devel gettext perl-devel
+BuildRequires: ncurses-devel gettext perl-devel
 BuildRequires: perl-ExtUtils-Embed perl-ExtUtils-ParseXS
 BuildRequires: libacl-devel gpm-devel autoconf
 Buildrequires: ruby-devel ruby
@@ -303,6 +313,8 @@ rm -rf %{buildroot}%{_bindir}/gview*
 rm -rf %{buildroot}%{_bindir}/gvim*
 rm -rf %{buildroot}%{_bindir}/rgview*
 rm -rf %{buildroot}%{_bindir}/rgvim*
+rm -rf %{buildroot}%{_datadir}/applications
+rm -rf %{buildroot}%{_datadir}/icons
 
 for i in `ls %{buildroot}%{_mandir}/man1`; do
     mv %{buildroot}%{_mandir}/man1/$i %{buildroot}%{_mandir}/man1/%{realname}-$i

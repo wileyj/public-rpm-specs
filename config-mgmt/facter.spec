@@ -14,9 +14,9 @@ URL:            https://puppetlabs.com/%{name}
 Patch0:		facter-ruby-2.3.patch
 #Patch1:        facter-2.3.0.patch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-BuildRequires: boost-devel >= 1.59
+BuildRequires: boost-devel >= 1.59 cpp-hocon cpp-hocon-devel
 BuildRequires: openssl-devel libblkid-devel libcurl-devel gcc-c++ make wget tar libyaml libyaml-devel  leatherman yaml-cpp-devel
-Requires:      dmidecode pciutils virt-what net-tools which rubygem-semantic_puppet
+Requires:      dmidecode pciutils virt-what net-tools which rubygem-semantic_puppet cpp-hocon leatherman
 
 %description
 Facter is a lightweight program that gathers basic node information about the
@@ -36,10 +36,10 @@ if [ -d %{name}-%{version} ];then
 fi
 git clone %{repo} %{name}-%{version}
 cd %{name}-%{version}
-git submodule init
-git submodule update
-%patch0
-#%patch1
+#git checkout -b stable
+#git checkout tags/3.4.1
+
+#%patch0
 
 %build
 cd %{name}-%{version}
@@ -51,8 +51,12 @@ rm -rf %{buildroot}
 pwd
 cd release
 export CLASSPATH="$CLASSPATH:%{_builddir}/%{name}-%{version}/release/lib"
-cmake -DCMAKE_INSTALL_PREFIX:PATH=%{_prefix} -DRUBY_INCLUDE_DIR=usr/include/ruby -DRUBY_LIBRARY=/usr/lib64/ruby ..
+cmake -DCMAKE_INSTALL_PREFIX:PATH=%{_prefix} -DRUBY_INCLUDE_DIR=/usr/include/ruby -DRUBY_LIBRARY=/usr/lib64/ruby ..
 make DESTDIR=%{buildroot} INSTALL="install -p" install
+
+#export CLASSPATH="/usr/java/current/lib:/opt/rpmbuild/BUILD/%{name}-%{version}/release/lib"
+#cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr -DRUBY_INCLUDE_DIR=/usr/include/ruby -DRUBY_LIBRARY=/usr/lib64/ruby ..
+#make DESTDIR=/opt/rpmbuild/BUILDROOT/facter-3.4.1-1.local.el7.x86_64 'INSTALL=install -p' install
 
 # Create directory for external facts
 %__mkdir_p %{buildroot}%{factpath}

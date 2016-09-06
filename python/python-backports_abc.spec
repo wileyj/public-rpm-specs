@@ -1,10 +1,19 @@
+%if 0%{?amzn} >= 1
+%define python python27
+BuildRequires: %{python} %{python}-rpm-macros %{python}-devel
+Requires: %{python} %{python}-setuptools
+%else
+%define python python
+BuildRequires: %{python} %{python}-rpm-macros %{python}-devel
+Requires: %{python} %{python}-setuptools
+%endif
+
 %define realname backports_abc
 %define pkgname backports_abc
-%define pexec python27
 %define pip_version %(echo `curl -s https://pypi.python.org/pypi/%{realname} | grep "<title>" | awk '{print $2}'`)
 %define filelist %{pkgname}-%{version}-filelist
 
-Name:           %{pexec}-%{pkgname}
+Name:           %{python}-%{pkgname}
 Version:        %{pip_version}
 Release:        1.%{dist}
 Summary:        %{name}
@@ -14,11 +23,7 @@ Packager:       %{packager}
 Vendor:         %{vendor}
 URL:            http://pypi.python.org/pypi/redis
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-BuildRequires:  python27, python27-devel, python27-setuptools
-BuildRequires: git python-srpm-macros
-Requires:       python27
 
-%include /usr/lib/rpm/macros.d/macros.python
 %description
 %{summary}
 

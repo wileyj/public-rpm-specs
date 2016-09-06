@@ -1,3 +1,13 @@
+%if 0%{?amzn} >= 1
+%define python python27
+BuildRequires: %{python} %{python}-rpm-macros %{python}-devel
+Requires: %{python} %{python}-setuptools
+%else
+%define python python
+BuildRequires: %{python} %{python}-rpm-macros %{python}-devel
+Requires: %{python} %{python}-setuptools
+%endif
+
 #% global hgdate 51702867d932
 
 Summary:		JavaScript interpreter and libraries
@@ -22,8 +32,7 @@ Provides:	libjs = %{version}-%{release}
 Provides:   libjs.so.1
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root
 Buildrequires:	nspr-devel >= 4.7
-BuildRequires:	python27
-BuildRequires:	zip
+BuildRequires:	zip readline-devel
 Buildrequires:	libedit-devel
 BuildRequires:	ncurses-devel
 BuildRequires:	autoconf
