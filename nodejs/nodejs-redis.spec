@@ -11,8 +11,8 @@ License:        MIT
 Vendor:         %{vendor}
 Packager:       %{packager}
 Group:          System Environment/Libraries
-BuildRequires:  nodejs, nodejs-devel, nodejs-npm, nodejs-binary, git
-Requires:       nodejs, nodejs-npm, nodejs-binary, git
+BuildRequires:  nodejs, nodejs-devel, nodejs-npm,  git
+Requires:       nodejs, nodejs-npm,  git
 
 %description
 %{summary}

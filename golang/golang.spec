@@ -107,13 +107,13 @@ Summary:        Golang shared object libraries
 %{summary}.
 
 %prep
-if [ -d %{name}-%{version} ]; then
-  rm -rf %{name}-%{version}
+if [ -d %{name}-%{version} ];then
+    rm -rf %{name}-%{version}
 fi
 git clone %{repo} %{name}-%{version}
 cd %{name}-%{version}
-git checkout release-branch.go1.6
-
+git submodule init
+git submodule update
 
 %build
 cd %{name}-%{version}
@@ -143,8 +143,8 @@ cd %{name}-%{version}
 rm -rf $RPM_BUILD_ROOT
 mkdir -p $RPM_BUILD_ROOT%{_bindir}
 mkdir -p $RPM_BUILD_ROOT%{goroot}
-#cp -apv api bin doc favicon.ico lib pkg robots.txt src misc test VERSION.cache AUTHORS CONTRIBUTORS PATENTS LICENSE $RPM_BUILD_ROOT%{goroot}
-cp -apv api bin doc favicon.ico lib pkg robots.txt src misc test VERSION AUTHORS CONTRIBUTORS PATENTS LICENSE $RPM_BUILD_ROOT%{goroot}
+cp -apv api bin doc favicon.ico lib pkg robots.txt src misc test VERSION.cache AUTHORS CONTRIBUTORS PATENTS LICENSE $RPM_BUILD_ROOT%{goroot}
+#cp -apv api bin doc favicon.ico lib pkg robots.txt src misc test VERSION AUTHORS CONTRIBUTORS PATENTS LICENSE $RPM_BUILD_ROOT%{goroot}
 touch $RPM_BUILD_ROOT%{goroot}/pkg
 find $RPM_BUILD_ROOT%{goroot}/pkg -exec touch -r $RPM_BUILD_ROOT%{goroot}/pkg "{}" \;
 cwd=$(pwd)
@@ -182,6 +182,9 @@ ln -sf %{goroot}/bin/gofmt $RPM_BUILD_ROOT%{goroot}/bin/linux_%{gohostarch}/gofm
 %{__mkdir_p} %{buildroot}%{gopath}/src/bitbucket.org
 %{__mkdir_p} %{buildroot}%{gopath}/src/code.google.com
 %{__mkdir_p} %{buildroot}%{gopath}/src/golang.org
+%{__mkdir_p} %{buildroot}%{gopath}/src/gopkg.in
+%{__mkdir_p} %{buildroot}%{gopath}/src/labix.org
+
 %{__mkdir_p} %{buildroot}%{_rpmconfigdir}/macros.d
 %{__install} -m0644 %{SOURCE0} %{buildroot}%{_rpmconfigdir}/macros.d/macros.golang
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/gdbinit.d
@@ -193,7 +196,7 @@ mkdir -p %{buildroot}%{_sysconfdir}/profile.d
 cat > %{buildroot}%{_sysconfdir}/profile.d/%{name}.sh << EOF
 export GOROOT="%{goroot}"
 export GOPATH="%{gopath}"
-export PATH=\$PATH:%{goroot}/bin
+export PATH=\$PATH:\$GOROOT/bin:\$GOPATH/bin
 export gohostarch=amd64
 EOF
 chmod a+x %{buildroot}%{_sysconfdir}/profile.d/%{name}.sh
@@ -214,17 +217,18 @@ chmod a+x %{buildroot}%{_sysconfdir}/profile.d/%{name}.sh
 %dir %{goroot}/doc
 %doc %{goroot}/doc/*
 %dir %{goroot}
-%exclude %{goroot}/bin/
-%exclude %{goroot}/pkg/
-%exclude %{goroot}/src/
-%exclude %{goroot}/doc/
-%exclude %{goroot}/misc/
-%{goroot}/*
 %dir %{gopath}
+%dir %{gopath}/src
 %dir %{gopath}/src/github.com
 %dir %{gopath}/src/bitbucket.org
-%dir %{gopath}/src/code.google.com/
+%dir %{gopath}/src/code.google.com
 %dir %{gopath}/src/golang.org
+%dir %{gopath}/src/gopkg.in
+%dir %{gopath}/src/labix.org
+%{goroot}
+%{gopath}
+%{goroot}/*
+%{gopath}/*
 %{_sysconfdir}/gdbinit.d
 %{_sysconfdir}/prelink.conf.d
 %{_rpmconfigdir}/macros.d/macros.golang

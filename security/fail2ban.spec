@@ -1,8 +1,17 @@
+%if 0%{?amzn} >= 1
+%define python python27
+BuildRequires: %{python} %{python}-rpm-macros %{python}-devel
+Requires: %{python} %{python}-setuptools
+%else
+%define python python
+BuildRequires: %{python} %{python}-rpm-macros %{python}-devel
+Requires: %{python} %{python}-setuptools
+%endif
+
 %define pkgname fail2ban
 
 %define repo https://github.com/fail2ban/fail2ban
 %define gitversion %(echo `curl -s https://github.com/fail2ban/fail2ban/releases | grep 'class="tag-name"' | head -1 |  tr -d '\\-</span class="tag-name">db'`)
-%include /usr/lib/rpm/macros.d/macros.python
 
 Summary: Scan logfiles and ban ip addresses with too many password failures
 Name:           %{pkgname}
@@ -18,10 +27,9 @@ BuildArch:      noarch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 
 BuildRequires: dos2unix
-BuildRequires: python27-devel
 #Requires: gamin-python
 Requires: iptables
-Requires: python27 python27-fail2ban
+Requires: %{python}-fail2ban
 Requires: tcp_wrappers
 
 %description
@@ -29,12 +37,12 @@ Fail2Ban monitors log files like /var/log/pwdfail or /var/log/apache/error_log
 and bans failure-prone addresses. It updates firewall rules to reject the IP
 address or executes user defined commands.
 
-%package -n python27-fail2ban
-Summary: fail2ban python27 modules
+%package -n %{python}-fail2ban
+Summary: fail2ban %{python} modules
 Group:   System Environment/Daemons
 Requires: %{name} = %{version}-%{release}
 
-%description -n python27-fail2ban
+%description -n %{python}-fail2ban
 %{summary}
 
 
@@ -116,12 +124,12 @@ fi
 %dir %{_var}/run/fail2ban
 
 
-%files -n python27-fail2ban
-%dir %{python27_sitelib}/%{name}
-%{python27_sitelib}/%{name}/*
-%dir %{python27_sitelib}/%{name}-*.egg-info
-%{python27_sitelib}/%{name}-*.egg-info/*
-%{_bindir}/fail2ban-python
+%files -n %{python}-fail2ban
+%dir %{python_sitelib}/%{name}
+%{python_sitelib}/%{name}/*
+%dir %{python_sitelib}/%{name}-*.egg-info
+%{python_sitelib}/%{name}-*.egg-info/*
+%{_bindir}/fail2ban-%{python}
 %{_bindir}/fail2ban-testcases
 %dir %{_datadir}/doc/%{name}
 %{_datadir}/doc/%{name}/*

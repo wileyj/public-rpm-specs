@@ -1,14 +1,22 @@
+%if 0%{?amzn} >= 1
+%define python python27
+BuildRequires: %{python} %{python}-rpm-macros %{python}-devel
+Requires: %{python} %{python}-setuptools
+%else
+%define python python
+BuildRequires: %{python} %{python}-rpm-macros %{python}-devel
+Requires: %{python} %{python}-setuptools
+%endif
+
 %define macro %{_rpmconfigdir}/macros.d/macros.python
 %define repo https://github.com/saltstack/salt.git
-%define gitversion %(echo `curl -s https://github.com/saltstack/salt/releases | grep 'class="tag-name"' | head -1 |  tr -d '\\-</span class="tag-name">v'`)
-BuildRequires: git python-srpm-macros
-%include %{macro}
+#%define gitversion %(echo `curl -s https://github.com/saltstack/salt/releases | grep 'class="tag-name"' | head -1 |  tr -d '\\-</span class="tag-name">v'`)
+%define gitversion 2016.3.3
 
-%define repo https://github.com/saltstack/salt.git
 %global include_tests 0
 %define use_systemd 0
-%define _salttesting SaltTesting
-%define _salttesting_ver 2015.7.10
+#%define _salttesting SaltTesting
+#%define _salttesting_ver 2015.7.10
 
 Name: salt
 Version: %{gitversion}
@@ -24,10 +32,13 @@ Requires: pciutils
 Requires: which
 Requires: yum-utils
 Requires: git
-Requires: python27-tornado python27-singledispatch python27-backports_abc python27-crypto
-Requires: python27-crypto python27-jinja2 python27-m2crypto python27-msgpack python27-PyYAML python27-requests python27-pyzmq
+Requires: %{python}-tornado %{python}-singledispatch %{python}-backports_abc
+Requires: %{python}-crypto %{python}-jinja2 %{python}-m2crypto %{python}-msgpack 
+Requires: %{python}-PyYAML %{python}-requests %{python}-pyzmq
+
 BuildRequires: git
-BuildRequires: python27-devel python27-crypto python27-jinja2 python27-msgpack python27-pip python27-pyzmq python27-PyYAML python27-requests python27-unittest2 python27-mock python27-argparse python27-devel
+BuildRequires: %{python}-devel %{python}-crypto %{python}-jinja2 %{python}-msgpack %{python}-pip %{python}-pyzmq %{python}-PyYAML %{python}-requests %{python}-unittest2 %{python}-mock %{python}-argparse %{python}-devel
+
 %if %{use_systemd}
 Requires(post): systemd-units
 Requires(preun): systemd-units
@@ -83,7 +94,7 @@ infrastructure.
 Summary: REST API for Salt, a parallel remote execution system
 Group:   System administration tools
 Requires: %{name}-master = %{version}-%{release}
-Requires: python27-cherrypy
+Requires: %{python}-cherrypy
 
 %description api
 salt-api provides a REST interface to the Salt master.
@@ -92,7 +103,7 @@ salt-api provides a REST interface to the Salt master.
 Summary: Cloud provisioner for Salt, a parallel remote execution system
 Group:   System administration tools
 Requires: %{name}-master = %{version}-%{release}
-Requires: python27-libcloud
+Requires: %{python}-libcloud
 
 %description cloud
 The salt-cloud tool provisions new cloud VMs, installs salt-minion on them, and
@@ -124,7 +135,7 @@ cd %{name}-%{version}
 cd %{name}-%{version}
 
 rm -rf %{buildroot}
-%{__python27} setup.py install -O1 --root %{buildroot}
+%{__python} setup.py install -O1 --root %{buildroot}
 install -d -m 0755 %{buildroot}%{_var}/cache/%{name}
 install -d -m 0755 %{buildroot}%{_sysconfdir}/%{name}
 install -d -m 0755 %{buildroot}%{_sysconfdir}/%{name}/cloud.conf.d
@@ -163,10 +174,10 @@ mkdir -p %{buildroot}%{_sysconfdir}/bash_completion.d/
 install -p -m 0644 pkg/%{name}.bash %{buildroot}%{_sysconfdir}/bash_completion.d/%{name}.bash
 
 %clean
-#[ "$RPM_BUILD_ROOT" != "/" ] && %__rm -rf $RPM_BUILD_ROOT
-#[ "%{buildroot}" != "/" ] && %__rm -rf %{buildroot}
-#[ "%{_builddir}/%{name}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}
-#[ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}
+[ "$RPM_BUILD_ROOT" != "/" ] && %__rm -rf $RPM_BUILD_ROOT
+[ "%{buildroot}" != "/" ] && %__rm -rf %{buildroot}
+[ "%{_builddir}/%{name}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}
+[ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}
 
 # less than RHEL 8 / Fedora 16
 %if %{use_systemd}
@@ -272,8 +283,8 @@ fi
 
 %files
 %defattr(-,root,root,-)
-%{python27_sitelib}/%{name}/*
-%{python27_sitelib}/%{name}*.egg-info
+%{python_sitelib}/%{name}/*
+%{python_sitelib}/%{name}*.egg-info
 
 %{_sysconfdir}/logrotate.d/%{name}
 %{_sysconfdir}/bash_completion.d/%{name}.bash

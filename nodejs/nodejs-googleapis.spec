@@ -11,8 +11,8 @@ License:        MIT
 Vendor:         %{vendor}
 Packager:       %{packager}
 Group:          System Environment/Libraries
-BuildRequires:  nodejs, nodejs-devel, nodejs-npm, nodejs-binary, git
-Requires:       nodejs, nodejs-npm, nodejs-binary, git
+BuildRequires:  nodejs, nodejs-devel, nodejs-npm,  git
+Requires:       nodejs, nodejs-npm,  git
 
 %description
 %{summary}
@@ -44,9 +44,10 @@ echo '"%{nodejs_libdir}/%{npmname}-%{version}/lib/node_modules/%{npmname}/node_m
 echo '"%{nodejs_libdir}/%{npmname}-%{version}/lib/node_modules/%{npmname}/node_modules/.bin/mime"' >> %{filelist}
 echo '"%{nodejs_libdir}/%{npmname}-%{version}/lib/node_modules/%{npmname}/node_modules/.bin/repeating"' >> %{filelist}
 echo '"%{nodejs_libdir}/%{npmname}-%{version}/lib/node_modules/%{npmname}/node_modules/.bin/uuid"' >> %{filelist}
-#echo '"%{nodejs_libdir}/%{npmname}-%{version}/lib/node_modules/%{npmname}/node_modules/.bin/sshpk-conv' >> %{filelist}
-#echo '"%{nodejs_libdir}/%{npmname}-%{version}/lib/node_modules/%{npmname}/node_modules/.bin/sshpk-sign' >> %{filelist}
-#echo '"%{nodejs_libdir}/%{npmname}-%{version}/lib/node_modules/%{npmname}/node_modules/.bin/sshpk-verify' >> %{filelist}
+echo '"%{nodejs_libdir}/%{npmname}-%{version}/lib/node_modules/%{npmname}/node_modules/.bin/sshpk-conv"' >> %{filelist}
+echo '"%{nodejs_libdir}/%{npmname}-%{version}/lib/node_modules/%{npmname}/node_modules/.bin/sshpk-sign"' >> %{filelist}
+echo '"%{nodejs_libdir}/%{npmname}-%{version}/lib/node_modules/%{npmname}/node_modules/.bin/sshpk-verify"' >> %{filelist}
+
 echo '"%{nodejs_libdir}/%{npmname}-%{version}/lib/node_modules/%{npmname}/node_modules/google-auth-library/node_modules/.bin/har-validator"' >> %{filelist}
 echo '"%{nodejs_libdir}/%{npmname}-%{version}/lib/node_modules/%{npmname}/node_modules/node-forge/tests/forge_ssl/forge/__init__.pyc"' >> %{filelist}
 echo '"%{nodejs_libdir}/%{npmname}-%{version}/lib/node_modules/%{npmname}/node_modules/node-forge/tests/forge_ssl/forge/__init__.pyo"' >> %{filelist}
@@ -58,9 +59,6 @@ echo '"%{nodejs_libdir}/%{npmname}-%{version}/lib/node_modules/%{npmname}/node_m
 echo '"%{nodejs_libdir}/%{npmname}-%{version}/lib/node_modules/%{npmname}/node_modules/node-forge/tests/policyserver.pyo"' >> %{filelist}
 echo '"%{nodejs_libdir}/%{npmname}-%{version}/lib/node_modules/%{npmname}/node_modules/node-forge/tests/server.pyc"' >> %{filelist}
 echo '"%{nodejs_libdir}/%{npmname}-%{version}/lib/node_modules/%{npmname}/node_modules/node-forge/tests/server.pyo"' >> %{filelist}
-echo  /usr/lib/node_modules/googleapis-4.0.0/lib/node_modules/googleapis/node_modules/.bin/sshpk-conv >> %{filelist}
-echo   /usr/lib/node_modules/googleapis-4.0.0/lib/node_modules/googleapis/node_modules/.bin/sshpk-sign >> %{filelist}
-echo   /usr/lib/node_modules/googleapis-4.0.0/lib/node_modules/googleapis/node_modules/.bin/sshpk-verify >> %{filelist}
 
 %clean
 [ "%{_builddir}/%{filelist}" != "/" ] && %__rm -rf %{_builddir}/%{filelist}
@@ -69,3 +67,7 @@ echo   /usr/lib/node_modules/googleapis-4.0.0/lib/node_modules/googleapis/node_m
 [ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}
 
 %files -f %{filelist}
+#%{nodejs_libdir}/%{npmname}-%{version}/lib/node_modules/%{npmname}/node_modules/.bin/sshpk-conv
+#%{nodejs_libdir}/%{npmname}-%{version}/lib/node_modules/%{npmname}/node_modules/.bin/sshpk-sign
+#%{nodejs_libdir}/%{npmname}-%{version}/lib/node_modules/%{npmname}/node_modules/.bin/sshpk-verify
+

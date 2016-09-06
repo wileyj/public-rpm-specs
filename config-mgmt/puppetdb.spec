@@ -10,6 +10,12 @@
 %global rubylibdir   %(ruby -rrbconfig -e 'puts RbConfig::CONFIG["sitelibdir"]')
 %endif
 
+%if 0%{?fedora} >= 18 || 0%{?rhel} >= 7
+%global _with_systemd 1
+%else
+%global _with_systemd 0
+%endif
+
 %global vendor_dir /opt/%{vendorname}
 %global _app_bindir %{vendor_dir}/server/apps/%{name}/bin
 %global _sym_bindir %{vendor_dir}/server/bin
@@ -95,6 +101,9 @@ install -d -m0755 %{buildroot}%{_app_data}
 install -d -m0755 %{buildroot}%{_projconfdir}
 install -d -m0755 %{buildroot}%{_bindir}
 
+sed -i -e 's|/var/log/puppetlabs/puppetdb/|/var/log/puppetdb/|g' $RPM_BUILD_DIR/%{name}-%{version}/ext/redhat/init
+sed -i -e 's|/var/run/puppetlabs/puppetdb/|/var/run/puppetdb/|g' $RPM_BUILD_DIR/%{name}-%{version}/ext/redhat/init
+
 env EZ_VERBOSE=1 DESTDIR=%{buildroot} prefix=%{_prefix} app_prefix=%{_app_prefix} app_data=%{_app_data} confdir=%{_sysconfdir} bindir=%{_app_bindir} symbindir=%{_sym_bindir} rundir=%{_app_rundir} rubylibdir=%{rubylibdir} bash install.sh install_redhat
 %if %{_with_systemd}
 env EZ_VERBOSE=1 DESTDIR=%{buildroot} prefix=%{_prefix} app_prefix=%{_app_prefix} app_data=%{_app_data} confdir=%{_sysconfdir} bindir=%{_app_bindir} symbindir=%{_sym_bindir} rundir=%{_app_rundir} defaultsdir=%{_sysconfdir}/sysconfig unitdir=%{_unitdir} bash install.sh systemd_redhat
@@ -115,49 +124,32 @@ install -m0644 %{SOURCE3} %{buildroot}%{_projconfdir}/conf.d/config.ini
 install -m0644 %{SOURCE4} %{buildroot}%{_projconfdir}/conf.d/database.ini
 install -m0644 %{SOURCE5} %{buildroot}%{_projconfdir}/conf.d/jetty.ini
 install -m0644 %{SOURCE6} %{buildroot}%{_projconfdir}/conf.d/repl.ini
-
 %__ln_s %{_app_bindir}%{name} %{buildroot}%{_bindir}/%{name}
-
-#sed -i -e 's|USER="puppetdb"|USER="puppet"|g' %{buildroot}%{_sysconfdir}/sysconfig/%{name}
-#sed -i -e 's|GROUP="puppetdb"|GROUP="puppet"|g' %{buildroot}%{_sysconfdir}/sysconfig/%{name}
-sed -i -e 's|/var/log/puppetlabs/puppetdb/|/var/log/puppetdb/|g' %{buildroot}%{_initrddir}/%{name}
-sed -i -e 's|/var/run/puppetlabs/puppetdb/|/var/run/puppetdb/|g' %{buildroot}%{_initrddir}/%{name}
 sed -i -e 's|/opt/puppetlabs/server/bin/puppetdb ssl-setup|#/opt/puppetlabs/server/bin/puppetdb ssl-setup|g' %{buildroot}%{_app_prefix}/scripts/install.sh
 
 rm -rf /var/tmp/%{name}
 cp -R $RPM_BUILD_ROOT /var/tmp/%{name}
 
 
-#%clean
-#rm -rf $RPM_BUILD_ROOT
+%clean
+rm -rf $RPM_BUILD_ROOT
 
 %pre
-getent group puppetdb > /dev/null || groupadd -r puppetdb || :
+# Note: changes to this section of the spec may require synchronisation with the
+# install.sh source based installation methodology.
+#
+# Add puppetdb group
+getent group puppetdb > /dev/null || \
+  groupadd -r puppetdb || :
+# Add puppetdb user
 if getent passwd puppetdb > /dev/null; then
-  usermod --gid puppetdb --home %{_app_data} --comment "puppetdb daemon" puppetdb || :
+  usermod --gid puppetdb --home %{_app_data} \
+  --comment "puppetdb daemon" puppetdb || :
 else
-  useradd -r --gid puppetdb --home %{_app_data} --shell $(which nologin) --comment "puppetdb daemon"  puppetdb || :
+  useradd -r --gid puppetdb --home %{_app_data} --shell $(which nologin) \
+    --comment "puppetdb daemon"  puppetdb || :
 fi
 if rpm -q puppetdb | grep ^puppetdb-2.* > /dev/null && [ $1 -eq 2 ] ; then tar -czf /tmp/puppetdb-upgrade-config-files.tgz -C /etc/puppetdb/conf.d config.ini database.ini jetty.ini ; fi
-
-%post
-%{_app_prefix}/scripts/install.sh postinst_redhat
-%if %{_with_systemd}
-systemctl daemon-reload >/dev/null 2>&1 || :
-%systemd_post puppetdb.service
-%else
-if [ "$1" = "1" ]; then
-    /sbin/chkconfig --add %{name}
-fi
-%endif
-%{_chown} -R %{name}:%{group} %{vendor_dir}
-%{_chown} -R %{name}:%{group} %{_app_bindir}
-%{_chown} -R %{name}:%{group} %{_sym_bindir}
-%{_chown} -R %{name}:%{group} %{_ux_bindir}
-%{_chown} -R %{name}:%{group} %{_app_logdir}
-%{_chown} -R %{name}:%{group} %{_app_rundir}
-%{_chown} -R %{name}:%{group} %{_app_libdir}
-
 
 %preun
 %if %{_with_systemd}
@@ -185,6 +177,28 @@ if [ "$1" = "1" ] ; then
     /sbin/service %{name} condrestart >/dev/null 2>&1
 fi
 %endif
+
+%post
+%{_app_prefix}/scripts/install.sh postinst_redhat
+%if %{_with_systemd}
+# Reload the systemd units
+systemctl daemon-reload >/dev/null 2>&1 || :
+%systemd_post puppetdb.service
+%else
+# If this is an install (as opposed to an upgrade)...
+if [ "$1" = "1" ]; then
+    # Register the puppetdb service
+    /sbin/chkconfig --add %{name}
+fi
+%endif
+%{_chown} -R %{name}:%{group} %{vendor_dir}
+%{_chown} -R %{name}:%{group} %{_app_bindir}
+%{_chown} -R %{name}:%{group} %{_sym_bindir}
+%{_chown} -R %{name}:%{group} %{_ux_bindir}
+%{_chown} -R %{name}:%{group} %{_app_logdir}
+%{_chown} -R %{name}:%{group} %{_app_rundir}
+%{_chown} -R %{name}:%{group} %{_app_libdir}
+
 
 
 %files

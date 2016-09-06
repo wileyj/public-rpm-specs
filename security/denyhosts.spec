@@ -1,6 +1,14 @@
-%define macro %{_rpmconfigdir}/macros.d/macros.python
-BuildRequires: git python-srpm-macros
-%include %{macro}
+%if 0%{?amzn} >= 1
+%define python python27
+BuildRequires: %{python} %{python}-rpm-macros %{python}-devel
+Requires: %{python} %{python}-setuptools
+%else
+%define python python
+BuildRequires: %{python} %{python}-rpm-macros %{python}-devel
+Requires: %{python} %{python}-setuptools
+%endif
+
+BuildRequires: git
 
 %define prefix /opt/denyhosts
 %define real_name DenyHosts
@@ -22,8 +30,6 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 
 Buildarch: noarch
 Obsoletes: DenyHosts <= %{version}
-BuildRequires: python27-devel >= 2.7
-Requires: python27
 
 %description
 DenyHosts is a script intended to help Linux system administrators thwart
@@ -37,7 +43,7 @@ logins.
 %patch0 -p1
 
 %build
-/usr/bin/python2.7 setup.py build
+/usr/bin/%{python} setup.py build
 
 %install
 %{__rm} -rf %{buildroot}
@@ -57,9 +63,7 @@ logins.
 [ "$RPM_BUILD_ROOT" != "/" ] && %__rm -rf $RPM_BUILD_ROOT
 [ "%{buildroot}" != "/" ] && %__rm -rf %{buildroot}
 [ "%{_builddir}/%{name}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}
-[ "%{_builddir}/%{realname}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{realname}-%{version}
 [ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}
-[ "%{_builddir}/%{realname}" != "/" ] && %__rm -rf %{_builddir}/%{realname}
 
 %post
 if [ -x %{_initrddir}/%{name} ]; then

@@ -1,6 +1,14 @@
-%define macro %{_rpmconfigdir}/macros.d/macros.python
-BuildRequires: git python-srpm-macros
-%include %{macro}
+%if 0%{?amzn} >= 1
+%define python python27
+BuildRequires: %{python} %{python}-rpm-macros %{python}-devel
+Requires: %{python} %{python}-setuptools
+%else
+%define python python
+BuildRequires: %{python} %{python}-rpm-macros %{python}-devel
+Requires: %{python} %{python}-setuptools
+%endif
+
+BuildRequires: git 
 
 Name: libtalloc
 Version: 2.1.5
@@ -17,7 +25,6 @@ BuildRoot: %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 BuildRequires: autoconf
 BuildRequires: libxslt
 BuildRequires: docbook-style-xsl
-BuildRequires: python27-devel
 BuildRequires: doxygen
 
 # Patches
@@ -100,7 +107,7 @@ cp -a doc/man/* $RPM_BUILD_ROOT/%{_mandir}
 %files -n pytalloc
 %defattr(-,root,root,-)
 %{_libdir}/libpytalloc-util.so.*
-%{python27_sitearch}/talloc.so
+%{python_sitearch}/talloc.so
 
 %files -n pytalloc-devel
 %defattr(-,root,root,-)

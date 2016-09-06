@@ -1,9 +1,18 @@
+%if 0%{?amzn} >= 1
+%define python python27
+BuildRequires: %{python} %{python}-rpm-macros %{python}-devel
+Requires: %{python} %{python}-setuptools
+%else
+%define python python
+BuildRequires: %{python} %{python}-rpm-macros %{python}-devel
+Requires: %{python} %{python}-setuptools
+%endif
+
 %define pkgname six
-%define pexec python27
 %define pip_version %(echo `curl -s https://pypi.python.org/pypi/%{pkgname} | grep "<title>" | awk '{print $2}'`)
 %define filelist %{pkgname}-%{version}-filelist
 
-Name:           %{pexec}-%{pkgname}
+Name:           %{python}-%{pkgname}
 Version:        %{pip_version}
 Release:        1.%{dist}
 Summary:        a Python 2 and 3 compatibility library
@@ -13,11 +22,7 @@ Packager:       %{packager}
 Vendor:         %{vendor}
 URL:            http://pypi.python.org/pypi/redis
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-BuildRequires:  python27, python27-devel, python27-setuptools
-BuildRequires: git python-srpm-macros
-Requires:       python27
 
-%include /usr/lib/rpm/macros.d/macros.python
 %description
 Six is a Python 2 and 3 compatibility library. It provides utility functions for smoothing over the differences between the Python versions with the goal of writing Python code that is compatible on both Python versions. See the documentation for more information on what is provided.
 

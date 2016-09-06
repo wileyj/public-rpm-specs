@@ -1,3 +1,15 @@
+%if 0%{?amzn} >= 1
+%define python python27
+BuildRequires: %{python} %{python}-rpm-macros %{python}-devel
+Requires: %{python} %{python}-setuptools
+%else
+%define python python
+BuildRequires: %{python} %{python}-rpm-macros %{python}-devel
+Requires: %{python} %{python}-setuptools
+%endif
+
+%define macro %{_rpmconfigdir}/macros.d/macros.python
+
 %define repo https://github.com/voxpupuli/puppetboard
 %define gitversion %(echo `curl -s https://github.com/voxpupuli/puppetboard/releases | grep 'class="css-truncate-target"' | head -1 |  tr -d '\\-</span class="css-truncate-target">'`)
 %define filelist %{name}-%{version}-filelist
@@ -18,17 +30,16 @@ Packager:       %{packager}
 Vendor:         %{vendor}
 URL:            https://github.com/voxpupuli/puppetboard
 Group:          System Environment/Base
-Requires:       puppetdb python27 nginx
-Requires:	python27-Flask python27-Flask-WTF python27-jinja2 python27-MarkupSafe 
-Requires:	python27-WTForms python27-Werkzeug python27-itsdangerous python27-pypuppetdb 
-Requires:	python27-requests python27-uwsgi python27-uwsgi_metrics %{name}-libs = %{version}-%{release}
+Requires:       puppetdb %{python} nginx
+Requires:	%{python}-Flask %{python}-Flask-WTF %{python}-jinja2 %{python}-MarkupSafe 
+Requires:	%{python}-WTForms %{python}-Werkzeug %{python}-itsdangerous %{python}-pypuppetdb 
+Requires:	%{python}-requests %{python}-uwsgi %{python}-uwsgi_metrics %{name}-libs = %{version}-%{release}
 BuildArch:      noarch
 Source1:	%{name}.ini
 Source2:	%{name}.init
 Source3:	wsgi.py
 Source4:	settings.py
 Source5:	puppetboard.conf
-%include /usr/lib/rpm/macros.d/macros.python
 
 %description
 %{summary}
@@ -36,7 +47,7 @@ Source5:	puppetboard.conf
 %package libs
 Summary: python module for puppetboard
 Group:  Development/Languages 
-Requires: %{name} = %{version}-%{release} python27
+Requires: %{name} = %{version}-%{release} %{python}
 
 %description libs
 %{summary}
@@ -51,7 +62,7 @@ git clone %{repo} %{name}-%{version}
 cd %{name}-%{version}
 git submodule init
 git submodule update
-%{__python27} setup.py build
+%{python} setup.py build
 
 %install
 cd %{name}-%{version}
@@ -66,7 +77,7 @@ install -d -m0755 %{buildroot}%{_localstatedir}/log/%{name}
 install -d -m0755 %{buildroot}%{_localstatedir}/run/%{name}
 install -d -m0755 %{buildroot}%{_sysconfdir}/nginx/sites-available
 
-%{__python27} setup.py install --skip-build --root $RPM_BUILD_ROOT
+%{python} setup.py install --skip-build --root $RPM_BUILD_ROOT
 rsync -avz --progress --delete * %{buildroot}%{_docroots}/%{name}
 install -d -m0755 %{buildroot}%{_docroots}/%{name}/conf
 install  -m0644 %{SOURCE1} %{buildroot}%{_docroots}/%{name}/conf/%{name}.ini
@@ -81,8 +92,8 @@ rm -rf %{buildroot}%{_docroots}/%{name}/build
     echo '%defattr(-,root,root,-)'
     find %{buildroot} -type d -not \( -path */u/* -o -path */u -o -path */etc -o -path */etc/* -o -path */var -o -path */var/* -prune \) -printf '%%%dir "%p"\n' | %{__sed} -e 's|%{buildroot}||g'
     find %{buildroot} -type f -not \( -path */u/* -o -path */u -o -path */etc -o -path */etc/* -o -path */var -o -path */var/* -prune \) -printf '"%p"\n' | %{__sed} -e 's|%{buildroot}||g'
-    echo '%exclude "%{python27_sitelib}/%{name}/*.pyo"'
-    echo '%exclude "%{python27_sitelib}/%{name}/*.pyc"'
+    echo '%exclude "%{python_sitelib}/%{name}/*.pyo"'
+    echo '%exclude "%{python_sitelib}/%{name}/*.pyc"'
 ) >  %{filelist}
 sed -i -e 's|%dir ""||g' %{filelist}
 

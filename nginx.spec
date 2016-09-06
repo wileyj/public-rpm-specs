@@ -1,3 +1,7 @@
+%global vendorname nginx
+%define repo https://github.com/%{vendorname}/%{name}
+%define gitversion %(echo `curl -s https://github.com/%{vendorname}/%{name}/releases | grep 'class="tag-name"' | head -1 |  tr -d '\\-</span class="tag-name">'`)
+
 %define nginx_home %{_localstatedir}/cache/nginx
 %define nginx_user nginx
 %define nginx_group nginx
@@ -22,10 +26,10 @@ BuildRequires: openssl-devel >= 1.0.1
 
 Summary: High performance web server
 Name: nginx
-Version: 1.9.9
+Version: %{gitversion}
 Release: 1.%{dist}
 URL: http://nginx.org/
-Source0: %{name}.tar.gz
+#Source0: %{name}.tar.gz
 Source1: logrotate
 Source2: nginx.init
 Source3: nginx.sysconf
@@ -58,10 +62,17 @@ a mail proxy server.
 #Not stripped version of nginx built with the debugging log support.
 
 %prep
-%setup -q -n %{name}
-hg pull
+if [ -d %{name}-%{version} ];then
+    rm -rf %{name}-%{version}
+fi
+git clone %{repo} %{name}-%{version}
+cd %{name}-%{version}
+git submodule init
+git submodule update
 
 %build
+cd %{name}-%{version}
+find examples/ -type f | xargs --no-run-if-empty chmod a-x
 ./auto/configure \
         --prefix=%{prefix} \
         --sbin-path=%{_sbindir}/%{name} \
@@ -105,6 +116,7 @@ hg pull
 make %{?_smp_mflags}
 
 %install
+cd %{name}-%{version}
 %{__rm} -rf $RPM_BUILD_ROOT
 %{__make} DESTDIR=$RPM_BUILD_ROOT install
 

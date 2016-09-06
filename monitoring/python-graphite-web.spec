@@ -1,5 +1,14 @@
+%if 0%{?amzn} >= 1
+%define python python27
+BuildRequires: %{python} %{python}-rpm-macros %{python}-devel
+Requires: %{python} %{python}-setuptools
+%else
+%define python python
+BuildRequires: %{python} %{python}-rpm-macros %{python}-devel
+Requires: %{python} %{python}-setuptools
+%endif
+
 %global pkgname graphite-web
-%define pexec python27
 #%define pip_version %(echo `curl -s https://pypi.python.org/pypi/%{pkgname} | grep "<title>" | awk '{print $2}'`)
 %define pip_version 0.9.15
 %define filelist %{pkgname}-%{version}-filelist
@@ -7,7 +16,7 @@
 %define __touch    /bin/touch
 %define __service  /sbin/service
 
-Name:           %{pexec}-%{pkgname}
+Name:           %{python}-%{pkgname}
 Version:        %{pip_version}
 Release:        3.%{dist}
 Summary:        Enterprise scalable realtime graphing
@@ -18,13 +27,9 @@ Vendor: %{vendor}
 Packager: %{packager}
 BuildRoot:      %{_tmppath}/%{pkgname}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildArch:      noarch
-BuildRequires:  python27, python27-devel, python27-setuptools
-BuildRequires: git python-srpm-macros
-Requires:       python27
 Requires:       Django django-tagging httpd mod_wsgi pycairo python-simplejson
 Requires: 	bitmap-fonts-compat
 
-%include /usr/lib/rpm/macros.d/macros.python
 %description
 Graphite consists of a storage backend and a web-based visualization frontend.
 Client applications send streams of numeric time-series data to the Graphite

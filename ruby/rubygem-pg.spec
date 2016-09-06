@@ -17,7 +17,7 @@ Packager: %{packager}
 Requires: ruby rubygems
 BuildRequires: rubygems rubygems-devel
 BuildRequires: ruby ruby-devel
-BuildRequires: postgresql94-devel
+BuildRequires: postgresql-devel
 BuildArch: x86_64
 Provides: rubygem-%{gemname}
 Provides: rubygem(%{gemname})

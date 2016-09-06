@@ -19,6 +19,8 @@ Vendor:         %{vendor}
 Packager:       %{packager}
 
 BuildRequires:  git golang >= 1.5.0
+BuildRequires:	golang-gox
+Requires:	golang-gox
 Requires:       golang >= 1.5.0
 Provides:       golang-%{provider}
 Provides:       golang(%{import_path}) = %{version}-%{release}
@@ -58,6 +60,7 @@ echo '%dir "%{gopath}/src/%{import_path}"' >> %{name}-%{version}-filelist
 [ "%{_builddir}/%{name}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}
 [ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}
 [ "%{_builddir}/%{name}-%{version}-filelist" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}-filelist
+%__rm -f %{__builddir}/%{name}-%{version}-filelist
 
 %files -f %{name}-%{version}-filelist
 %{goroot}/bin/vault

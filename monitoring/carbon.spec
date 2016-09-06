@@ -1,6 +1,13 @@
-%define macro %{_rpmconfigdir}/macros.d/macros.python
-BuildRequires: git python-srpm-macros
-%include %{macro}
+%if 0%{?amzn} >= 1
+%define python python27
+BuildRequires: git %{python} %{python}-rpm-macros %{python}-devel
+Requires: %{python} %{python}-setuptools
+%include %{_rpmconfigdir}/macros.d/macros.python
+%else
+%define python python
+BuildRequires: git %{python} %{python}-rpm-macros %{python}-devel
+Requires: %{python} %{python}-setuptools
+%endif
 
 %define __getent   /usr/bin/getent
 %define __useradd  /usr/sbin/useradd
@@ -29,8 +36,7 @@ Source5:        %{name}-aggregator.init
 Source6:        %{name}-aggregator.sysconfig
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildArch:      noarch
-BuildRequires:  python27 python27-devel python27-setuptools
-Requires:       python27 whisper
+Requires:       whisper
 
 %description
 The backend for Graphite. Carbon is a data collection and storage agent.  
@@ -41,11 +47,11 @@ The backend for Graphite. Carbon is a data collection and storage agent.
 %patch1 -p1
 
 %build
-CFLAGS="$RPM_OPT_FLAGS" %{__python27} -c 'import setuptools; execfile("setup.py")' build
+CFLAGS="$RPM_OPT_FLAGS" %{__python} -c 'import setuptools; execfile("setup.py")' build
 
 %install
 [ "%{buildroot}" != "/" ] && %{__rm} -rf %{buildroot}
-%{__python27} -c 'import setuptools; execfile("setup.py")' install --skip-build --root %{buildroot}
+%{__python} -c 'import setuptools; execfile("setup.py")' install --skip-build --root %{buildroot}
 
 # Create log and var directories
 %{__mkdir_p} %{buildroot}%{_localstatedir}/log/%{name}-cache

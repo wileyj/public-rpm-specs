@@ -5,10 +5,8 @@
 %global repo https://g'ithub.com/sensu-plugins/%{gemname}.git
 %global gemdesc %(echo `gem list ^%{gemname}$ -r -d | tail -1`)
 %global remoteversion %(echo `gem list ^%{gemname}$ -r |  cut -f2 -d" " | tr -d '()'`)
-BuildRequires: python-srpm-macros
 
 %include %{_rpmconfigdir}/macros.d/macros.rubygems
-#%{?load: %{_rpmconfigdir}/macros.d/macros.python}
 
 Summary: %{gemdesc}
 Name: rubygem-%{gemname}
@@ -18,10 +16,9 @@ Group: Development/Languages
 License: Ruby
 Vendor: %{vendor}
 Packager: %{packager}
-Requires: ruby rubygems rubygem-mini_portile rubygem-nokogiri
-BuildRequires: rubygems rubygems-devel ruby-devel 
-#v8-devel 
-BuildRequires: ruby ruby-devel rubygem-mini_portile rubygem-nokogiri
+Requires: ruby rubygems rubygem-mini_portile v8
+BuildRequires: rubygems rubygems-devel ruby-devel v8-devel v8
+BuildRequires: ruby ruby-devel rubygem-mini_portile 
 BuildArch: x86_64
 Provides: rubygem-%{gemname}
 Provides: rubygem(%{gemname})
@@ -33,8 +30,8 @@ Provides: rubygem(%{gemname})
 %prep
 
 export CONFIGURE_ARGS="--with-cflags='%{optflags}'"
-#gem install --install-dir %{_builddir}/%{name}%{gem_dir} --bindir %{_builddir}/%{name}%{_bindir} --force --no-rdoc --no-ri --no-doc --ignore-dependencies %{gemname} -- --with-system-v8
-gem install --install-dir %{_builddir}/%{name}%{gem_dir} --bindir %{_builddir}/%{name}%{_bindir} --force --no-rdoc --no-ri --no-doc --ignore-dependencies %{gemname} 
+gem install --install-dir %{_builddir}/%{name}%{gem_dir} --bindir %{_builddir}/%{name}%{_bindir} --force --no-rdoc --no-ri --no-doc --ignore-dependencies %{gemname} -- --with-system-v8
+#gem install --install-dir %{_builddir}/%{name}%{gem_dir} --bindir %{_builddir}/%{name}%{_bindir} --force --no-rdoc --no-ri --no-doc --ignore-dependencies %{gemname} 
 
 %build
 
@@ -113,7 +110,7 @@ fi
 [ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}
 
 %files -f  %{filelist}
-%{gem_dir}/gems/%{gemname}-%{version}/vendor/v8/third_party/llvm-build/Release+Asserts/bin/clang++
-%{gem_dir}/gems/%{gemname}-%{version}/vendor/v8/third_party/llvm-build/Release+Asserts/bin/clang-cl
-%{gem_dir}/gems/%{gemname}-%{version}/vendor/v8/tools/swarming_client/tests/trace_inputs/files2
+#%{gem_dir}/gems/%{gemname}-%{version}/vendor/v8/third_party/llvm-build/Release+Asserts/bin/clang++
+#%{gem_dir}/gems/%{gemname}-%{version}/vendor/v8/third_party/llvm-build/Release+Asserts/bin/clang-cl
+#%{gem_dir}/gems/%{gemname}-%{version}/vendor/v8/tools/swarming_client/tests/trace_inputs/files2
 

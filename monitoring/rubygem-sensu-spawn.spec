@@ -2,7 +2,7 @@
 %global gemname sensu-spawn
 %global repo https://github.com/sensu/%{gemname}.git
 %global gemdesc %(echo `gem list ^%{gemname}$ -r -d | tail -1`)
-%global remoteversion %(echo `gem list ^%{gemname}$ -r |  cut -f2 -d" " | tr -d '()'`)
+%global remoteversion %(echo `gem list ^%{gemname}$ -r |  cut -f2 -d" " | tr -d '(),'`)
 %global sensu_base /etc/sensu
 %global plugins    %{sensu_base}/plugins
 %global metrics    %{sensu_base}/metrics

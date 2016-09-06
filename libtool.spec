@@ -22,19 +22,20 @@ shared libraries.  Libtool provides a consistent, portable interface which
 simplifies the process of using shared libraries.
 libtool
 
-%package -n libltdl
+%package -n libtool-ltdl
 Summary:    Shared library files for %{name}
 Group:      Development/Libraries
-
-%description -n libltdl
+Provides:   libtool-ltdl = %{version}
+Requires:   %{name} = %{version}
+%description -n libtool-ltdl
 Shared library files for libtool DLL library from the libtool package.
 
-%package -n libltdl-devel
+%package -n libtool-ltdl-devel
 Summary:    Development files for %{name}
 Group:      Development/Libraries
-Requires:   libltdl = %{version}-%{release}
-
-%description -n libltdl-devel
+Provides:   libtool-ltdl-devel = %{version}
+Requires:   %{name} = %{version}
+%description -n libtool-ltdl-devel
 This package contains static libraries and header files need for development.
 
 
@@ -60,10 +61,10 @@ rm -rf %{buildroot}%{_infodir}/dir
 
 
 %clean
-[ "$RPM_BUILD_ROOT" != "/" ] && %__rm -rf $RPM_BUILD_ROOT
-[ "%{buildroot}" != "/" ] && %__rm -rf %{buildroot}
-[ "%{_builddir}/%{name}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}
-[ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}
+#[ "$RPM_BUILD_ROOT" != "/" ] && %__rm -rf $RPM_BUILD_ROOT
+#[ "%{buildroot}" != "/" ] && %__rm -rf %{buildroot}
+#[ "%{_builddir}/%{name}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}
+#[ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}
 
 %post
 %install_info %{name}.info
@@ -71,8 +72,8 @@ rm -rf %{buildroot}%{_infodir}/dir
 %preun
 %uninstall_info %{name}.info
 
-%post -n libltdl -p /sbin/ldconfig
-%postun -n libltdl -p /sbin/ldconfig
+%post -n libtool-ltdl -p /sbin/ldconfig
+%postun -n libtool-ltdl -p /sbin/ldconfig
 
 %files
 %defattr(-,root,root)
@@ -122,13 +123,13 @@ rm -rf %{buildroot}%{_infodir}/dir
    %{_datarootdir}/%{name}/ltdl.mk
    %{_datarootdir}/%{name}/slist.c
 
-%files -n libltdl
+%files -n libtool-ltdl
 %defattr(-,root,root)
 %dir %{_datadir}/libtool/libltdl/
 %{_datadir}/libtool/libltdl/*
 %{_libdir}/libltdl.so.*
 
-%files -n libltdl-devel
+%files -n libtool-ltdl-devel
 %defattr(-,root,root)
 %{_includedir}/ltdl.h
 %{_includedir}/libltdl

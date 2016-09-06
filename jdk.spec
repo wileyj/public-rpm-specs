@@ -1,6 +1,7 @@
 # http://download.oracle.com/otn-pub/java/jdk/8u66-b17/jdk-8u66-linux-x64.tar.gz
 # curl -L -b "oraclelicense=a" http://download.oracle.com/otn-pub/java/jdk/8u66-b17/jdk-8u66-linux-x64.tar.gz -O
 # curl -L -b "oraclelicense=a" http://download.oracle.com/otn-pub/java/jdk/8u66-b17/jdk-8u66-linux-x64.tar.gz -O
+# curl -L -b "oraclelicense=a" http://download.oracle.com/otn-pub/java/jdk/8u102-b14/jdk-8u102-linux-x64.tar.gz -O
 
 %define __os_install_post %{nil}
 %define _unpackaged_files_terminate_build 0
@@ -10,7 +11,7 @@
 
 Name:           jdk
 Summary:        Sun JDK
-Version:        1.8.0_66
+Version:        1.8.0_102
 Release:	1.%{dist}
 Url:            http://java.sun.com
 License:        Binary Code License Agreement
@@ -19,7 +20,7 @@ Packager: %{packager}
 Group:          Development/Libraries/Java
 #Buildroot:	java-build
 BuildRoot: 	%{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
-Source0:	%{name}-8u66-linux-x64.tar.gz
+Source0:	%{name}-8u102-linux-x64.tar.gz
 AutoReq:	0
 AutoProv:	0
 Provides:	jdk = %{version}
@@ -64,6 +65,7 @@ EOF
 ln -sf %{home}  $RPM_BUILD_ROOT%{current}
 ln -sf %{current}/bin/java  $RPM_BUILD_ROOT%{_bindir}/java
 ln -sf %{current}/bin/javac  $RPM_BUILD_ROOT%{_bindir}/javac
+ln -sf %{current}/bin/javadoc  $RPM_BUILD_ROOT%{_bindir}/javadoc
 ln -sf %{current}/bin/javah  $RPM_BUILD_ROOT%{_bindir}/javah
 ln -sf %{current}/bin/jar  $RPM_BUILD_ROOT%{_bindir}/jar
 ln -sf %{current}/bin/javap  $RPM_BUILD_ROOT%{_bindir}/javap
@@ -95,6 +97,7 @@ ldconfig
 %{_bindir}/java
 %{_bindir}/javac
 %{_bindir}/javah
+%{_bindir}/javadoc
 %{_bindir}/jar
 %{_bindir}/javap
 %{_bindir}/jstack
@@ -102,5 +105,6 @@ ldconfig
 %{_bindir}/jstatd
 %{_bindir}/jdb
 %{_bindir}/jmap
+%{_sysconfdir}/ld.so.conf.d/jdk.conf
 
 

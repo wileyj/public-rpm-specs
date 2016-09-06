@@ -1,8 +1,18 @@
+%if 0%{?amzn} >= 1
+%define python python27
+BuildRequires: %{python} %{python}-rpm-macros %{python}-devel
+Requires: %{python} %{python}-setuptools
+%else
+%define python python
+BuildRequires: %{python} %{python}-rpm-macros %{python}-devel
+Requires: %{python} %{python}-setuptools
+%endif
+
 %define   _base node
 
 
 Name:          %{_base}js
-Version:       6.2.1
+Version:       6.5.0
 Release:       1.%{dist}
 Summary:       Node.js is a server-side JavaScript environment that uses an asynchronous event-driven model.
 Group:         Development/Libraries
@@ -21,7 +31,7 @@ BuildRequires: openssl-devel
 BuildRequires: libstdc++-devel
 BuildRequires: zlib-devel
 BuildRequires: gzip
-BuildRequires: python27
+BuildRequires: %{python}
 Patch0: node-js.centos5.configure.patch
 
 %description

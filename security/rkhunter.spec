@@ -12,7 +12,7 @@ Source: http://downloads.sourceforge.net/project/rkhunter/rkhunter/%{version}/rk
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 
 BuildArch: noarch
-Requires: nss-tools 
+Requires: /bin/sh
 Requires: binutils
 Requires: coreutils
 Requires: e2fsprogs
@@ -21,6 +21,8 @@ Requires: grep
 Requires: iproute
 Requires: lsof
 Requires: mailx
+Requires: mktemp
+Requires: modutils
 Requires: net-tools
 Requires: perl
 Requires: perl(IO::Socket)

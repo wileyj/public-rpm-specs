@@ -35,7 +35,7 @@ autoconf
 %install
 cd %{name}-%{version}
 rm -rf $RPM_BUILD_ROOT
-%makeinstall 
+make DESTDIR=%{buildroot} INSTALL='install -p' install
 
 %clean
 [ "$RPM_BUILD_ROOT" != "/" ] && %__rm -rf $RPM_BUILD_ROOT
@@ -45,6 +45,10 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %attr(755,root,root) %{_sbindir}/%{name}
+%attr(755,root,root) %{_libexecdir}/sshg-blocker
+%attr(755,root,root) %{_libexecdir}/sshg-fw
+%attr(755,root,root) %{_libexecdir}/sshg-logtail
+%attr(755,root,root) %{_libexecdir}/sshg-parser
 %{_mandir}/man8/%{name}.8.*
 
 
