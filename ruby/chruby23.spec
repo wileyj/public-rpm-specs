@@ -5,7 +5,7 @@
 %define ruby_name ruby%{ruby_ver}
 %define system_ruby 0
 
-Name:		chruby%{ruby_ver}
+Name:		chruby-ruby%{ruby_ver}
 Version:	%{ruby_version}
 Release:	%{revision}.%{?dist}
 Summary:	Installs ruby%{ruby_ver} for chruby
