@@ -1,9 +1,12 @@
 %define repo https://github.com/technomancy/leiningen.git
 %define gitversion %(echo `curl -s https://github.com/technomancy/leiningen/releases | grep 'css-truncate-target' | head -1 |  tr -d '\\-</span class="css-truncate-target">'`)
 %define lein_dir /opt/%{name}
+%global revision %(echo `git ls-remote %{repo}.git  | head -1 | cut -f 1`)
+%define rel_version 1
+
 Name:           leiningen
 Version:        %{gitversion}
-Release:        1.%{dist}
+Release:        %{rel_version}.%{revision}.%{dist}
 Summary:        A network tool for managing many disparate systems
 License:        ASL 2.0
 Packager:       %{packager}

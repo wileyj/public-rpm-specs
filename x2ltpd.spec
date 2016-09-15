@@ -1,8 +1,12 @@
-%define repo https://github.com/xelerance/xl2tpd.git
+%define repo https://github.com/xelerance/xl2tpd
+%define gitversion %(echo `curl -s %{repo}/releases | grep 'class="tag-name"' | head -1 |sed 's/TOMCAT.//' | tr '_' '.' |  tr -d '\\-</span class="tag-name">vr'`)
+%global revision %(echo `git ls-remote %{repo}.git  | head -1 | cut -f 1`)
+%define rel_version 1
+
 Summary: Layer 2 Tunnelling Protocol Daemon (RFC 2661)
 Name: xl2tpd
-Version: 1.3.2
-Release: 1%{?dist}
+Version: %{gitversion}
+Release: %{rel_version}.%{revision}.%{?dist}
 License: GPLv2
 Url: http://www.xelerance.com/software/xl2tpd/
 Group: System Environment/Daemons

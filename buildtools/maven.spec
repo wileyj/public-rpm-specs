@@ -1,0 +1,61 @@
+%define repo https://github.com/apache/maven
+%define gitversion %(echo `curl -s https://github.com/apache/maven/releases | grep 'class="tag-name"' | head -1 |  tr -d '\\-</span class="tag-name">v'`)
+%define _javadir /usr/java
+%define maven_prefix /opt/%{name}
+
+Name:           maven
+Summary:        software project management tool
+Version:        %{gitversion}
+Release:        1.%{dist}
+Url:            http://maven.apache.org
+License:        Apache
+Vendor: 	%{vendor}
+Packager: 	%{packager}
+Group:          Application/Web
+# require the binary apache-maven package, since mvn is required to build maven. of course it is. 
+BuildRequires:	apache-maven
+
+%description
+Maven is a software project management and comprehension tool. Based on
+the concept of a Project Object Model (POM), Maven can manage a project's
+build, reporting and documentation from a central piece of information.
+
+%prep
+if [ -d %{name}-%{version} ];then
+    rm -rf %{name}-%{version}
+fi
+git clone %{repo} %{name}-%{version}
+cd %{name}-%{version}
+source /etc/profile
+source /etc/profile.d/maven_path.sh
+
+%build
+cd %{name}-%{version}
+
+%install
+cd %{name}-%{version}
+/opt/apache-maven/bin/mvn -DdistributionTargetFolder="%{buildroot}%{maven_prefix}-%{version}" clean package
+
+%{__mkdir_p} %{buildroot}/etc/profile.d
+%{__mkdir_p} %{buildroot}/%{_bindir}
+cat <<EOF> %{buildroot}/etc/profile.d/maven.sh
+#export MAVEN_OPTS="-Xmx512m -Xms256m -XX:MaxPermSize=256m"
+export MAVEN_HOME=%{maven_prefix}
+EOF
+%__ln_s -f  %{maven_prefix}-%{version} %{buildroot}%{maven_prefix}
+%__ln_s -f %{maven_prefix}-%{version}/bin/mvn %{buildroot}%{_bindir}/mvn
+%post
+
+%clean
+[ "$RPM_BUILD_ROOT" != "/" ] && %__rm -rf $RPM_BUILD_ROOT
+[ "%{buildroot}" != "/" ] && %__rm -rf %{buildroot}
+[ "%{_builddir}/%{name}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}
+[ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}
+
+%files
+%dir %{maven_prefix}-%{version}
+%{maven_prefix}-%{version}/*
+%{maven_prefix}
+%{_bindir}/mvn
+/etc/profile.d/maven.sh
+

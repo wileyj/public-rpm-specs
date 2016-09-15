@@ -1,13 +1,17 @@
-%define repo https://bitbucket.org/sshguard/sshguard.git
+%define repo https://bitbucket.org/sshguard/sshguard
+#%define gitversion %(echo `curl -s %{repo}/releases | grep 'class="tag-name"' | head -1 |  tr -d '\\-</span class="tag-name">db'`)
+%define gitversion 1.5.0
+%global revision %(echo `git ls-remote %{repo}.git  | head -1 | cut -f 1`)
+%define rel_version 1
 
-Summary: sshguard
 Name: sshguard
-Version: 1.5.0
-Release: 1.%{dist}
+Summary: sshguard
+Version: %{gitversion}
+Release: %{rel_version}.%{revision}.%{dist}
 License: MIT
 URL: http://zsh.sourceforge.net/
 Group: System Environment/Shells
-BuildRequires: autoconf automake gcc
+BuildRequires: autoconf automake gcc libtool
 
 %description
 sshguard protects hosts from brute-force attacks against SSH and other services. It aggregates system logs and blocks repeat offenders using one of several firewall backends, including iptables, ipfw, and pf.

@@ -9,6 +9,8 @@ Requires: %{python} %{python}-setuptools
 %endif
 
 %define repo https://github.com/vim/vim.git
+%global revision %(echo `git ls-remote %{repo}.git  | head -1 | cut -f 1`)
+%define rel_version 1
 
 %define patchlevel 909
 %define WITH_SELINUX 0
@@ -24,7 +26,7 @@ Requires: %{python} %{python}-setuptools
 Summary: The VIM editor
 Name: git-vim
 Version: %{baseversion}.%{patchlevel}
-Release: 3.%{?dist}
+Release: %{rel_version}.%{revision}.%{?dist}
 License: Vim
 Group: Applications/Editors
 URL: https://github.com/%{realname}/%{realname}.git

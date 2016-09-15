@@ -13,10 +13,12 @@ Requires: %{python} %{python}-setuptools
 %define repo https://github.com/ansible/ansible.git
 %define gitversion %(echo `curl -s https://github.com/ansible/ansible/releases | grep 'class="tag-name"' | head -1 |  tr -d '\\-</span class="tag-name">v'`)
 %define name ansible
+%global revision %(echo `git ls-remote %{repo}.git  | head -1 | cut -f 1`)
+%define rel_version 1
 
 Name:      %{name}
 Version:   %{gitversion}
-Release:   1.%{dist}
+Release:   %{rel_version}.%{revision}.%{dist}
 Url:       http://www.ansible.com
 Summary:   SSH-based application deployment, configuration management, and IT orchestration platform
 License:   GPLv3

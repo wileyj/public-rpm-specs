@@ -1,9 +1,11 @@
 %define repo https://github.com/puppetlabs/cpp-hocon.git
 %define gitversion %(echo `curl -s  https://github.com/puppetlabs/cpp-hocon/releases | grep 'class="css-truncate-target"' | head -1 |  tr -d '\\-</span class="css-truncate-target">'`)
+%global revision %(echo `git ls-remote %{repo}.git  | head -1 | cut -f 1`)
+%define rel_version 1
 
 Name:           cpp-hocon
 Version:        %{gitversion}
-Release:        1.%{dist}
+Release:        %{rel_version}.%{revision}.%{dist}
 Summary:        This is a port of the TypesafeConfig library to C++.
 Group:          Development/Libraries/C and C++
 License:        ASL 2.0

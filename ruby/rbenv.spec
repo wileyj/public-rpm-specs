@@ -51,7 +51,7 @@ rm -rf $RPM_BUILD_ROOT
 
 mkdir -p $RPM_BUILD_ROOT/%{rbenv_root}
 cp -r  * $RPM_BUILD_ROOT/%{rbenv_root}
-install -d -m0777 $RPM_BUILD_ROOT/%{rbenv_root}/shims
+install -d -m0755 $RPM_BUILD_ROOT/%{rbenv_root}/shims
 
 mkdir -p $RPM_BUILD_ROOT/%{_sysconfdir}/profile.d/
 cat > $RPM_BUILD_ROOT/%{_sysconfdir}/profile.d/rbenv.sh <<EOF

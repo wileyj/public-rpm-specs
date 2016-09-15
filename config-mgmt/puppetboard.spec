@@ -12,6 +12,10 @@ Requires: %{python} %{python}-setuptools
 
 %define repo https://github.com/voxpupuli/puppetboard
 %define gitversion %(echo `curl -s https://github.com/voxpupuli/puppetboard/releases | grep 'class="css-truncate-target"' | head -1 |  tr -d '\\-</span class="css-truncate-target">'`)
+%global revision %(echo `git ls-remote %{repo}.git  | head -1 | cut -f 1`)
+%define rel_version 1
+
+
 %define filelist %{name}-%{version}-filelist
 
 %global _docroots /u/docroots
@@ -23,7 +27,7 @@ Requires: %{python} %{python}-setuptools
 
 Name:           puppetboard
 Version:        %{gitversion}
-Release:        1.%{dist}
+Release:        %{rel_version}.%{revision}.%{dist}
 Summary:        Web frontend for PuppetDB
 License:        ASL
 Packager:       %{packager}
