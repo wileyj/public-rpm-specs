@@ -1,6 +1,7 @@
-%global vendorname nginx
-%define repo https://github.com/%{vendorname}/%{name}
-%define gitversion %(echo `curl -s https://github.com/%{vendorname}/%{name}/releases | grep 'class="tag-name"' | head -1 |  tr -d '\\-</span class="tag-name">'`)
+%define repo https://github.com/nginx/nginx
+%define gitversion %(echo `curl -s https://github.com/nginx/nginx/releases | grep 'class="tag-name"' | head -1 |  tr -d '\\-</span class="tag-name">'`)
+%global revision %(echo `git ls-remote %{repo}.git  | head -1 | cut -f 1`)
+%define rel_version 1
 
 %define nginx_home %{_localstatedir}/cache/nginx
 %define nginx_user nginx
@@ -8,28 +9,12 @@
 %define prefix /opt/nginx
 %define use_systemd (0%{?fedora} && 0%{?fedora} >= 18) || (0%{?rhel} && 0%{?rhel} >= 7)
 
-Group: System Environment/Daemons
-Requires(pre): shadow-utils
-Requires: initscripts >= 8.36
-Requires(post): chkconfig
-Requires: openssl >= 1.0.1
-BuildRequires: openssl-devel >= 1.0.1
-
-%if 0%{?rhel}  == 7
-Group: System Environment/Daemons
-Requires(pre): shadow-utils
-Requires: systemd
-Requires: openssl >= 1.0.1
-BuildRequires: systemd
-BuildRequires: openssl-devel >= 1.0.1
-%endif
-
 Summary: High performance web server
 Name: nginx
 Version: %{gitversion}
-Release: 1.%{dist}
+Release: %{rel_version}.%{revision}.%{dist}
 URL: http://nginx.org/
-#Source0: %{name}.tar.gz
+Group: System Environment/Daemons
 Source1: logrotate
 Source2: nginx.init
 Source3: nginx.sysconf
@@ -45,10 +30,24 @@ Source12: virtual.conf
 License: 2-clause BSD-like license
 Vendor: %{vendor}
 Packager: %{packager}
+Requires(pre): shadow-utils
+Requires: initscripts >= 8.36
+Requires(post): chkconfig
+Requires: openssl >= 1.0.1
+BuildRequires: openssl-devel >= 1.0.1
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires: zlib-devel
 BuildRequires: pcre-devel GeoIP-devel
 Provides: webserver
+
+%if 0%{?rhel}  == 7
+Group: System Environment/Daemons
+Requires(pre): shadow-utils
+Requires: systemd
+Requires: openssl >= 1.0.1
+BuildRequires: systemd
+BuildRequires: openssl-devel >= 1.0.1
+%endif
 
 %description
 nginx [engine x] is an HTTP and reverse proxy server, as well as

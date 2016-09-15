@@ -1,10 +1,12 @@
 %global factpath /etc/puppetlabs/facter/facts.d
 %define repo https://github.com/puppetlabs/facter.git
 %define gitversion %(echo `curl -s  https://github.com/puppetlabs/facter/releases | grep 'class="tag-name"' | head -1 |  tr -d '\\-</span class="tag-name">'`)
+%global revision %(echo `git ls-remote %{repo}.git  | head -1 | cut -f 1`)
+%define rel_version 1
 
 Name:           facter
 Version:        %{gitversion}
-Release:        1.%{dist}
+Release:        %{rel_version}.%{revision}.%{dist}
 Summary:        Command and ruby library for gathering system information
 Group:          System Environment/Base
 License:        ASL 2.0

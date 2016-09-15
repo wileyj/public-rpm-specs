@@ -1,10 +1,12 @@
 %define repo https://github.com/duosecurity/duo_unix.git
 %define gitversion %(echo `curl -s https://github.com/duosecurity/duo_unix/releases | grep 'class="tag-name"' | head -1 |  tr -d 'duo_ux</span class="tag-name">-'`)
+%global revision %(echo `git ls-remote %{repo}.git  | head -1 | cut -f 1`)
+%define rel_version 1
 
 Name: duo
 Version: %{gitversion}
 Summary: Duo two-factor authentication for Unix systems
-Release: 1.%{?dist}
+Release: %{rel_version}.%{revision}.%{?dist}
 License: GPLv3
 Group: Applications/Security
 URL: https://duo.com
@@ -85,7 +87,7 @@ rm -f $RPM_BUILD_ROOT/%{_lib}/security/pam_duo.*a
 [duo]
 ikey = ikey 
 skey = skey 
-host = api-bc5aebab.duosecurity.com
+host = api.duosecurity.com
 pushinfo=yes
 autopush=yes
 EOF

@@ -4,7 +4,7 @@
 %define _use_internal_dependency_generator 0
 %define __find_requires %{nil}
 %global __spec_install_post /usr/lib/rpm/check-rpaths   /usr/lib/rpm/check-buildroot  /usr/lib/rpm/brp-compress
-%define release_ver 1
+%define revision 1
 %global goroot          /usr/lib/%{name}
 %global gopath          %{_datadir}/gocode
 %global go_arches       %{ix86} x86_64 %{arm}
@@ -13,7 +13,7 @@
 
 Name:           golang
 Version:        1.4.2
-Release:        %{release_ver}.%{dist}
+Release:        %{revision}.%{dist}
 Summary:        The Go Programming Language
 License:        BSD
 Vendor: %{vendor}

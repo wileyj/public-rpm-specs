@@ -172,7 +172,11 @@ install -p -m0744 tools/js2c.py %{buildroot}%{python_sitelib}/
 chmod -R -x %{buildroot}%{python_sitelib}/*.py*
 
 %clean
-rm -rf %{buildroot}
+[ "$RPM_BUILD_ROOT" != "/" ] && %__rm -rf $RPM_BUILD_ROOT
+[ "%{buildroot}" != "/" ] && %__rm -rf %{buildroot}
+[ "%{_builddir}/%{name}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}
+[ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}
+[ "%{_builddir}/%{pkgname}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{pkgname}-%{version}
 
 %post -p /sbin/ldconfig
 

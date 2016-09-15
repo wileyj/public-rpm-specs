@@ -1,7 +1,9 @@
+# binary install, used for building maven from source
+
 Name:           apache-maven
 %define         realname apache-maven 
 Summary:        software project management tool
-Version:        3.3.9
+Version:        2.2.1
 Release:        1.%{dist}
 Url:            http://maven.apache.org
 License:        Apache
@@ -9,7 +11,7 @@ Vendor: %{vendor}
 Packager: %{packager}
 Group:          Application/Web
 BuildRoot:  %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-Source0:        %{name}-%{version}-bin.tar.gz
+Source0:        apache-maven-2.2.1-bin.tar.gz
 Source1:        maven_path.sh
 
 %description
@@ -45,12 +47,11 @@ else
 fi
 
 %clean
-[ "$RPM_BUILD_ROOT" != "/" ] && %__rm -rf $RPM_BUILD_ROOT
 [ "%{buildroot}" != "/" ] && %__rm -rf %{buildroot}
 [ "%{_builddir}/%{name}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}
-[ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}
 
 %files
+%defattr(-,root,www)
 /opt/apache-maven-%{version}
 /etc/profile.d/maven_path.sh
 

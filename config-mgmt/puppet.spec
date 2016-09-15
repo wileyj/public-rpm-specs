@@ -2,6 +2,9 @@
 %global vendorname puppetlabs
 %define repo https://github.com/puppetlabs/puppet.git
 %define gitversion %(echo `curl -s https://github.com/puppetlabs/puppet/releases | grep 'class="tag-name"' | head -1 |  tr -d '\\-</span class="tag-name">'`)
+%global revision %(echo `git ls-remote %{repo}.git  | head -1 | cut -f 1`)
+%define rel_version 1
+
 %if 0%{?fedora} >= 17 || 0%{?rhel} >= 7 || 0%{?amzn} >= 1
 %global rubylibdir   %(ruby -rrbconfig -e 'puts RbConfig::CONFIG["vendorlibdir"]')
 %else
@@ -31,7 +34,7 @@
 
 Name:           puppet
 Version:        %{gitversion}
-Release:        1.%{dist}
+Release:        %{rel_version}.%{revision}.%{dist}
 Summary:        A network tool for managing many disparate systems
 License:        ASL 2.0
 Packager:       %{packager}

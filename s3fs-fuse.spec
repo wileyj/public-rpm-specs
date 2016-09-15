@@ -1,11 +1,12 @@
 %define repo https://github.com/s3fs-fuse/s3fs-fuse
 %define gitversion %(echo `curl -s https://github.com/s3-fuse/s3-fuse/releases | grep 'class="tag-name"' | head -1 |  tr -d '\\-</span class="tag-name">'`)
-
+%global revision %(echo `git ls-remote %{repo}.git  | head -1 | cut -f 1`)
+%define rel_version 1
 
 Summary: s3fs mount s3 bucket in userspace
 Name: s3fs-fuse
-Version: 1.78
-Release: 1.%{dist}
+Version: %{gitversion}
+Release: %{rel_version}.%{revision}.%{dist}
 License: BSD
 Packager: %{packager}
 Vendor: %{vendor}

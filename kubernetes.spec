@@ -15,11 +15,11 @@
 %global gitversion %(echo `curl -s %{repo_url}/releases | grep 'class="tag-name"' | head -1 |  tr -d '\\-</span class="tag-name">betav'`)
 %global _buildshell	/bin/bash
 %global _checkshell	/bin/bash
+%define rel_version 1
 
-
-Name:          kubernetes
-Version:	   %{gitversion}
-Release:	   %{revision}.%{?dist}
+Name:          	%{repo}
+Version:	%{gitversion}
+Release:	%{rel_version}.%{revision}.%{?dist}
 Summary:        Container cluster management
 License:        ASL 2.0
 URL:            %{import_path}
@@ -481,6 +481,15 @@ getent passwd kube >/dev/null || useradd -r -g kube -d / -s /sbin/nologin -c "Ku
 
 %postun node
 %systemd_postun
+
+%clean
+[ "$RPM_BUILD_ROOT" != "/" ] && %__rm -rf $RPM_BUILD_ROOT
+[ "%{buildroot}" != "/" ] && %__rm -rf %{buildroot}
+[ "%{_builddir}/%{name}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}
+[ "%{_builddir}/%%{name}-contrib-%{version}" != "/" ] && %__rm -rf %{_builddir}/%%{name}-contrib-%{version} 
+[ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}
+[ "%{_builddir}/%{pkgname}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{pkgname}-%{version}
+[ "%{_builddir}/%{name}-contrib-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{name}-contrib-%{version}
 
 %files
 # empty as it depends on master and node

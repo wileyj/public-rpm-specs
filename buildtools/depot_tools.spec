@@ -1,5 +1,8 @@
-%define repo https://chromium.googlesource.com/chromium/tools/depot_tools.git
+%define repo https://chromium.googlesource.com/chromium/tools/depot_tools
 %define gitversion %(echo `date +%s`)
+%global revision %(echo `git ls-remote %{repo}.git  | head -1 | cut -f 1`)
+%define rel_version 1
+
 %define pathname /opt/depot_tools
 %define depot_tools_user depot_tools
 %define depot_tools_group depot_tools
@@ -9,7 +12,7 @@
 Name:           depot_tools
 Summary:        depot_tools
 Version:        %{gitversion}
-Release:	1.%{dist}
+Release:	%{rel_version}.%{revision}.%{dist}
 Url:            https://chromium.googlesource.com/chromium/tools/depot_tools.git
 License:        GPL
 Vendor: 	%{vendor}

@@ -1,9 +1,11 @@
 %define repo https://github.com/puppetlabs/leatherman.git
 %define gitversion %(echo `curl -s  https://github.com/puppetlabs/leatherman/releases | grep 'class="css-truncate-target"' | head -1 |  tr -d '\\-</span class="css-truncate-target">'`)
+%global revision %(echo `git ls-remote %{repo}.git  | head -1 | cut -f 1`)
+%define rel_version 1
 
 Name:           leatherman
 Version:        %{gitversion}
-Release:        1.%{dist}
+Release:        %{rel_version}.%{revision}.%{dist}
 Summary:        A collection of C++ and CMake utility libraries
 Group:          Development/Libraries/C and C++
 License:        ASL 2.0
