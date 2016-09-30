@@ -1,12 +1,11 @@
-%define url https://github.com/stretchr/testify
+%define repo https://github.com/stretchr/testify
 %global provider        github
 %global provider_tld    com
 %global repo_owner      stretchr
 %global project         testify
 %global import_path     %{provider}.%{provider_tld}/%{repo_owner}/%{project}
-%define _summary        %(echo `curl -s %{url} | grep "<title>" | cut -f2 -d ":" | sed 's|</title>||'`)
-%define repo %{url}.git
-%define gitversion %(echo `curl -s %{url}/releases | grep 'class="tag-name"' | head -1 |  tr -d '\\-</span class="tag-name">'`)
+%define _summary        %(echo `curl -s %{repo} | grep "<title>" | cut -f2 -d ":" | sed 's|</title>||'`)
+%define gitversion %(echo `curl -s %{repo}/releases | grep 'class="tag-name"' | head -1 |  tr -d '\\-</span class="tag-name">'`)
 %define release_ver 1
 %global _python_bytecompile_errors_terminate_build 0
 

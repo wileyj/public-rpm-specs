@@ -1,11 +1,13 @@
 %define repo https://github.com/rbenv/rbenv
 %define gitversion %(echo `curl -s https://github.com/rbenv/rbenv/releases | grep 'class="tag-name"' | head -1 |  tr -d '\\-</span class="tag-name">v'`)
+%global revision %(echo `git ls-remote %{repo}.git  | head -1 | cut -f 1`| cut -c1-7)
+%define rel_version 1
 
 %define _prefix  /opt
 
 Name:		rbenv
 Version:	%{gitversion}
-Release:	1.%{?dist}
+Release: %{rel_version}.%{revision}.%{dist}
 Summary:	rbenv is a tool for simple Ruby version management.
 
 Group:		System/Applications

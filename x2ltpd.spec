@@ -1,6 +1,6 @@
 %define repo https://github.com/xelerance/xl2tpd
 %define gitversion %(echo `curl -s %{repo}/releases | grep 'class="tag-name"' | head -1 |sed 's/TOMCAT.//' | tr '_' '.' |  tr -d '\\-</span class="tag-name">vr'`)
-%global revision %(echo `git ls-remote %{repo}.git  | head -1 | cut -f 1`)
+%global revision %(echo `git ls-remote %{repo}.git  | head -1 | cut -f 1| cut -c1-7`)
 %define rel_version 1
 
 Summary: Layer 2 Tunnelling Protocol Daemon (RFC 2661)

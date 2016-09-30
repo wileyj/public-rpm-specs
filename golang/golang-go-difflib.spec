@@ -1,15 +1,14 @@
-%define url https://github.com/pmezard/go-difflib
+%define repo https://github.com/pmezard/go-difflib
 %global provider        github
 %global provider_tld    com
 %global repo_owner      pmezard
 %global project         go-difflib
 %global secondary       difflib
 %global import_path     %{provider}.%{provider_tld}/%{repo_owner}/%{project}
-%define _summary        %(echo `curl -s %{url} | grep "<title>" | cut -f2 -d ":" | sed 's|</title>||'`)
-%define repo %{url}.git
+%define _summary        %(echo `curl -s %{repo} | grep "<title>" | cut -f2 -d ":" | sed 's|</title>||'`)
 %define gitversion %(echo `date +%s`)
 %define release_ver 1
-%global revision %(echo `git ls-remote %{repo}  | head -1 | cut -f 1`)
+%global revision %(echo `git ls-remote %{repo}  | head -1 | cut -f 1 | cut -c1-7`)
 %global _python_bytecompile_errors_terminate_build 0
 
 Name:           golang-%{project}

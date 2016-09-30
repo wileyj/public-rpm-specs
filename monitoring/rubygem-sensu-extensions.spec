@@ -147,5 +147,5 @@ fi
 [ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}
 
 %files -f %{name}-%{version}/%{filelist}
-%{gem_dir}/gems/%{gemname}-%{version}/spec/assets/extensions/extensions_symlinked
+#%{gem_dir}/gems/%{gemname}-%{version}/spec/assets/extensions/extensions_symlinked
 

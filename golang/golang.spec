@@ -6,7 +6,7 @@
 %define __find_requires %{nil}
 %global __spec_install_post /usr/lib/rpm/check-rpaths   /usr/lib/rpm/check-buildroot  /usr/lib/rpm/brp-compress
 %define release_ver 2
-%global revision %(echo `git ls-remote %{repo}  | head -1 | cut -f 1`)
+%global revision %(echo `git ls-remote %{repo}  | head -1 | cut -f 1 | cut -c1-7`)
 
 Name:           golang
 Version:        %{git_version}

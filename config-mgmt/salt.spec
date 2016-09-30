@@ -9,9 +9,9 @@ Requires: %{python} %{python}-setuptools
 %endif
 
 %define macro %{_rpmconfigdir}/macros.d/macros.python
-%define repo https://github.com/saltstack/salt.git
-#%define gitversion %(echo `curl -s https://github.com/saltstack/salt/releases | grep 'class="tag-name"' | head -1 |  tr -d '\\-</span class="tag-name">v'`)
-%global revision %(echo `git ls-remote %{repo}.git  | head -1 | cut -f 1`)
+%define repo https://github.com/saltstack/salt
+#%define gitversion %(echo `curl -s %{repo}/releases | grep 'class="tag-name"' | head -1 |  tr -d '\\-</span class="tag-name">v'`)
+%global revision %(echo `git ls-remote %{repo}.git  | head -1 | cut -f 1| cut -c1-7`)
 %define rel_version 1
 %define gitversion 2016.3.3
 

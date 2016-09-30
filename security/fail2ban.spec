@@ -12,7 +12,7 @@ Requires: %{python} %{python}-setuptools
 
 %define repo https://github.com/fail2ban/fail2ban
 %define gitversion %(echo `curl -s https://github.com/fail2ban/fail2ban/releases | grep 'class="tag-name"' | head -1 |  tr -d '\\-</span class="tag-name">db'`)
-%global revision %(echo `git ls-remote %{repo}.git  | head -1 | cut -f 1`)
+%global revision %(echo `git ls-remote %{repo}.git  | head -1 | cut -f 1| cut -c1-7`)
 %define rel_version 1
 
 Summary: Scan logfiles and ban ip addresses with too many password failures

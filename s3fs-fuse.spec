@@ -1,6 +1,6 @@
 %define repo https://github.com/s3fs-fuse/s3fs-fuse
-%define gitversion %(echo `curl -s https://github.com/s3-fuse/s3-fuse/releases | grep 'class="tag-name"' | head -1 |  tr -d '\\-</span class="tag-name">'`)
-%global revision %(echo `git ls-remote %{repo}.git  | head -1 | cut -f 1`)
+%define gitversion %(echo `curl -s %{repo}/releases | grep 'span class="css-truncate-target"' | head -1 |  tr -d 'vru\\-</span class="tag-name">'`)
+%global revision %(echo `git ls-remote %{repo}.git  | head -1 | cut -f 1| cut -c1-7`)
 %define rel_version 1
 
 Summary: s3fs mount s3 bucket in userspace
@@ -12,9 +12,6 @@ Packager: %{packager}
 Vendor: %{vendor}
 Group: Applications
 URL: https://github.com/s3fs-fuse/s3fs-fuse/blob/master/README
-
-Source0: %{name}-%{version}.tar.gz
-
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires: gcc, make, fuse, fuse-devel, fuse-libs, libxml2-devel, kernel-devel, curl-devel, openssl-devel, git
 Requires: fuse, fuse-libs

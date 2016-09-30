@@ -1,11 +1,10 @@
-%define url https://github.com/golang/text
+%define repo https://github.com/golang/text
 %global provider        golang
 %global provider_tld    org
 %global repo_owner      x 
 %global project         text
 %global import_path     %{provider}.%{provider_tld}/%{repo_owner}/%{project}
-%define _summary        %(echo `curl -s %{url} | grep "<title>" | cut -f2 -d ":" | sed 's|</title>||'`)
-%define repo %{url}.git
+%define _summary        %(echo `curl -s %{repo} | grep "<title>" | cut -f2 -d ":" | sed 's|</title>||'`)
 %define gitversion %(echo `date +%s`)
 %define release_ver 1
 %global revision %(echo `git ls-remote %{repo}  | head -1 | cut -f 1`)

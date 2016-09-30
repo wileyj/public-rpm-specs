@@ -1,12 +1,11 @@
-%define url https://github.com/nu7hatch/gouuid
+%define repo https://github.com/nu7hatch/gouuid
 %global provider        github
 %global provider_tld    com
 %global repo_owner      nu7hatch
 %global project         gouuid
 %global import_path     %{provider}.%{provider_tld}/%{repo_owner}/%{project}
-%define _summary        %(echo `curl -s %{url} | grep "<title>" | cut -f2 -d ":" | sed 's|</title>||'`)
-%define repo %{url}.git
-#%define gitversion %(echo `curl -s %{url}/releases | grep 'class="tag-name"' | head -1 |  tr -d '\\-</span class="tag-name">'`)
+%define _summary        %(echo `curl -s %{repo} | grep "<title>" | cut -f2 -d ":" | sed 's|</title>||'`)
+#%define gitversion %(echo `curl -s %{repo}/releases | grep 'class="tag-name"' | head -1 |  tr -d '\\-</span class="tag-name">'`)
 %define gitversion 1.0.0
 %global _python_bytecompile_errors_terminate_build 0
 

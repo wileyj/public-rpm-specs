@@ -1,8 +1,7 @@
-#aws --region us-east-1 ec2 describe-tags --filters Name=resource-id,Values=`curl -s http://169.254.169.254/latest/meta-data/instance-id/` Name=key,Values=Environment | grep Value | awk '{print $2}' | tr -d \",
 %global vendorname puppetlabs
-%define repo https://github.com/puppetlabs/puppet.git
-%define gitversion %(echo `curl -s https://github.com/puppetlabs/puppet/releases | grep 'class="tag-name"' | head -1 |  tr -d '\\-</span class="tag-name">'`)
-%global revision %(echo `git ls-remote %{repo}.git  | head -1 | cut -f 1`)
+%define repo https://github.com/puppetlabs/puppet
+%define gitversion %(echo `curl -s %{repo}/releases | grep 'class="tag-name"' | head -1 |  tr -d '\\-</span class="tag-name">'`)
+%global revision %(echo `git ls-remote %{repo}.git  | head -1 | cut -f 1| cut -c1-7`)
 %define rel_version 1
 
 %if 0%{?fedora} >= 17 || 0%{?rhel} >= 7 || 0%{?amzn} >= 1

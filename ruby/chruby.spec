@@ -1,10 +1,11 @@
 %define repo https://github.com/postmodern/chruby
 %define gitversion %(echo `curl -s https://github.com/postmodern/chruby/releases | grep 'class="tag-name"' | head -1 |  tr -d '\\-</span class="tag-name">v'`)
-
+%global revision %(echo `git ls-remote %{repo}.git  | head -1 | cut -f 1 | cut -c1-7`)
+%define rel_version 1
 
 Name:		chruby
 Version:	%{gitversion}
-Release:	1.%{?dist}
+Release: %{rel_version}.%{revision}.%{dist}
 Summary:	Changes the current Ruby.
 Group:		System/Applications
 License:	MIT

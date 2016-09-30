@@ -1,5 +1,5 @@
-%define repo https://github.com/openssh/openssh-portable.git
-%define gitversion %(echo `curl -s https://github.com/openssh/openssh-portable/releases | grep 'class="tag-name"' | head -1 |  tr -d '\\-</span class="tag-name">'`)
+%define repo https://github.com/openssh/openssh-portable
+%define gitversion %(echo `curl -s %{repo}/releases | grep 'class="tag-name"' | head -1 |  tr -d '\\-</span class="tag-name">'`)
 
 # Do not forget to bump pam_ssh_agent_auth release if you rewind the main package release to 1
 %define openssh_ver %{gitversion}

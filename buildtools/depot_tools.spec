@@ -1,6 +1,6 @@
 %define repo https://chromium.googlesource.com/chromium/tools/depot_tools
 %define gitversion %(echo `date +%s`)
-%global revision %(echo `git ls-remote %{repo}.git  | head -1 | cut -f 1`)
+%global revision %(echo `git ls-remote %{repo}.git  | head -1 | cut -f 1| cut -c1-7`)
 %define rel_version 1
 
 %define pathname /opt/depot_tools

@@ -10,7 +10,7 @@
 %define _datadir  %{_installpath}/share
 %define _includedir  %{_installpath}/include
 %define pkgconfig  %{_imagemagick}/lib/pkgconfig
-%global revision %(echo `git ls-remote %{repo}.git  | head -1 | cut -f 1`)
+%global revision %(echo `git ls-remote %{repo}.git  | head -1 | cut -f 1| cut -c1-7`)
 %define rel_version 1
 
 Summary: Jmagick - Java interface to ImageMagick 
