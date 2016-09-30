@@ -1,14 +1,13 @@
-%define url https://github.com/hashicorp/terraform
+%define repo https://github.com/hashicorp/terraform
 %global provider        github
 %global provider_tld    com
 %global repo_owner      hashicorp
 %global project         terraform
 %global import_path     %{provider}.%{provider_tld}/%{repo_owner}/%{project}
-%define _summary        %(echo `curl -s %{url} | grep "<title>" | cut -f2 -d ":" | sed 's|</title>||'`)
-%define repo %{url}.git
-%define gitversion %(echo `curl -s %{url}/releases | grep 'class="css-truncate-target"' | head -1 |  tr -d 'v\\-</span class="css-truncate-target">'`)
+%define _summary        %(echo `curl -s %{repo} | grep "<title>" | cut -f2 -d ":" | sed 's|</title>||'`)
+%define gitversion %(echo `curl -s %{repo}/releases | grep 'class="css-truncate-target"' | head -1 |  tr -d 'v\\-</span class="css-truncate-target">'`)
 %define release_ver 1
-%global revision %(echo `git ls-remote %{repo}  | head -1 | cut -f 1`)
+%global revision %(echo `git ls-remote %{repo}  | head -1 | cut -f 1 | cut -c1-7`)
 %global _python_bytecompile_errors_terminate_build 0
 
 Name:           %{project}

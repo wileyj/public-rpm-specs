@@ -1,5 +1,8 @@
-%define repo https://github.com/puppetlabs/marionette-collective.git
-%define gitversion %(echo `curl -s https://github.com/puppetlabs/marionette-collective/releases | grep 'class="tag-name"' | head -1 |  tr -d '\\-</span class="tag-name">'`)
+%define repo https://github.com/puppetlabs/marionette-collective
+%define gitversion %(echo `curl -s %{repo}/releases | grep 'class="tag-name"' | head -1 |  tr -d '\\-</span class="tag-name">'`)
+%global revision %(echo `git ls-remote %{repo}.git  | head -1 | cut -f 1| cut -c1-7`)
+%define rel_version 1
+
 %if 0%{?fedora} >= 17 || 0%{?rhel} >= 7 || 0%{?amzn} >= 1
 %global mco_libdir   %(ruby -rrbconfig -e 'puts RbConfig::CONFIG["vendorlibdir"]')
 %global _with_systemd 0
@@ -17,7 +20,7 @@
 Summary:        Application Server for hosting Ruby code on any capable middleware
 Name:           mcollective
 Version:        %{gitversion}
-Release:        1.%{?dist}
+Release: %{rel_version}.%{revision}.%{dist}
 Group:          System Environment/Daemons
 License:        ASL 2.0
 URL:            http://puppetlabs.com/mcollective/introduction/

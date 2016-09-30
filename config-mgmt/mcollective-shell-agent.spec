@@ -1,8 +1,11 @@
 %global _python_bytecompile_errors_terminate_build 0
 %include %{_rpmconfigdir}/macros.d/macros.rubygems
 %global _plugin shell-agent
-%define repo https://github.com/puppetlabs/mcollective-%{_plugin}.git
-%define gitversion %(echo `curl -s https://github.com/puppetlabs/mcollective-%{_plugin}/releases | grep 'class="tag-name"' | head -1 |  tr -d '\\-</span class="tag-name">'`)
+%define repo https://github.com/puppetlabs/mcollective-%{_plugin}
+%define gitversion %(echo `curl -s %{repo}/releases | grep 'class="tag-name"' | head -1 |  tr -d '\\-</span class="tag-name">'`)
+%global revision %(echo `git ls-remote %{repo}.git  | head -1 | cut -f 1| cut -c1-7`)
+%define rel_version 1
+
 %if 0%{?fedora} >= 17 || 0%{?rhel} >= 7 || 0%{?amzn} >= 1
 %global mco_libdir   %(ruby -rrbconfig -e 'puts RbConfig::CONFIG["vendorlibdir"]')
 %else
@@ -19,7 +22,7 @@
 Summary:   MCollective Agent to manage the Puppet Agent
 Name:      mcollective-%{_plugin}
 Version:   %{gitversion}
-Release:   1.%{?dist}
+Release: %{rel_version}.%{revision}.%{dist}
 Vendor:    %{vendor}
 Packager:  %{packager}
 License:   ASL 2.0

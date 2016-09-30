@@ -1,6 +1,6 @@
 %define repo https://github.com/gradle/gradle
 %define gitversion %(echo `curl -s https://github.com/gradle/gradle/releases | grep 'class="tag-name"' | head -1 |  tr -d '\\-</span class="tag-name">' | cut -f1 -d "+" | sed 's/REL_//'`)
-%global revision %(echo `git ls-remote %{repo}.git  | head -1 | cut -f 1`)
+%global revision %(echo `git ls-remote %{repo}.git  | head -1 | cut -f 1| cut -c1-7`)
 %define _javadir /usr/java
 %define gradle_prefix /opt/%{name}
 %define release_ver 1

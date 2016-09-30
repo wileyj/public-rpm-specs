@@ -1,5 +1,7 @@
-%define repo https://github.com/open-source-parsers/jsoncpp.git
-%define gitversion %(echo `curl -s https://github.com/open-source-parsers/jsoncpp/releases | grep 'class="css-truncate-target"' | head -1 |  tr -d '\\-</span class="css-truncate-target">'`)
+%define repo https://github.com/open-source-parsers/jsoncpp
+%define gitversion %(echo `curl -s %{repo}/releases | grep 'class="css-truncate-target"' | head -1 |  tr -d '\\-</span class="css-truncate-target">'`)
+%global revision %(echo `git ls-remote %{repo}.git  | head -1 | cut -f 1| cut -c1-7`)
+%define rel_version 1
 
 
 %if 0%{?amzn} >= 1
@@ -14,7 +16,7 @@ Requires: %{python} %{python}-setuptools
 
 Name:       jsoncpp
 Version:    %{gitversion}
-Release:    1.%{dist}
+Release:    %{rel_version}.%{revision}.%{dist}
 Summary:    JSON library implemented in C++
 Group:      System Environment/Libraries
 License:    Public Domain or MIT

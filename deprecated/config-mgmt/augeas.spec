@@ -1,4 +1,4 @@
-%define repo https://github.com/hercules-team/augeas.git
+%define repo https://github.com/hercules-team/augeas
 Name:           augeas
 Version:        1.4.0
 Release:        1.%{dist}

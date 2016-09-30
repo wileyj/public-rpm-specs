@@ -1,10 +1,13 @@
 %define repo https://github.com/rbenv/ruby-build
 %define gitversion %(echo `curl -s https://github.com/rbenv/ruby-build/releases | grep 'class="css-truncate-target"' | head -1 |  tr -d '\\-</span class="css-truncate-target">v'`)
+%global revision %(echo `git ls-remote %{repo}.git  | head -1 | cut -f 1 | cut -c1-7`)
+%define rel_version 1
+
 %define rbenv /opt/rbenv
 
 Name:		ruby-build
 Version:	%{gitversion}
-Release:	1.%{?dist}
+Release: %{rel_version}.%{revision}.%{dist}
 Summary:	builds ruby for rbenv/chruby
 Group:		System/Applications
 License:	MIT

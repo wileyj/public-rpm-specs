@@ -1,3 +1,8 @@
+%define repo https://github.com/graphite-project/carbon
+%define gitversion %(echo `curl -s %{repo}/releases | grep 'span class="tag-name"' | head -1 |  tr -d 'vru\\-</span class="tag-name">'`)
+%global revision %(echo `git ls-remote %{repo}.git  | head -1 | cut -f 1| cut -c1-7`)
+%define rel_version 1
+
 %if 0%{?amzn} >= 1
 %define python python27
 BuildRequires: git %{python} %{python}-rpm-macros %{python}-devel
@@ -17,17 +22,14 @@ Requires: %{python} %{python}-setuptools
 %define __service  /sbin/service
 
 Name:           carbon
-Version:        0.9.10
-Release:        1.%{dist}
+Version:        %{gitversion}
+Release:        %{rel_version}.%{revision}.%{dist}
 Summary:        Backend data caching and persistence daemon for Graphite
 Group:          Applications/Internet
 License:        Apache Software License 2.0
 URL:            https://launchpad.net/graphite
-Vendor: %{vendor}
-Packager: %{packager}
-Source0:        https://github.com/downloads/graphite-project/%{name}/%{name}-%{version}.tar.gz
-#Patch0:         %{name}-setup.patch
-Patch1:         %{name}-config.patch
+Vendor:         %{vendor}
+Packager:       %{packager}
 Source1:        %{name}-cache.init
 Source2:        %{name}-cache.sysconfig
 Source3:        %{name}-relay.init
@@ -39,17 +41,23 @@ BuildArch:      noarch
 Requires:       whisper
 
 %description
-The backend for Graphite. Carbon is a data collection and storage agent.  
+The backend for Graphite. Carbon is a data collection and storage agent.
 
 %prep
-%setup -q
-#%patch0 -p1
-%patch1 -p1
+if [ -d %{name}-%{version} ];then
+    rm -rf %{name}-%{version}
+fi
+git clone %{repo} %{name}-%{version}
+cd %{name}-%{version}
+git submodule init
+git submodule update
 
 %build
+cd %{name}-%{version}
 CFLAGS="$RPM_OPT_FLAGS" %{__python} -c 'import setuptools; execfile("setup.py")' build
 
 %install
+cd %{name}-%{version}
 [ "%{buildroot}" != "/" ] && %{__rm} -rf %{buildroot}
 %{__python} -c 'import setuptools; execfile("setup.py")' install --skip-build --root %{buildroot}
 
@@ -85,9 +93,7 @@ CFLAGS="$RPM_OPT_FLAGS" %{__python} -c 'import setuptools; execfile("setup.py")'
 
 %pre
 %{__getent} group %{name} >/dev/null || %{__groupadd} -r %{name}
-%{__getent} passwd %{name} >/dev/null || \
-    %{__useradd} -r -g %{name} -d %{_localstatedir}/lib/%{name} \
-    -s /sbin/nologin -c "Carbon cache daemon" %{name}
+%{__getent} passwd %{name} >/dev/null || %{__useradd} -r -g %{name} -d %{_localstatedir}/lib/%{name} -s /sbin/nologin -c "Carbon cache daemon" %{name}
 exit 0
 
 %preun
@@ -96,8 +102,7 @@ exit 0
 
 %postun
 if [ $1 = 0 ]; then
-  %{__getent} passwd %{name} >/dev/null && \
-      %{__userdel} -r %{name} 2>/dev/null
+  %{__getent} passwd %{name} >/dev/null && %{__userdel} -r %{name} 2>/dev/null
 fi
 exit 0
 
@@ -109,7 +114,6 @@ exit 0
 
 %files
 %defattr(-,root,root,-)
-%doc LICENSE conf/*
 
 /opt/graphite/lib
 /opt/graphite/bin
@@ -135,4 +139,9 @@ exit 0
 %ghost %{_localstatedir}/lock/subsys/%{name}-aggregator
 %ghost %{_localstatedir}/run/%{name}-aggregator.pid
 
+/opt/graphite/examples/init.d/carbon-aggregator
+/opt/graphite/examples/init.d/carbon-cache
+/opt/graphite/examples/init.d/carbon-relay
+
 %changelog
+

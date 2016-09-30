@@ -1,7 +1,7 @@
 %define repo https://github.com/elastic/elasticsearch
 %define gitversion %(echo `curl -s %{repo}/releases | grep 'class="tag-name"' | head -1 |  tr -d '\\-</span class="tag-name">' | cut -f1 -d "+" | sed 's/REL_//'`)
 %define kibana_prefix /opt/%{name}
-%global revision %(echo `git ls-remote %{repo}.git  | head -1 | cut -f 1`)
+%global revision %(echo `git ls-remote %{repo}.git  | head -1 | cut -f 1| cut -c1-7`)
 %define rel_version 1
 %define build_path distribution/rpm/build/packaging
 %global es_prefix /opt/%{name}

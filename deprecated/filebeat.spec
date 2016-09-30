@@ -1,7 +1,7 @@
 %define repo https://github.com/elastic/beats
 %define gitversion %(echo `curl -s %{repo}/releases | grep 'class="tag-name"' | head -1 |  tr -d '\\-</span class="tag-name">' | cut -f1 -d "+" | sed 's/REL_//'`)
 %define kibana_prefix /opt/%{name}
-%global revision %(echo `git ls-remote %{repo}.git  | head -1 | cut -f 1`)
+%global revision %(echo `git ls-remote %{repo}.git  | head -1 | cut -f 1| cut -c1-7`)
 
 %define _binaries_in_noarch_packages_terminate_build 0
 %global _binaries_in_noarch_packages_terminate_build 0

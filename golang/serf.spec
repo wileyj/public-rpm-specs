@@ -1,14 +1,13 @@
-%define url https://github.com/hashicorp/serf
+%define repo https://github.com/hashicorp/serf
 %global provider        github
 %global provider_tld    com
 %global repo_owner      hashicorp
 %global project         serf
 %global import_path     %{provider}.%{provider_tld}/%{repo_owner}/%{project}
-%define _summary        %(echo `curl -s %{url} | grep "<title>" | cut -f2 -d ":" | sed 's|</title>||'`)
-%define repo %{url}.git
-%define gitversion %(echo `curl -s %{url}/releases | grep 'class="tag-name"' | head -1 |  tr -d '\\-</span class="tag-name">v'`)
+%define _summary        %(echo `curl -s %{repo} | grep "<title>" | cut -f2 -d ":" | sed 's|</title>||'`)
+%define gitversion %(echo `curl -s %{repo}/releases | grep 'class="tag-name"' | head -1 |  tr -d '\\-</span class="tag-name">v'`)
 %define release_ver 1
-%global revision %(echo `git ls-remote %{repo}  | head -1 | cut -f 1`)
+%global revision %(echo `git ls-remote %{repo}  | head -1 | cut -f 1 | cut -c1-7`)
 %global _python_bytecompile_errors_terminate_build 0
 
 Name:           %{project}

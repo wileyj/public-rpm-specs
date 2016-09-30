@@ -146,7 +146,7 @@ echo "Y" | %{__make} %{?_smp_mflags} OPTIMIZE="%{optflags}"
 cd $RPM_BUILD_DIR/%{pkgname}-%{cpan_version}
 [ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
 
-%{makeinstall} `%{__perl} -MExtUtils::MakeMaker -e ' print \$ExtUtils::MakeMaker::VERSION <= 6.05 ? qq|PREFIX=%{buildroot}%{_prefix}| : qq|DESTDIR=%{buildroot}| '`
+make install `%{__perl} -MExtUtils::MakeMaker -e ' print \$ExtUtils::MakeMaker::VERSION <= 6.05 ? qq|PREFIX=%{buildroot}%{_prefix}| : qq|DESTDIR=%{buildroot}| '`
 
 cmd=/usr/share/spec-helper/compress_files
 [ -x $cmd ] || cmd=/usr/lib/rpm/brp-compress

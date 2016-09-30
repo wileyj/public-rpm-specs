@@ -1,6 +1,6 @@
 %define repo https://github.com/jenkinsci/jenkins
 %define gitversion %(echo `curl -s https://github.com/jenkinsci/jenkins/releases | grep 'class="tag-name"' | head -1 |  tr -d '\\-</span class="tag-name">'`)
-%global revision %(echo `git ls-remote %{repo}.git  | head -1 | cut -f 1`)
+%global revision %(echo `git ls-remote %{repo}.git  | head -1 | cut -f 1| cut -c1-7`)
 %define rel_version 1
 
 %define _prefix	/opt/jenkins

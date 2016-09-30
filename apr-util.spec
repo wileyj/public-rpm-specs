@@ -39,7 +39,7 @@ for XML, LDAP, database interfaces, URI parsing and more.
 Group: Development/Libraries
 Summary: APR utility library development kit
 Requires: apr-util%{?_isa} = %{version}-%{release}, apr-devel%{?_isa}, pkgconfig
-Requires: %{dbdep}%{?_isa}, expat-devel%{?_isa}, openldap-devel%{?_isa}
+Requires: %{dbdep}%{?_isa}, expat-devel%{?_isa}
 
 %description devel
 This package provides the support files which can be used to 
@@ -50,7 +50,7 @@ library of C data structures and routines.
 %package pgsql
 Group: Development/Libraries
 Summary: APR utility library PostgreSQL DBD driver
-BuildRequires: postgresql94-devel
+BuildRequires: postgresql-devel
 Requires: apr-util%{?_isa} = %{version}-%{release}
 
 %description pgsql
@@ -101,15 +101,6 @@ Requires: apr-util%{?_isa} = %{version}-%{release}
 This package provides the ODBC driver for the apr-util DBD
 (database abstraction) interface.
 
-%package ldap
-Group: Development/Libraries
-Summary: APR utility library LDAP support
-BuildRequires: openldap-devel
-Requires: apr-util%{?_isa} = %{version}-%{release}
-
-%description ldap
-This package provides the LDAP support for the apr-util.
-
 %package openssl
 Group: Development/Libraries
 Summary: APR utility library OpenSSL crytpo support
@@ -138,10 +129,8 @@ This package provides the NSS crypto support for the apr-util.
 autoheader && autoconf
 # A fragile autoconf test which fails if the code trips
 # any other warning; force correct result for OpenLDAP:
-export ac_cv_ldap_set_rebind_proc_style=three
 %configure --with-apr=%{_prefix} \
         --includedir=%{_includedir}/apr-%{apuver} \
-        --with-ldap=ldap_r --without-gdbm \
         --with-sqlite3 --with-pgsql --with-mysql --with-odbc \
 %if %{with_freetds}
         --with-freetds \
@@ -182,16 +171,14 @@ export MALLOC_CHECK_=2 MALLOC_PERTURB_=$(($RANDOM % 255 + 1))
 cd test
 make %{?_smp_mflags} testall
 # testall breaks with DBD DSO; ignore
-export LD_LIBRARY_PATH="`echo "../dbm/.libs:../dbd/.libs:../ldap/.libs:$LD_LIBRARY_PATH" | sed -e 's/::*$//'`"
+export LD_LIBRARY_PATH="`echo "../dbm/.libs:../dbd/.libs:$LD_LIBRARY_PATH" | sed -e 's/::*$//'`"
 ./testall -v -q || true
 ./testall testrmm
 ./testall testdbm
 
 %clean
-[ "$RPM_BUILD_ROOT" != "/" ] && %__rm -rf $RPM_BUILD_ROOT
-[ "%{buildroot}" != "/" ] && %__rm -rf %{buildroot}
+[ "%{buildroot}" != "/" ] && rm -rf %{buildroot} 
 [ "%{_builddir}/%{name}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}
-[ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}
 
 %post -p /sbin/ldconfig
 
@@ -227,9 +214,6 @@ export LD_LIBRARY_PATH="`echo "../dbm/.libs:../dbd/.libs:../ldap/.libs:$LD_LIBRA
 %defattr(-,root,root,-)
 %{_libdir}/apr-util-%{apuver}/apr_dbd_odbc*
 
-%files ldap
-%defattr(-,root,root,-)
-%{_libdir}/apr-util-%{apuver}/apr_ldap*
 
 %files openssl
 %defattr(-,root,root,-)

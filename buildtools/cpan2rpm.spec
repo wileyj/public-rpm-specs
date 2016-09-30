@@ -15,11 +15,11 @@ url:       http://www.cpan.org
 buildroot: %{_tmppath}/%{name}-%{version}-%(id -u -n)
 prefix:    %(echo %{_prefix})
 requires:  %([ -e /etc/SuSE-release -o -e /etc/UnitedLinux-release ] && SuSE=1;ver=`rpm -q rpm --qf %%{version}|awk -F . '{print $1}'`;[ $ver -le 3 -o -n "$SuSE" ] && echo rpm || echo rpm-build)
-BuildRequires: perl-libwww-perl, perl-HTTP-Lite
-Requires: perl-libwww-perl, perl-HTTP-Lite
+BuildRequires: perl-libwww-perl, perl-HTTP-Tiny
+Requires: perl-libwww-perl, perl-HTTP-Tiny
 source:    cpan2rpm-2.028.tar.gz
 buildarch: x86_64
-BuildRequires: perl, perl-devel, perl-libs, perl-ExtUtils-MakeMaker
+BuildRequires: perl, perl-devel, perl-libs, perl-ExtUtils-MakeMaker, perl-Pod-Parser
 
 %description
 This script generates an RPM package from a Perl module.  It uses the standard RPM file structure and creates a spec file, a source RPM, and a binary, leaving these in their respective directories.
