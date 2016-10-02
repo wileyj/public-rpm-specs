@@ -1,12 +1,13 @@
-%define base_version 2
-%define base_rev 1
+%global repo https://github.com/uclouvain/openjpeg
+%define gitversion %(echo `curl -s %{repo}/releases | grep 'span class="css-truncate-target"' | head -1 |  tr -d '\\-</span class="css-truncate-target">vr'`)
+%global revision %(echo `git ls-remote %{repo}.git  | head -1 | cut -f 1| cut -c1-7`)
+%define rel_version 1
+
 %define bname openjpeg
-%global _default_patch_fuzz 2
-%global repo https://github.com/uclouvain/openjpeg.git
 
 Name:    	libopenjpeg
-Version: 	%{base_version}.%{base_rev}
-Release: 	2.%{dist}
+Version:	%{gitversion}
+Release: 	%{rel_version}.%{revision}.%{dist}
 Summary: 	OpenJPEG command line tools
 Group:     	Applications/Multimedia
 License:   	BSD
@@ -16,7 +17,6 @@ URL:       	http://www.openjpeg.org/
 BuildRoot: 	%{_tmppath}/%{bname}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: 	libtiff-devel
 Requires: 	%{name}-libs = %{version}-%{release}
-#Patch50: 	openjpeg-1.3-libm.patch
 
 %description
 OpenJPEG is an open-source JPEG 2000 codec written in C language. It has been
@@ -48,9 +48,9 @@ fi
 export CONFIGURE_ARGS="--with-cflags='%{optflags}'"
 git clone %{repo} %{name}-%{version}
 cd %{name}-%{version}
-
+git submodule init
+git submodule update
 cmake .
-#%{__make} %{?_smp_mflags}
 
 %install
 cd %{name}-%{version}
@@ -61,7 +61,7 @@ rm -rf %{buildroot}
 %__mv %{buildroot}/usr/local/include %{buildroot}%{_includedir}
 %__rm -rf %{buildroot}/usr/local/include
 #install -m 0644  src/lib/openjp2/openjpeg.h %{buildroot}/usr/local/include/%{bname}-%{version}/openjpeg.h
-install -m 0644  src/lib/openjp2/openjpeg.h %{buildroot}%{_includedir}/%{bname}-%{version}/openjpeg.h
+#install -m 0644  src/lib/openjp2/openjpeg.h %{buildroot}%{_includedir}/%{bname}-%{version}/openjpeg.h
 
 
 %clean
@@ -111,13 +111,16 @@ install -m 0644  src/lib/openjp2/openjpeg.h %{buildroot}%{_includedir}/%{bname}-
 %files libs
 %defattr(-,root,root,-)
 %{_libdir}/libopenjp*
-%{_libdir}/%{bname}-%{version}
+#%{_libdir}/%{bname}-%{version}
+%{_libdir}/%{bname}-2.2
 %{_libdir}/pkgconfig/*.pc
 
 
 %files devel
 %defattr(-,root,root,-)
-%{_includedir}/%{bname}-%{version}/*.h
-%dir %{_includedir}/%{bname}-%{version}
+#%dir %{_includedir}/%{bname}-%{version}
+%dir %{_includedir}/%{bname}-2.2
+#%{_includedir}/%{bname}-%{version}/*.h
+%{_includedir}/%{bname}-2.2/*
 
 %changelog

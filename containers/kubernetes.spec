@@ -1,6 +1,6 @@
 %global with_check 0
 
-%global revision %(echo `git ls-remote https://github.com/kubernetes/kubernetes.git  | head -1 | cut -f 1`)
+%global revision %(echo `git ls-remote https://github.com/kubernetes/kubernetes.git  | head -1 | cut -f 1 | cut -c1-7`)
 %global debug_package   %{nil}
 %global provider	github
 %global provider_tld	com
