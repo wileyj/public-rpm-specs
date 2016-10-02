@@ -1,11 +1,14 @@
 %define repo https://github.com/apache/maven
 %define gitversion %(echo `curl -s https://github.com/apache/maven/releases | grep 'class="tag-name"' | head -1 |  tr -d '\\-</span class="tag-name">v'`)
-%define _javadir /usr/java
-%define maven_prefix /opt/%{name}
+%define _prefix /opt/%{name}
+%global revision %(echo `git ls-remote %{repo}.git  | head -1 | cut -f 1 | cut -c1-7`)
+%define rel_version 1
+
+
 
 Name:           maven
 Summary:        software project management tool
-Version:        %{gitversion}
+Version:        %{rel_version}.%{gitversion}.%{revision}
 Release:        1.%{dist}
 Url:            http://maven.apache.org
 License:        Apache
@@ -34,16 +37,16 @@ cd %{name}-%{version}
 
 %install
 cd %{name}-%{version}
-/opt/apache-maven/bin/mvn -DdistributionTargetFolder="%{buildroot}%{maven_prefix}-%{version}" clean package
+/opt/apache-maven/bin/mvn -DdistributionTargetFolder="%{buildroot}%{_prefix}-%{version}" clean package
 
 %{__mkdir_p} %{buildroot}/etc/profile.d
 %{__mkdir_p} %{buildroot}/%{_bindir}
 cat <<EOF> %{buildroot}/etc/profile.d/maven.sh
 #export MAVEN_OPTS="-Xmx512m -Xms256m -XX:MaxPermSize=256m"
-export MAVEN_HOME=%{maven_prefix}
+export MAVEN_HOME=%{_prefix}
 EOF
-%__ln_s -f  %{maven_prefix}-%{version} %{buildroot}%{maven_prefix}
-%__ln_s -f %{maven_prefix}-%{version}/bin/mvn %{buildroot}%{_bindir}/mvn
+%__ln_s -f  %{_prefix}-%{version} %{buildroot}%{_prefix}
+%__ln_s -f %{_prefix}-%{version}/bin/mvn %{buildroot}%{_bindir}/mvn
 %post
 
 %clean
@@ -53,9 +56,9 @@ EOF
 [ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}
 
 %files
-%dir %{maven_prefix}-%{version}
-%{maven_prefix}-%{version}/*
-%{maven_prefix}
+%dir %{_prefix}-%{version}
+%{_prefix}-%{version}/*
+%{_prefix}
 %{_bindir}/mvn
 /etc/profile.d/maven.sh
 

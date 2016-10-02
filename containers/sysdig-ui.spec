@@ -1,79 +1,58 @@
-# https://github.com/draios/flame-ui
+%define repo https://github.com/draios/flame-ui
+#%define gitversion %(echo `curl -s %{repo}/releases | grep 'class="tag-name"' | head -1 |  tr -d '\\-</span class="tag-name">v'`)
+%define gitversion %(echo `date +%s`)
+%define name ansible
+%global revision %(echo `git ls-remote %{repo}.git  | head -1 | cut -f 1| cut -c1-7`)
+%define rel_version 1
 
+%define docroot /u/docroot
+%define logdir /u/logs
 %define debug_package %{nil}
-#
-# automatically generate requires and provides from package.json
-#
 %{?nodejs_find_provides_and_requires}
-
-#
-# filter out any false provides created due to dependencies with native components
-#
 %{?nodejs_default_filter}
 
-#
-# name of zip file containing source without .zip extension
-#
-%define modname myapp
-
 Summary: A nodejs app with a systemd daemon
-Name:    nodejs-%{modname}
-Group:   Applications/Tools
-Version: 0.1
-Release: 1
-License: Unlicense
-URL:     https://github.com/myuser/myapp
-Source0: %{modname}-%{version}.zip
-BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+Name:     flame-ui
+Provides: sysdig-ui
+Group:   Monitoring/Tools
+Version: %{gitversion}
+Release: %{rel_version}.%{revision}.%{dist}
+License: MIT
+URL:     %{repo}
+Vendor: %{vendor}
+Packager: %{packager}
 BuildArch: noarch
-ExclusiveArch: %{nodejs_arches} noarch
-BuildRequires: nodejs-packaging
-BuildRequires: systemd
+Requires: systemd
+Requires: nodejs
+BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 
 %description
 A nodejs app that installs as a systemd service
 
 %prep
-%setup -q -n %{modname}-%{version}
+if [ -d %{name}-%{version} ];then
+    rm -rf %{name}-%{version}
+fi
+git clone %{repo} %{name}-%{version}
+cd %{name}-%{version}
+git submodule init
+git submodule update
 
 %build
-
-%{__rm} -f .gitignore
-#
-# Fedora guidlines do not allow bundled modules
-# use nodejs_symlink_deps in the install section to generate
-# links based on package.json contents
-#
-%{__rm} -rf node_modules
+cd %{name}-%{version}
 
 %install
+cd %{name}-%{version}
 rm -rf $RPM_BUILD_ROOT
 
-#
-# copy in the module source
-#
-%{__install} -d  $RPM_BUILD_ROOT%{nodejs_sitelib}
-%{__cp} -r $RPM_BUILD_DIR/%{modname}-%{version} $RPM_BUILD_ROOT%{nodejs_sitelib}/%{modname}
-#
-# link the daemon binaries into sbindir
-#
-%{__install} -d  $RPM_BUILD_ROOT%{_sbindir}
-%{__ln_s} %{nodejs_sitelib}/%{modname}/bin/myappd $RPM_BUILD_ROOT%{_sbindir}/myappd
+%__install -d  %{buildroot}%{docroot}/%{name}
+%__install -d  %{buildroot}%{logdir}/%{name}
+%__ln_s -f %{docroot}/%{name} %{buildroot}%{docroot}/sysdig-ui
+%__ln_s -f %{logdir}/%{name} %{buildroot}%{logdir}/sysdig-ui
+%__install -d %{buildroot}%{_unitdir}/
 
-#
-# link in any dependent nodejs modules referenced in package.json
-#
-%nodejs_symlink_deps
-
-#
-# documents will be handled by %doc, so remove them from buildroot
-#
-%{__rm} -rf $RPM_BUILD_ROOT%{nodejs_sitelib}/%{modname}{CHANGELOG.md,LICENSE.md,README.md,docs}
-
-#
-# Create a systemd unit file
-#
-cat << __EOF > $RPM_BUILD_ROOT%{_unitdir}/myappd.service
+%__cp -pa * %{buildroot}%{docroot}/%{name}/
+cat << __EOF > %{buildroot}%{_unitdir}/myappd.service
 [Unit]
 Description=MyApp provides the best API
 Documentation=man:myapp.service(8)
@@ -87,11 +66,17 @@ WantedBy=multi-user.target
 __EOF
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ "$RPM_BUILD_ROOT" != "/" ] && %__rm -rf $RPM_BUILD_ROOT
+[ "%{buildroot}" != "/" ] && %__rm -rf %{buildroot}
+[ "%{_builddir}/%{name}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}
+[ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}
 
 %files
 %defattr(-,root,root)
-%doc CHANGELOG.md LICENSE.md README.md docs
-%{nodejs_sitelib}/%{modname}
-%{_sbindir}/myappd
+%dir %{logdir}/%{name}
+%dir %{docroot}/%{name}
+%{logdir}/sysdig-ui
+%{docroot}/sysdig-ui
+%{docroot}/%{name}/*
 %{_unitdir}/myappd.service
+
