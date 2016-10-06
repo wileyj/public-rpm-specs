@@ -37,6 +37,6 @@ ln -f -s /opt/%{name}-%{version} /opt/jprofiler
 [ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}
 
 %files
-%defattr(-,root,www)
+%defattr(-,root,root)
 /opt/%{name}-%{version}
 

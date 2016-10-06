@@ -8,7 +8,7 @@
 %define gitversion %(echo `curl -s %{repo}/releases | grep 'class="tag-name"' | head -1 |  tr -d '\\-</span class="tag-name">'`)
 %define release_ver 1
 %global revision %(echo `git ls-remote %{repo}  | head -1 | cut -f 1 | cut -c1-7`)
-%global _python_bytecompile_errors_terminate_build 0
+%global filelist        %{_builddir}/%{name}-%{version}-filelist
 
 Name:           %{project}
 Version:        %{gitversion}
@@ -38,30 +38,28 @@ fi
 export GOPATH=%{buildroot}%{gopath}
 
 go get %{import_path}
-%{__rm} -rf %{buildroot}%{gopath}/src/%{import_path}/.git
 %{__rm} -f %{buildroot}%{gopath}/src/%{import_path}/.travis.yml
 (
     echo '%defattr(-,root,root,-)'
     find %{buildroot}%{gopath}/src/%{import_path} -type d -printf '%%%dir "%p"\n' | %{__sed} -e 's|%{buildroot}||g'
-    find %{buildroot}%{gopath}/src/%{import_path} -type f -printf '"%p"\n' | %{__sed} -e 's|%{buildroot}||g'
-    find %{buildroot}%{gopath}/pkg/linux_amd64/%{provider}.%{provider_tld}/%{repo_owner} -type f -printf '"%p"\n' | %{__sed} -e 's|%{buildroot}||g'
-) > %{name}-%{version}-filelist
-echo '%dir "%{gopath}/src/%{import_path}"' >> %{name}-%{version}-filelist
-echo '"%{gopath}/bin/uchiwa"' >> %{name}-%{version}-filelist
-
-%{__sed} -i -e 's/%dir ""//g' %{name}-%{version}-filelist
-%{__sed} -i -e '/^$/d' %{name}-%{version}-filelist
-
+    find %{buildroot}%{gopath}/src/%{import_path} -type f -printf '%%%attr(664, root, root) "%p"\n' | %{__sed} -e 's|%{buildroot}||g'
+    #find %{buildroot}%{gopath}/pkg/linux_amd64/%{provider}.%{provider_tld}/%{repo_owner} -type d -printf '%%%dir "%p"\n' | %{__sed} -e 's|%{buildroot}||g'
+    find %{buildroot}%{gopath}/pkg/linux_amd64/%{provider}.%{provider_tld}/%{repo_owner} -type f -printf '%%%attr(664, root, root) "%p"\n' | %{__sed} -e 's|%{buildroot}||g'
+    find %{buildroot}%{gopath}/bin/* -type d -printf '%%%dir "%p"\n' | %{__sed} -e 's|%{buildroot}||g'
+    find %{buildroot}%{gopath}/bin -type f -printf '%%%attr(750, root, root) "%p"\n' | %{__sed} -e 's|%{buildroot}||g'
+    find %{buildroot}%{gopath}/pkg/linux_amd64/%{provider}.%{provider_tld}/%{project}* -type f -printf '%%%attr(750, root, root) "%p"\n' | %{__sed} -e 's|%{buildroot}||g'
+) > %{filelist}
+echo '%dir "%{gopath}/src/%{import_path}"' >> %{filelist}
+%{__sed} -i -e 's/%dir ""//g' %{filelist}
+%{__sed} -i -e '/^$/d' %{filelist}
 
 %clean
 [ "$RPM_BUILD_ROOT" != "/" ] && %__rm -rf $RPM_BUILD_ROOT
 [ "%{buildroot}" != "/" ] && %__rm -rf %{buildroot}
 [ "%{_builddir}/%{name}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}
 [ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}
-[ "%{_builddir}/%{name}-%{version}-filelist" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}-filelist
-%__rm -f %{_builddir}/%{name}-%{version}-filelist
+%__rm -f %{_builddir}/%{filelist}
 
-%files -f %{name}-%{version}-filelist
+%files -f %{filelist}
 
 %changelog
-
