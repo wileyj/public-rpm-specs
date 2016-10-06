@@ -1,8 +1,0 @@
-# use naming:
-github.com/stapelberg/websocket -> golang-github-stapelberg-websocket-dev
-code.google.com/p/go.net/websocket -> golang-googlecode-go.net-websocket-dev
-golang.org/x/oauth2 -> golang-golang-x-oauth2-dev
-google.golang.org/appengine -> golang-google-appengine-dev
-
-# in golang.spec, golang-1.4.spec: move gopath goroot to /usr/share/gocode, from /usr/share/golang
-
