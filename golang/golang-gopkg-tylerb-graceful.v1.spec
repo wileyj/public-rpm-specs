@@ -1,35 +1,30 @@
-%define repo https://github.com/sensu/uchiwa
-%global provider        github
-%global provider_tld    com
-%global repo_owner      sensu
-%global project         uchiwa
+%define repo https://gopkg.in/tylerb/graceful.v1
+%global provider        gopkg
+%global provider_tld    in
+%global repo_owner      tylerb
+%global project         graceful.v1
 %global import_path     %{provider}.%{provider_tld}/%{repo_owner}/%{project}
 %define _summary        %(echo `curl -s %{repo} | grep "<title>" | cut -f2 -d ":" | sed 's|</title>||'`)
-%define gitversion %(echo `curl -s %{repo}/releases | grep 'class="tag-name"' | head -1 |  tr -d '\\-</span class="tag-name">'`)
+%define gitversion %(echo `date +%Y%m`)
+%global filelist        %{_builddir}/%{name}-%{version}-filelist
 %define release_ver 1
 %global revision %(echo `git ls-remote %{repo}  | head -1 | cut -f 1 | cut -c1-7`)
-%global filelist        %{_builddir}/%{name}-%{version}-filelist
 
-Name:           %{project}
-Version:        %{gitversion}
-Release:        %{release_ver}.%{revision}.%{dist}
-Summary:        %{_summary}
-License:        Go License
-Vendor:         %{vendor}
-Packager:       %{packager}
+%include                %{_rpmconfigdir}/macros.d/macros.golang
+Name:                   golang-%{provider}-%{repo_owner}-%{project}
+Version:                %{gitversion}
+Release:                %{release_ver}.%{revision}.%{dist}
+Summary:                %{_summary}
+License:                Go License
+Vendor:                 %{vendor}
+Packager:               %{packager}
+BuildRequires:          git golang >= 1.5.0
+Requires:               golang >= 1.5.0
+Provides:               %{name}
+Provides:               %{name}-devel
+Provides:               golang(%{import_path}) 
+Provides:               golang(%{import_path})-devel
 
-BuildRequires:  git golang >= 1.5.0
-Requires:       golang >= 1.5.0
-Provides:       golang-%{provider}
-Provides:       golang(%{import_path}) = %{version}-%{release}
-Requires:	golang-github-dgrijalva-jwt-go
-Requires:	golang-github-jbenet-go-context
-Requires:	golang-github-mitchellh-mapstructure 
-Requires:	golang-github-palourde-mergo
-Requires:	golang-github-bencaron-gosensu
-
-
-%include %{_rpmconfigdir}/macros.d/macros.golang
 %description
 %{summary}
 

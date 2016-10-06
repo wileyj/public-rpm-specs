@@ -13,6 +13,7 @@ Packager:       %{packager}
 Group:          System Environment/Libraries
 BuildRequires:  nodejs, nodejs-devel, nodejs-npm,  git
 Requires:       nodejs, nodejs-npm,  git
+Provides:	vault-nodejs
 
 %description
 %{summary}
