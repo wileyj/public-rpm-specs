@@ -25,7 +25,9 @@ Provides:               %{name}
 Provides:               %{name}-devel
 Provides:               golang(%{import_path}) 
 Provides:               golang(%{import_path})-devel
-Requires:   golang-go-radix golang-speakeasy golang-go-isatty 
+Requires:   golang-github-armon-go-radix
+Requires:   golang-github-bgentry-speakeasy
+Requires:   golang-github-mattn-go-isatty
 
 %description
 %{summary}
@@ -40,6 +42,13 @@ export GOPATH=%{buildroot}%{gopath}
 
 go get %{import_path}/%{secondary}
 %{__rm} -f %{buildroot}%{gopath}/src/%{import_path}/.travis.yml
+%__rm -rf %{buildroot}%{gopath}/src/github.com/armon
+%__rm -rf %{buildroot}%{gopath}/src/github.com/bgentry
+%__rm -rf %{buildroot}%{gopath}/src/github.com/mattn
+%__rm -rf %{buildroot}%{gopath}/pkg/linux_amd64/github.com/armon
+%__rm -rf %{buildroot}%{gopath}/pkg/linux_amd64/github.com/bgentry
+%__rm -rf %{buildroot}%{gopath}/pkg/linux_amd64/github.com/mattn
+
 (
     echo '%defattr(-,root,root,-)'
     find %{buildroot}%{gopath}/src/%{import_path} -type d -printf '%%%dir "%p"\n' | %{__sed} -e 's|%{buildroot}||g'

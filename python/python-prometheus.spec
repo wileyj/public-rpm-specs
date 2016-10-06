@@ -22,6 +22,7 @@ Packager:       %{packager}
 Vendor:         %{vendor}
 URL:            http://pypi.python.org/pypi/redis
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+Provides:	prometheus-%{python}
 
 %description
 Low-level AMQP client for Python (fork of amqplib)

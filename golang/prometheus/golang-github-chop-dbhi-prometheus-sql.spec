@@ -1,8 +1,8 @@
-%define repo https://github.com/manucorporat/sse
+%define repo https://github.com/chop-dbhi/prometheus-sql
 %global provider        github
 %global provider_tld    com
-%global repo_owner      manucorporat
-%global project         sse
+%global repo_owner      chop-dbhi
+%global project         prometheus-sql
 %global import_path     %{provider}.%{provider_tld}/%{repo_owner}/%{project}
 %define _summary        %(echo `curl -s %{repo} | grep "<title>" | cut -f2 -d ":" | sed 's|</title>||'`)
 %define gitversion %(echo `date +%Y%m`)
@@ -24,30 +24,43 @@ Provides:               %{name}
 Provides:               %{name}-devel
 Provides:               golang(%{import_path}) 
 Provides:               golang(%{import_path})-devel
-Requires:   golang-github-armon-go-radix
-Requires:   golang-github-bgentry-speakeasy
-Requires:   golang-github-mattn-go-isatty
+Provides:               prometheus-sql_exporter
+Requires:   golang-gopkg-x-yaml.v2
+Requires:   golang-gopkg-tylerb-graceful.v1
+Requires:   golang-golang-x-net
+Requires:   golang-github-prometheus-procfs
+Requires:   golang-github-prometheus-common
+Requires:   golang-github-prometheus-client_model
+Requires:   golang-github-matttproud-golang_protobuf_extensions
+Requires:   golang-github-jpillora-backoff
+Requires:   golang-github-golang-protobuf
+Requires:   golang-github-beorn7-perks
 
 %description
 %{summary}
 
 %prep
-if [ -d %{buildroot} ]; then
-  %{__rm} -rf %{buildroot}
-fi
 
 %build
 export GOPATH=%{buildroot}%{gopath}
 
-go get %{import_path}
+go get %{import_path}/...
 %{__rm} -f %{buildroot}%{gopath}/src/%{import_path}/.travis.yml
-%__rm -rf %{buildroot}%{gopath}/src/github.com/armon
-%__rm -rf %{buildroot}%{gopath}/src/github.com/bgentry
-%__rm -rf %{buildroot}%{gopath}/src/github.com/mattn
-%__rm -rf %{buildroot}%{gopath}/pkg/linux_amd64/github.com/armon
-%__rm -rf %{buildroot}%{gopath}/pkg/linux_amd64/github.com/bgentry
-%__rm -rf %{buildroot}%{gopath}/pkg/linux_amd64/github.com/mattn
+%__rm -rf %{buildroot}%{gopath}/src/gopkg.in
+%__rm -rf %{buildroot}%{gopath}/src/golang.org
+%__rm -rf %{buildroot}%{gopath}/src/github.com/prometheus
+%__rm -rf %{buildroot}%{gopath}/src/github.com/matttproud
+%__rm -rf %{buildroot}%{gopath}/src/github.com/jpillora
+%__rm -rf %{buildroot}%{gopath}/src/github.com/golang
+%__rm -rf %{buildroot}%{gopath}/src/github.com/beorn7
 
+%__rm -rf %{buildroot}%{gopath}/pkg/linux_amd64/gopkg.in
+%__rm -rf %{buildroot}%{gopath}/pkg/linux_amd64/golang.org
+%__rm -rf %{buildroot}%{gopath}/pkg/linux_amd64/github.com/prometheus
+%__rm -rf %{buildroot}%{gopath}/pkg/linux_amd64/github.com/matttproud
+%__rm -rf %{buildroot}%{gopath}/pkg/linux_amd64/github.com/jpillora
+%__rm -rf %{buildroot}%{gopath}/pkg/linux_amd64/github.com/golang
+%__rm -rf %{buildroot}%{gopath}/pkg/linux_amd64/github.com/beorn7
 (
     echo '%defattr(-,root,root,-)'
     find %{buildroot}%{gopath}/src/%{import_path} -type d -printf '%%%dir "%p"\n' | %{__sed} -e 's|%{buildroot}||g'
@@ -72,3 +85,4 @@ echo '%dir "%{gopath}/src/%{import_path}"' >> %{filelist}
 %files -f %{filelist}
 
 %changelog
+

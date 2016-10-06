@@ -25,9 +25,8 @@ Provides:               %{name}-devel
 Provides:               golang(%{import_path}) 
 Provides:               golang(%{import_path})-devel
 
-Requires:   	golang-sse golang-net golang-validator.v8 golang-yaml.v2 golang-protobuf
 Requires: golang-github-golang-protobuf
-Requires: golang-github-manucorporat
+Requires: golang-github-manucorporat-sse
 Requires: golang-golang-x-net
 Requires: golang-gopkg-go-playground
 Requires: golang-gopkg-yaml.v2
@@ -45,11 +44,10 @@ export GOPATH=%{buildroot}%{gopath}
 
 go get %{import_path}
 %{__rm} -f %{buildroot}%{gopath}/src/%{import_path}/.travis.yml
-%__rm -rf %{buildroot}%{gopath}/src/github.com/golang/protobuf
+%__rm -rf %{buildroot}%{gopath}/src/github.com/golang/
 %__rm -rf %{buildroot}%{gopath}/src/github.com/manucorporat
-%__rm -rf %{buildroot}%{gopath}/src/golang.org/x/net
-%__rm -rf %{buildroot}%{gopath}/src/gopkg.in/go-playground
-%__rm -rf %{buildroot}%{gopath}/src/gopkg.in/yaml.v2
+%__rm -rf %{buildroot}%{gopath}/src/golang.org
+%__rm -rf %{buildroot}%{gopath}/src/gopkg.in
 %__rm -rf %{buildroot}%{gopath}/pkg/linux_amd64/github.com/golang
 %__rm -rf %{buildroot}%{gopath}/pkg/linux_amd64/github.com/manucorporat
 %__rm -rf %{buildroot}%{gopath}/pkg/linux_amd64/golang.org
