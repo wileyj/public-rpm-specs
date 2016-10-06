@@ -323,7 +323,7 @@ cp -av %{SOURCE102} $RPM_BUILD_ROOT%{_sysconfdir}/rpm/macros.golang
 
 mkdir -p %{buildroot}%{_sysconfdir}/profile.d
 cat > %{buildroot}%{_sysconfdir}/profile.d/%{name}.sh << EOF
-export GOPATH=/usr/share/gocode:%{gopath}
+export GOPATH=%{gopath}
 EOF
 chmod a+x %{buildroot}%{_sysconfdir}/profile.d/%{name}.sh
 

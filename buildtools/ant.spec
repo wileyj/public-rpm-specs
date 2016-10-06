@@ -15,7 +15,7 @@ License:        Apache
 Vendor: 	%{vendor}
 Packager: 	%{packager}
 Group:          Application/Web
-
+Provides: 	mvn(org.apache.ant:ant)
 %description
 Apache Ant is a Java-based build tool. In theory, it is kind of like make, without make's wrinkles
 

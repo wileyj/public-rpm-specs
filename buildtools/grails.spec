@@ -41,9 +41,9 @@ rm -rf /opt/%{name}
 [ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}
 
 %files
-%defattr(-,root,www)
-%attr(775,root,www) /opt/%{name}
-%attr(755,root,www) /etc/profile.d/grails_path.sh
+%defattr(-,root,root)
+%attr(775,root,root) /opt/%{name}
+%attr(755,root,root) /etc/profile.d/grails_path.sh
 
 
 

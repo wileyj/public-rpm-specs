@@ -3,7 +3,7 @@
 %global revision %(echo `git ls-remote %{repo}.git  | head -1 | cut -f 1| cut -c1-7`)
 %define rel_version 1
 
-%define _prefix	/opt/jenkins
+%define j_prefix	/opt/jenkins
 %define workdir	/opt/jenkins/home
 
 Name:		jenkins
@@ -62,8 +62,8 @@ mvn -Plight-test install
 cd %{name}-%{version}
 rm -rf %{buildroot}
 
-%__install -d %{buildroot}%{_prefix}
-%__install -D -m0644 war/target/jenkins.war %{buildroot}%{_prefix}/%{name}.war
+%__install -d %{buildroot}%{j_prefix}
+%__install -D -m0644 war/target/jenkins.war %{buildroot}%{j_prefix}/%{name}.war
 %__install -d %{buildroot}%{workdir}
 %__install -d %{buildroot}%{workdir}/plugins
 
@@ -71,7 +71,7 @@ rm -rf %{buildroot}
 %__install -d %{buildroot}/var/cache/jenkins
 
 %__install -D -m0755 %{SOURCE1} %{buildroot}/etc/init.d/%{name}
-%__sed -i 's,@@WAR@@,%{_prefix}/%{name}.war,g' %{buildroot}/etc/init.d/%{name}
+%__sed -i 's,@@WAR@@,%{j_prefix}/%{name}.war,g' %{buildroot}/etc/init.d/%{name}
 %__install -d %{buildroot}/usr/sbin
 %__ln_s ../../etc/init.d/%{name} %{buildroot}/usr/sbin/rc%{name}
 
@@ -127,8 +127,8 @@ exit 0
 
 %files
 %defattr(-,root,root)
-%dir %{_prefix}
-%{_prefix}/%{name}.war
+%dir %{j_prefix}
+%{j_prefix}/%{name}.war
 %attr(0755,jenkins,jenkins) %dir %{workdir}
 %attr(0750,jenkins,jenkins) /var/log/jenkins
 %attr(0750,jenkins,jenkins) /var/cache/jenkins

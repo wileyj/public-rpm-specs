@@ -1,79 +1,71 @@
-# https://github.com/utobi/prometheus-rpm
-# https://github.com/prometheus/prometheus
-# https://github.com/prometheus/common
+# spec from https://github.com/utobi/prometheus-rpm
+%define repo https://github.com/prometheus/prometheus
+%define common_repo https://github.com/prometheus/common
+%define gitversion %(echo `curl -s %{repo}/releases | grep 'class="tag-name"' | head -1 |  tr -d '\\-</span class="tag-name">v'`)
+%define revision %(echo `git ls-remote %{repo}.git  | head -1 | cut -f 1| cut -c1-7`)
+%define rel_version 1
+%define app_prefix /opt/%{name}
+
 
 
 %define debug_package %{nil}
 
 Name:		prometheus
-Version:	1.1.2
-Release:	1%{?dist}
+Version:	1.1.3
+Release:	%{rel_version}.%{revision}.%{dist}
 Summary:	Prometheus is a systems and service monitoring system. It collects metrics from configured targets at given intervals, evaluates rule expressions, displays the results, and can trigger alerts if some condition is observed to be true.
 Group:		System Environment/Daemons
 License:	See the LICENSE file at github.
 URL:		https://github.com/prometheus/prometheus
-Source0:	https://github.com/prometheus/prometheus/releases/download/%{version}/prometheus-%{version}.linux-amd64.tar.gz
 BuildRoot:	%{_tmppath}/%{name}-%{version}-root
 Requires(pre):  /usr/sbin/useradd
-Requires:       daemonize
+Requires:       go
 AutoReqProv:	No
 
 %description
-
 Prometheus is a systems and service monitoring system.
 It collects metrics from configured targets at given intervals, evaluates
 rule expressions, displays the results, and can trigger alerts if
 some condition is observed to be true.
 
+
 %prep
-%setup -q -n %{name}-%{version}.linux-amd64
+if [ -d %{name}-%{version} ];then
+  rm -rf %{name}-%{version}
+fi
+git clone %{repo} %{name}-%{version}
+git clone %{common)repo} %{name}-common-%{version}
+cd %{name}-%{version}
+git submodule init
+git submodule update
 
 %build
-echo
+cd %{name}-%{version}
+make build
+
+%__install -d %{buildroot}%{_localstatedir}/log/prometheus/
+%__install -d %{buildroot}%{_localstatedir}/run/prometheus
+%__install -d %{buildroot}%{_localstatedir}/lib/prometheus
+%__install -d %{buildroot}%{_bindir}
+%__install -d %{buildroot}%{_initddir}
+%__install -d %{buildroot}%{_sysconfdir}/sysconfig
+%__install -d %{buildroot}%{_sysconfdir}
+%__install -d %{buildroot}%{app_prefix}
+%__install -d %{buildroot}%{app_prefix}%{_sysconfdir}
+%__install -d %{buildroot}%{app_prefix}/consoles
+%__install -d %{buildroot}%{app_prefix}/console_libraries
+%__ln_s -f %{app_prefix}%{_sysconfdir} %{buildroot}%{_sysconfdir}/%{name}
 
 %install
-mkdir -vp $RPM_BUILD_ROOT/var/log/prometheus/
-mkdir -vp $RPM_BUILD_ROOT/var/run/prometheus
-mkdir -vp $RPM_BUILD_ROOT/var/lib/prometheus
-mkdir -vp $RPM_BUILD_ROOT/usr/bin
-mkdir -vp $RPM_BUILD_ROOT/etc/init.d
-mkdir -vp $RPM_BUILD_ROOT/etc/prometheus
-mkdir -vp $RPM_BUILD_ROOT/etc/sysconfig
-mkdir -vp $RPM_BUILD_ROOT/usr/share/prometheus
-mkdir -vp $RPM_BUILD_ROOT/usr/share/prometheus/consoles
-mkdir -vp $RPM_BUILD_ROOT/usr/share/prometheus/console_libraries
-
-install -m 755 contrib/prometheus.init $RPM_BUILD_ROOT/etc/init.d/prometheus
-install -m 644 contrib/prometheus.rules $RPM_BUILD_ROOT/etc/prometheus/prometheus.rules
-install -m 644 contrib/prometheus.sysconfig $RPM_BUILD_ROOT/etc/sysconfig/prometheus
-install -m 644 contrib/prometheus.yaml $RPM_BUILD_ROOT/etc/prometheus/prometheus.yaml
-install -m 755 prometheus $RPM_BUILD_ROOT/usr/bin/prometheus
-install -m 755 promtool $RPM_BUILD_ROOT/usr/bin/promtool
-
-
-install -m 755 console_libraries/menu.lib $RPM_BUILD_ROOT/usr/share/prometheus/console_libraries
-install -m 755 console_libraries/prom.lib $RPM_BUILD_ROOT/usr/share/prometheus/console_libraries
-install -m 755 consoles/aws_elasticache.html $RPM_BUILD_ROOT/usr/share/prometheus/consoles
-install -m 755 consoles/aws_elb.html $RPM_BUILD_ROOT/usr/share/prometheus/consoles
-install -m 755 consoles/aws_redshift-cluster.html $RPM_BUILD_ROOT/usr/share/prometheus/consoles
-install -m 755 consoles/aws_redshift.html $RPM_BUILD_ROOT/usr/share/prometheus/consoles
-install -m 755 consoles/blackbox.html $RPM_BUILD_ROOT/usr/share/prometheus/consoles
-install -m 755 consoles/cassandra.html $RPM_BUILD_ROOT/usr/share/prometheus/consoles
-install -m 755 consoles/cloudwatch.html $RPM_BUILD_ROOT/usr/share/prometheus/consoles
-install -m 755 consoles/haproxy-backend.html $RPM_BUILD_ROOT/usr/share/prometheus/consoles
-install -m 755 consoles/haproxy-backends.html $RPM_BUILD_ROOT/usr/share/prometheus/consoles
-install -m 755 consoles/haproxy-frontend.html $RPM_BUILD_ROOT/usr/share/prometheus/consoles
-install -m 755 consoles/haproxy-frontends.html $RPM_BUILD_ROOT/usr/share/prometheus/consoles
-install -m 755 consoles/haproxy.html $RPM_BUILD_ROOT/usr/share/prometheus/consoles
-install -m 755 consoles/index.html.example $RPM_BUILD_ROOT/usr/share/prometheus/consoles
-install -m 755 consoles/node-cpu.html $RPM_BUILD_ROOT/usr/share/prometheus/consoles
-install -m 755 consoles/node-disk.html $RPM_BUILD_ROOT/usr/share/prometheus/consoles
-install -m 755 consoles/node-overview.html $RPM_BUILD_ROOT/usr/share/prometheus/consoles
-install -m 755 consoles/node.html $RPM_BUILD_ROOT/usr/share/prometheus/consoles
-install -m 755 consoles/prometheus-overview.html $RPM_BUILD_ROOT/usr/share/prometheus/consoles
-install -m 755 consoles/prometheus.html $RPM_BUILD_ROOT/usr/share/prometheus/consoles
-install -m 755 consoles/snmp-overview.html $RPM_BUILD_ROOT/usr/share/prometheus/consoles
-install -m 755 consoles/snmp.html $RPM_BUILD_ROOT/usr/share/prometheus/consoles
+cd %{name}-%{version}
+%__install -m 755 contrib/prometheus.init %{buildroot}%{_initddir}
+%__install -m 644 contrib/prometheus.rules %{buildroot}/etc/prometheus/prometheus.rules
+%__install -m 644 contrib/prometheus.sysconfig %{buildroot}%{_sysconfdir}/sysconfig/%{name}
+%__install -m 644 contrib/prometheus.yaml %{buildroot}%{app_prefix}%{_sysconfdir}/%{name}.yaml
+%__install -m 755 prometheus %{buildroot}%{_bindir}/%{name}
+%__install -m 755 promtool %{buildroot}%{_bindir}/promtool
+%__install -m 755 console_libraries/* %{buildroot}%{app_prefix}/console_libraries/
+%__install -m 755 consoles/* %{buildroot}%{app_prefix}/consoles/
 
 %clean
 
@@ -81,7 +73,7 @@ install -m 755 consoles/snmp.html $RPM_BUILD_ROOT/usr/share/prometheus/consoles
 getent group prometheus >/dev/null || groupadd -r prometheus
 getent passwd prometheus >/dev/null || \
   useradd -r -g prometheus -s /sbin/nologin \
-    -d $RPM_BUILD_ROOT/var/lib/prometheus/ -c "prometheus Daemons" prometheus
+    -d %{buildroot}/var/lib/prometheus/ -c "prometheus Daemons" prometheus
 exit 0
 
 %post
