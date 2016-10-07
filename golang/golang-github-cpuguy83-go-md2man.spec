@@ -1,4 +1,4 @@
-%define repo ttps://github.com/cpuguy83/go-md2man
+%define repo https://github.com/cpuguy83/go-md2man
 %global provider        github
 %global provider_tld    com
 %global repo_owner      cpuguy83
