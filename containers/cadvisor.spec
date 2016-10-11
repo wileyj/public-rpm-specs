@@ -20,8 +20,7 @@ Vendor:         %{vendor}
 Packager:       %{packager}
 
 BuildRequires:  git golang >= 1.5.0
-Requires:       golang >= 1.5.0 
-Requires:		golang-github-jteeuwen-go-bindata
+Requires:       golang >= 1.5.0 golang-bindata
 Provides:       golang-%{provider}
 Provides:       golang(%{import_path}) = %{version}-%{release}
 

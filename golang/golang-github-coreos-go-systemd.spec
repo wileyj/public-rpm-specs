@@ -1,8 +1,8 @@
-%define repo https://github.com/cpuguy83/go-md2man
+%define repo https://github.com/coreos/pkg
 %global provider        github
 %global provider_tld    com
-%global repo_owner      cpuguy83
-%global project         go-md2man
+%global repo_owner      coreos
+%global project         go-systemd
 %global import_path     %{provider}.%{provider_tld}/%{repo_owner}/%{project}
 %define _summary        %(echo `curl -s %{repo} | grep "<title>" | cut -f2 -d ":" | sed 's|</title>||'`)
 %define gitversion %(echo `date +%Y%m`)
@@ -10,6 +10,7 @@
 %define release_ver 1
 %global revision %(echo `git ls-remote %{repo}  | head -1 | cut -f 1 | cut -c1-7`)
 
+%include                %{_rpmconfigdir}/macros.d/macros.golang
 Name:                   golang-%{provider}-%{repo_owner}-%{project}
 Version:                %{gitversion}
 Release:                %{release_ver}.%{revision}.%{dist}
@@ -17,13 +18,14 @@ Summary:                %{_summary}
 License:                Go License
 Vendor:                 %{vendor}
 Packager:               %{packager}
-BuildRequires:          git golang >= 1.5.0
+BuildRequires:          git golang >= 1.5.0 systemd-devel
 Requires:               golang >= 1.5.0
 Provides:               %{name}
 Provides:               %{name}-devel
 Provides:               golang(%{import_path}) 
 Provides:               golang(%{import_path})-devel
-%include                %{_rpmconfigdir}/macros.d/macros.golang
+Requires: golang-github-coreos-pkg
+Requires: golang-golang-godbus-dbus
 
 %description
 %{summary}
@@ -33,8 +35,13 @@ Provides:               golang(%{import_path})-devel
 %build
 export GOPATH=%{buildroot}%{gopath}
 
-go get %{import_path}
+go get %{import_path}/...
 %{__rm} -f %{buildroot}%{gopath}/src/%{import_path}/.travis.yml
+%__rm -rf %{buildroot}%{gopath}/src/github.com/coreos/pkg
+%__rm -rf %{buildroot}%{gopath}/src/github.com/godbus
+%__rm -rf %{buildroot}%{gopath}/pkg/linux_amd64/github.com/coreos/pkg*
+%__rm -rf %{buildroot}%{gopath}/pkg/linux_amd64/github.com/godbus
+
 (
     echo '%defattr(-,root,root,-)'
     find %{buildroot}%{gopath}/src/%{import_path} -type d -printf '%%%dir "%p"\n' | %{__sed} -e 's|%{buildroot}||g'
@@ -59,3 +66,4 @@ echo '%dir "%{gopath}/src/%{import_path}"' >> %{filelist}
 %files -f %{filelist}
 
 %changelog
+

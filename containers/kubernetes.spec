@@ -308,7 +308,7 @@ BuildRequires: golang >= 1.7
 BuildRequires: systemd
 BuildRequires: rsync
 BuildRequires: go-md2man
-BuildRequires: golang-github-jteeuwen-go-bindata
+BuildRequires: golang-go-bindata 
 
 Requires(pre): shadow-utils
 Requires: kubernetes-client = %{version}-%{release}
