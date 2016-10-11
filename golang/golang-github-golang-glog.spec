@@ -1,8 +1,8 @@
-%define repo https://github.com/cpuguy83/go-md2man
+%define repo https://github.com/golang/glog
 %global provider        github
 %global provider_tld    com
-%global repo_owner      cpuguy83
-%global project         go-md2man
+%global repo_owner      golang
+%global project         glog
 %global import_path     %{provider}.%{provider_tld}/%{repo_owner}/%{project}
 %define _summary        %(echo `curl -s %{repo} | grep "<title>" | cut -f2 -d ":" | sed 's|</title>||'`)
 %define gitversion %(echo `date +%Y%m`)
@@ -10,6 +10,7 @@
 %define release_ver 1
 %global revision %(echo `git ls-remote %{repo}  | head -1 | cut -f 1 | cut -c1-7`)
 
+%include                %{_rpmconfigdir}/macros.d/macros.golang
 Name:                   golang-%{provider}-%{repo_owner}-%{project}
 Version:                %{gitversion}
 Release:                %{release_ver}.%{revision}.%{dist}
@@ -23,7 +24,6 @@ Provides:               %{name}
 Provides:               %{name}-devel
 Provides:               golang(%{import_path}) 
 Provides:               golang(%{import_path})-devel
-%include                %{_rpmconfigdir}/macros.d/macros.golang
 
 %description
 %{summary}
@@ -59,3 +59,4 @@ echo '%dir "%{gopath}/src/%{import_path}"' >> %{filelist}
 %files -f %{filelist}
 
 %changelog
+
