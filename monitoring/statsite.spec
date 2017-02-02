@@ -1,6 +1,6 @@
 %global __os_install_post %(echo '%{__os_install_post}' | sed -e 's!/usr/lib[^[:space:]]*/brp-python-bytecompile[[:space:]].*$!!g')
-%define repo https://github.com/armon/statsite
-%define gitversion %(echo `curl -s %{repo}/releases | grep 'span class="tag-name"' | head -1 |  tr -d 'vru\\-</span class="tag-name">'`)
+%define repo https://github.com/statsite/statsite
+%define gitversion %(echo `curl %{repo}/releases | grep 'span class="css-truncate-target"' | head -1 |  tr -d '\\-</span class="css-truncate-target">v'`)
 %global revision %(echo `git ls-remote %{repo}.git  | head -1 | cut -f 1| cut -c1-7`)
 %define rel_version 1
 
@@ -32,6 +32,7 @@ git submodule update
 %build
 cd %{name}-%{version}
 ./bootstrap.sh
+./autogen.sh
 ./configure
 make %{?_smp_mflags}
 
@@ -54,7 +55,7 @@ cd %{name}-%{version}
     %__install -m 755 rpm/%{name}.initscript %{buildroot}%{_initrddir}/%{name}
 %endif
 
-%__install -m 755 src/%{name} %{buildroot}%{_sbindir}
+%__install -m 755 %{name} %{buildroot}%{_sbindir}
 %__install -m 644 rpm/%{name}.conf.example %{buildroot}%{_sysconfdir}/%{name}/%{name}.conf
 %__cp -pa sinks %{buildroot}%{_libexecdir}/%{name}
 

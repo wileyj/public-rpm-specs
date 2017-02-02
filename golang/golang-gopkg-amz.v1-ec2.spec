@@ -1,4 +1,5 @@
-%define repo https://github.com/go-amz/amz
+#%define repo https://github.com/go-amz/amz
+%define repo            https://%{provider}.%{provider_tld}/%{repo_owner}/%{project}
 %global provider        gopkg
 %global provider_tld    in
 %global repo_owner      amz.v1
@@ -8,7 +9,6 @@
 %define gitversion %(echo `date +%s`)
 %global revision %(echo `git ls-remote %{repo}.git  | head -1 | cut -f 1| cut -c1-7`)
 %global release_ver 1
-%global filelist        %{_builddir}/%{name}-%{version}-filelist
 
 Name:                   golang-%{provider}-%{repo_owner}-%{project}
 Version:                %{gitversion}
@@ -17,13 +17,14 @@ Summary:                %{_summary}
 License:                Go License
 Vendor:                 %{vendor}
 Packager:               %{packager}
-BuildRequires:          git golang >= 1.5.0
-Requires:               golang >= 1.5.0
+BuildRequires:          git golang >= 1.8.0
+BuildRequires:          golang-rpm-macros
+Requires:               golang >= 1.8.0
 Provides:               %{name}
 Provides:               %{name}-devel
 Provides:               golang(%{import_path}) 
 Provides:               golang(%{import_path})-devel
-%include                %{_rpmconfigdir}/macros.d/macros.golang
+
 
 %description
 %{summary}
@@ -38,29 +39,32 @@ fi
 export GOPATH=%{buildroot}%{gopath}
 
 go get %{import_path}/ec2
-%{__rm} -f %{buildroot}%{gopath}/src/%{import_path}/.travis.yml
-(
-    echo '%defattr(-,root,root,-)'
-    find %{buildroot}%{gopath}/src/%{import_path} -type d -printf '%%%dir "%p"\n' | %{__sed} -e 's|%{buildroot}||g'
-    find %{buildroot}%{gopath}/src/%{import_path} -type f -printf '%%%attr(664, root, root) "%p"\n' | %{__sed} -e 's|%{buildroot}||g'
-    #find %{buildroot}%{gopath}/pkg/linux_amd64/%{provider}.%{provider_tld}/%{repo_owner} -type d -printf '%%%dir "%p"\n' | %{__sed} -e 's|%{buildroot}||g'
-    find %{buildroot}%{gopath}/pkg/linux_amd64/%{provider}.%{provider_tld}/%{repo_owner} -type f -printf '%%%attr(664, root, root) "%p"\n' | %{__sed} -e 's|%{buildroot}||g'
-    find %{buildroot}%{gopath}/bin/* -type d -printf '%%%dir "%p"\n' | %{__sed} -e 's|%{buildroot}||g'
-    find %{buildroot}%{gopath}/bin -type f -printf '%%%attr(750, root, root) "%p"\n' | %{__sed} -e 's|%{buildroot}||g'
-    find %{buildroot}%{gopath}/pkg/linux_amd64/%{provider}.%{provider_tld}/%{project}* -type f -printf '%%%attr(750, root, root) "%p"\n' | %{__sed} -e 's|%{buildroot}||g'
-) > %{filelist}
-echo '%dir "%{gopath}/src/%{import_path}"' >> %{filelist}
-%{__sed} -i -e 's/%dir ""//g' %{filelist}
-%{__sed} -i -e '/^$/d' %{filelist}
+for pkg_dir in `find %{buildroot}%{gopath}/pkg/linux_amd64/ -maxdepth 2 \
+! -path %{buildroot}%{gopath}/pkg/linux_amd64/ \
+! -path %{buildroot}%{gopath}/pkg/linux_amd64/%{provider}.%{provider_tld} \
+! -path %{buildroot}%{gopath}/pkg/linux_amd64/%{provider}.%{provider_tld}/%{repo_owner}`; do
+    %__rm -rf ${pkg_dir}
+done
+
+for src_dir in `find %{buildroot}%{gopath}/src/ -maxdepth 2 \
+! -path %{buildroot}%{gopath}/src/ \
+! -path %{buildroot}%{gopath}/src/%{provider}.%{provider_tld} \
+! -path %{buildroot}%{gopath}/src/%{provider}.%{provider_tld}/%{repo_owner}`; do
+    %__rm -rf ${src_dir}
+done
+if [ -f  %{buildroot}%{gopath}/src/%{import_path}/.travis.yml ];then
+    %__rm -f %{buildroot}%{gopath}/src/%{import_path}/.travis.yml
+fi
 
 %clean
 [ "$RPM_BUILD_ROOT" != "/" ] && %__rm -rf $RPM_BUILD_ROOT
 [ "%{buildroot}" != "/" ] && %__rm -rf %{buildroot}
 [ "%{_builddir}/%{name}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}
 [ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}
-[ "%{_builddir}/%{filelist}" != "/" ] && %__rm -rf %{_builddir}/%{filelist}
-%__rm -f %{_builddir}/%{filelist}
 
-%files -f %{filelist}
+%files
+%{gopath}/src/*
+%{gopath}/pkg/*
+%{gopath}/bin/*
 
 %changelog

@@ -25,7 +25,6 @@ License:        ASL 2.0
 URL:            %{import_path}
 ExclusiveArch:  x86_64
 
-Source0:      macros.golang
 Source1:        genmanpages.sh
 Patch0:         Update-github.com-elazarl-go-bindata-assetfs-to-at-l.patch
 Patch1:         Fix-Persistent-Volumes-and-Persistent-Volume-Claims.patch
@@ -34,14 +33,16 @@ Patch4:         use-the-correct-delimiter-for-X-option-of-ldflags.patch
 Obsoletes:      cadvisor
 Requires: kubernetes-master = %{version}-%{release}
 Requires: kubernetes-node = %{version}-%{release}
-%include %{SOURCE0}
+BuildRequires: golang >= 1.8
+Requires: golang >= 1.8
 
 %description
 %{summary}
 
 %package devel
 Summary:       %{summary}
-BuildRequires: golang >= 1.7
+BuildRequires: golang >= 1.8
+Requires: golang >= 1.8
 
 Provides: golang(%{import_path}/cmd/genutils) = %{version}-%{release}
 Provides: golang(%{import_path}/cmd/kube-apiserver/app) = %{version}-%{release}
@@ -292,7 +293,7 @@ building other packages which use %{project}/%{repo}.
 %package unit-test
 Summary: %{summary} - for running unit tests
 
-Requires: golang >= 1.2-7
+Requires: golang >= 1.8
 Requires: etcd >= 2.0.9
 Requires: hostname
 Requires: rsync
@@ -304,11 +305,17 @@ Requires: NetworkManager
 %package master
 Summary: Kubernetes services for master host
 
-BuildRequires: golang >= 1.7
+BuildRequires: golang >= 1.8
+Requires: golang >= 1.8
 BuildRequires: systemd
+Requires: systemd
 BuildRequires: rsync
-BuildRequires: go-md2man
-BuildRequires: golang-go-bindata 
+Requires: rsync
+BuildRequires: golang-github-cpuguy83-go-md2man
+BuildRequires: golang-github-cpuguy83-go-md2man-devel
+BuildRequires: golang-github-jteeuwen-go-bindata
+Requires: golang-github-cpuguy83-go-md2man
+Requires: golang-github-jteeuwen-go-bindata
 
 Requires(pre): shadow-utils
 Requires: kubernetes-client = %{version}-%{release}
@@ -327,10 +334,14 @@ Requires: docker
 Requires: docker-io
 %endif
 
-BuildRequires: golang >= 1.7
+BuildRequires: golang >= 1.8
+Requires: golang >= 1.8
 BuildRequires: systemd
+Requires: systemd
 BuildRequires: rsync
-BuildRequires: go-md2man
+Requires: rsync
+BuildRequires: golang-github-cpuguy83-go-md2man
+Requires: golang-github-cpuguy83-go-md2man
 Requires(pre): shadow-utils
 Requires: socat
 Requires: kubernetes-client = %{version}-%{release}
@@ -342,8 +353,8 @@ Kubernetes services for node host
 
 %package client
 Summary: Kubernetes client tools
-
-BuildRequires: golang >= 1.7
+BuildRequires: golang >= 1.8
+Requires: golang >= 1.8
 
 %description client
 Kubernetes client tools like kubectl
@@ -395,6 +406,7 @@ cat <<EOF> %{buildroot}%{_sysconfdir}/profile.d/%{name}.sh
 EOF
 
 echo "Moving contrib folders to kubernetes source tree..."
+%__mkdir contrib
 for i in `ls ../%{name}-contrib-%{version}`; do
   if [ -d ../%{name}-contrib-%{version}/$i ]; then
     echo "Copying contrib dir: ../%{name}-contrib-%{version}/$i to contrib/$i"

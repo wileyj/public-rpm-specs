@@ -14,14 +14,14 @@ BuildRequires: git
 %define boost_docdir __tmp_docdir
 %define boost_examplesdir __tmp_examplesdir
 %define toplev_dirname %{name}_%{version_enc}
-%define version_enc 1_61_0
+%define version_enc 1_63_0
 %bcond_without mpich
 %bcond_without openmpi
 %bcond_with context
 
 Name: boost
 Summary: The free peer-reviewed portable C++ source libraries
-Version: 1.61.0
+Version: 1.63.0
 Release: 10.%{?dist}
 License: Boost and MIT and Python
 URL: http://www.boost.org
@@ -1021,7 +1021,7 @@ fi
 %{_includedir}/%{name}
 %{_includedir}/%{name}/nowide
 %{_libdir}/libboost_type_erasure.so
-%{_libdir}/libboost_type_erasure.so.1.61.0
+%{_libdir}/libboost_type_erasure.so*
 %{_libdir}/libboost_atomic.so
 %{_libdir}/libboost_chrono.so
 %{_libdir}/libboost_container.so

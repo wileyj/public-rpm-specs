@@ -1,12 +1,3 @@
-%if 0%{?amzn} >= 1
-%define python python27
-BuildRequires: %{python} %{python}-rpm-macros %{python}-devel
-Requires: %{python} %{python}-setuptools
-%else
-%define python python
-BuildRequires: %{python} %{python}-rpm-macros %{python}-devel
-Requires: %{python} %{python}-setuptools
-%endif
 
 Summary:        Google C++ testing framework
 Name:           gtest

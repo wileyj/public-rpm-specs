@@ -1,18 +1,8 @@
+%global with_python3 0
 %define repo https://github.com/graphite-project/carbon
 %define gitversion %(echo `curl -s %{repo}/releases | grep 'span class="tag-name"' | head -1 |  tr -d 'vru\\-</span class="tag-name">'`)
 %global revision %(echo `git ls-remote %{repo}.git  | head -1 | cut -f 1| cut -c1-7`)
 %define rel_version 1
-
-%if 0%{?amzn} >= 1
-%define python python27
-BuildRequires: git %{python} %{python}-rpm-macros %{python}-devel
-Requires: %{python} %{python}-setuptools
-%include %{_rpmconfigdir}/macros.d/macros.python
-%else
-%define python python
-BuildRequires: git %{python} %{python}-rpm-macros %{python}-devel
-Requires: %{python} %{python}-setuptools
-%endif
 
 %define __getent   /usr/bin/getent
 %define __useradd  /usr/sbin/useradd
@@ -39,6 +29,13 @@ Source6:        %{name}-aggregator.sysconfig
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildArch:      noarch
 Requires:       whisper
+%if 0%{?with_python3}
+BuildRequires: python3-devel python3 python3-rpm-macros python-rpm-macros
+Requires: python3 python3-carbon
+%else
+BuildRequires: python-devel python python-rpm-macros python-rpm-macros
+Requires: python python-carbon
+%endif
 
 %description
 The backend for Graphite. Carbon is a data collection and storage agent.
@@ -51,10 +48,16 @@ git clone %{repo} %{name}-%{version}
 cd %{name}-%{version}
 git submodule init
 git submodule update
-
+%__sed -i -e 's|import ConfigParser|import configparser|g' setup.py
 %build
 cd %{name}-%{version}
-CFLAGS="$RPM_OPT_FLAGS" %{__python} -c 'import setuptools; execfile("setup.py")' build
+
+CFLAGS="$RPM_OPT_FLAGS" 
+%if 0%{?with_python3}
+%{__python3} setup.py build
+%else
+%{__python} setup.py build
+%endif
 
 %install
 cd %{name}-%{version}

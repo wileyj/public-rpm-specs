@@ -40,7 +40,7 @@ cd %{name}-%{version}
 sh build.sh
 
 cat <<EOF> %{buildroot}/etc/profile.d/%{name}.sh
-export PATH="$PATH:%{ant_prefix}-%{version}/bin"
+export PATH="\$PATH:%{ant_prefix}-%{version}/bin"
 EOF
 
 cat <<EOF> %{buildroot}/etc/ld.so.conf.d/%{name}.conf

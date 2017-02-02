@@ -59,7 +59,7 @@ mkdir -p $RPM_BUILD_ROOT/%{_sysconfdir}/profile.d/
 cat > $RPM_BUILD_ROOT/%{_sysconfdir}/profile.d/rbenv.sh <<EOF
 # rbenv setup
 export RBENV_ROOT=%{rbenv_root}
-export PATH="%{rbenv_root}/bin:%{rbenv_root}/shims:$PATH"
+export PATH="\${RBENV_ROOT}/bin:\${RBENV_ROOT}/shims:\$PATH"
 eval "\$(rbenv init -)"
 EOF
 
@@ -76,7 +76,7 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(-,root,root,-)
 %{_prefix}
-%attr(0777,root,root) %dir %{rbenv_root}/shims
+%attr(04755,root,root) %dir %{rbenv_root}/shims
 %attr(0755,root,root) %{_sysconfdir}/profile.d/rbenv.sh
 
 %files devel

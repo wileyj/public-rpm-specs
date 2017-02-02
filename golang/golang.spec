@@ -1,11 +1,11 @@
 %define repo https://github.com/golang/go.git
-%define git_version %(echo `curl -s https://github.com/golang/go/releases | grep 'class="tag-name"' | head -1 |  tr -d '\\-</span class="tag-name">o'`)
+%define git_version %(echo `curl -s https://github.com/golang/go/releases | grep 'class="tag-name"' | head -1 |  tr -d '\\-</span class="tag-name">ob2' | sed -e 's/r/.0/g'`)
 %global _binaries_in_noarch_packages_terminate_build 0
 %global __requires_exclude_from ^(%{_datadir}|/usr/lib)/%{name}/(doc|src)/.*$
 %define _use_internal_dependency_generator 0
 %define __find_requires %{nil}
 %global __spec_install_post /usr/lib/rpm/check-rpaths   /usr/lib/rpm/check-buildroot  /usr/lib/rpm/brp-compress
-%define release_ver 2
+%define release_ver 10
 %global revision %(echo `git ls-remote %{repo}  | head -1 | cut -f 1 | cut -c1-7`)
 
 Name:           golang
@@ -15,8 +15,8 @@ Summary:        The Go Programming Language
 License:        BSD
 URL:            http://golang.org/
 BuildRequires:  golang > 1.4 git pcre-devel /bin/hostname 
+BuildRequires:  golang-rpm-macros
 Provides:       go = %{version}-%{release}
-Source0:	macros.golang
 Requires:       %{name}-bin
 Requires:       %{name}-src = %{version}-%{release}
 Obsoletes:      %{name}-docs < 1.1-4
@@ -25,7 +25,6 @@ Obsoletes:      %{name}-vim < 1.4
 Obsoletes:      emacs-%{name} < 1.4
 Source100:      golang-gdbinit
 Source101:      golang-prelink.conf
-%include %{SOURCE0}
 
 %description
 %{summary}.
@@ -188,7 +187,6 @@ ln -sf %{goroot}/bin/gofmt $RPM_BUILD_ROOT%{goroot}/bin/linux_%{gohostarch}/gofm
 %{__mkdir_p} %{buildroot}%{gopath}/src/labix.org
 
 %{__mkdir_p} %{buildroot}%{_rpmconfigdir}/macros.d
-%{__install} -m0644 %{SOURCE0} %{buildroot}%{_rpmconfigdir}/macros.d/macros.golang
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/gdbinit.d
 cp -av %{SOURCE100} $RPM_BUILD_ROOT%{_sysconfdir}/gdbinit.d/golang.gdb
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/prelink.conf.d
@@ -198,7 +196,7 @@ mkdir -p %{buildroot}%{_sysconfdir}/profile.d
 cat > %{buildroot}%{_sysconfdir}/profile.d/%{name}.sh << EOF
 export GOROOT="%{goroot}"
 export GOPATH="%{gopath}"
-export PATH=\$PATH:\$GOROOT/bin:\$GOPATH/bin
+export PATH=\$PATH:\${GOROOT}/bin:\${GOPATH}/bin
 export gohostarch=amd64
 EOF
 chmod a+x %{buildroot}%{_sysconfdir}/profile.d/%{name}.sh
@@ -213,7 +211,6 @@ chmod a+x %{buildroot}%{_sysconfdir}/profile.d/%{name}.sh
 [ "%{buildroot}" != "/" ] && %__rm -rf %{buildroot}
 [ "%{_builddir}/%{name}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}
 [ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}
-
 
 %files
 %dir %{goroot}/doc
@@ -233,7 +230,6 @@ chmod a+x %{buildroot}%{_sysconfdir}/profile.d/%{name}.sh
 %{gopath}/*
 %{_sysconfdir}/gdbinit.d
 %{_sysconfdir}/prelink.conf.d
-%{_rpmconfigdir}/macros.d/macros.golang
 %{_sysconfdir}/profile.d
 
 %files -f %{name}-%{version}/go-src.list src

@@ -44,7 +44,7 @@ cp -R * %{buildroot}%{pathname}/
 mkdir -p %{buildroot}%{_sysconfdir}/profile.d
 
 cat <<EOF> %{buildroot}%{_sysconfdir}/profile.d/%{name}.sh
-export PATH=%{pathname}:$PATH
+export PATH=%{pathname}:\$PATH
 EOF
 
 %pre

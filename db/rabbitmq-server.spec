@@ -1,13 +1,4 @@
-%if 0%{?amzn} >= 1
-%define python python27
-BuildRequires: %{python} %{python}-rpm-macros %{python}-devel
-Requires: %{python} %{python}-setuptools
-%else
-%define python python
-BuildRequires: %{python} %{python}-rpm-macros %{python}-devel
-Requires: %{python} %{python}-setuptools
-%endif
-
+%global with_python3 1
 %global shortname rabbitmq
 %global erlang_minver R12B-3
 %global _rabbit_libdir %{_exec_prefix}/lib/rabbitmq
@@ -34,7 +25,13 @@ Source4: %{shortname}-server.ocf
 Source5: %{shortname}-server.tmpfiles
 URL: http://www.rabbitmq.com/
 BuildArch: noarch
-BuildRequires: erlang >= %{erlang_minver} %{python}-simplejson xmlto libxslt zip
+
+BuildRequires: erlang >= %{erlang_minver} xmlto libxslt zip
+%if 0%{?with_python3}
+BuildRequires: python3-simplejson 
+%else
+BuildRequires: python-simplejson 
+%endif
 BuildRequires: erlang-observer erlang-gs erlang-et erlang-jinterface erlang-epmd erlang-reltool erlang-src
 Requires: logrotate erlang erlang-observer erlang-gs erlang-et erlang-jinterface erlang-epmd erlang-reltool erlang-src
 Summary: The RabbitMQ server

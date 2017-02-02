@@ -1,10 +1,10 @@
 %define repo https://github.com/apache/maven
-%define gitversion %(echo `curl -s %{repo}/releases | grep 'class="tag-name"' | head -1 |  tr -d '\\-</span class="tag-name">v'`)
+%define gitversion %(echo `curl -s %{repo}/releases | grep 'class="tag-name"' | head -1 |  tr -d '\\-</span class="tag-name">maven-'`)
 %global revision %(echo `git ls-remote %{repo}.git  | head -1 | cut -f 1 | cut -c1-7`)
 %define rel_version 1
-
-%define maven_bin_ver 3.2.1
-%define bin_prefix /opt/apache-maven-%{maven_bin_ver}
+%define real_name apache-maven
+%define bin_version 3.2.1
+%define bin_prefix /opt/%{real_name}-%{bin_version}
 %define maven_prefix /opt/%{name}-%{gitversion}
 %define maven_symlink /opt/%{name}
 
@@ -32,8 +32,6 @@ if [ -d %{name}-%{version} ];then
 fi
 git clone %{repo} %{name}-%{version}
 cd %{name}-%{version}
-#source /etc/profile
-#source /etc/profile.d/maven_path.sh
 export MAVEN_HOME=%{bin_prefix}
 
 %build
@@ -41,16 +39,22 @@ cd %{name}-%{version}
 
 %install
 cd %{name}-%{version}
-%{bin_prefix}/bin/mvn -DdistributionTargetFolder="%{buildroot}%{maven_prefix}" clean package
+%{bin_prefix}/bin/mvn -DdistributionTargetFolder="%{buildroot}%{maven_prefix}" clean install  -DskipTests
 
 %{__mkdir_p} %{buildroot}/etc/profile.d
 %{__mkdir_p} %{buildroot}/%{_bindir}
+%{__mkdir_p} %{buildroot}/opt
 cat <<EOF> %{buildroot}/etc/profile.d/maven.sh
 #export MAVEN_OPTS="-Xmx512m -Xms256m -XX:MaxPermSize=256m"
 export MAVEN_HOME=%{maven_prefix}
+export PATH="\$PATH:%{maven_symlink}/bin"
 EOF
+ARCHIVE=`ls %{_builddir}/%{name}-%{version}/%{real_name}/target/%{real_name}-*-SNAPSHOT-bin.tar.gz`
+DIR=`basename ${ARCHIVE} | sed -e 's/.tar.gz//g'`
+EXTRACTED=`basename ${ARCHIVE} | sed -e 's/-bin.tar.gz//g'`
+tar -xzvf ${ARCHIVE} -C %{buildroot}/opt
+%__mv  %{buildroot}/opt/${EXTRACTED} %{buildroot}/%{maven_prefix}
 %__ln_s -f %{maven_prefix} %{buildroot}%{maven_symlink}
-%__ln_s -f %{maven_symlink}/bin/mvn %{buildroot}%{_bindir}/mvn
 
 
 %clean
@@ -63,7 +67,6 @@ EOF
 %defattr(-,root,root)
 %dir %{maven_prefix}
 %{maven_prefix}/*
-%{_bindir}/mvn
 %{maven_symlink}
 /etc/profile.d/maven.sh
 

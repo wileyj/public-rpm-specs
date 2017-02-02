@@ -16,8 +16,45 @@ URL:            https://puppetlabs.com/%{name}
 Patch0:		facter-ruby-2.3.patch
 #Patch1:        facter-2.3.0.patch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-BuildRequires: boost-devel >= 1.59 cpp-hocon cpp-hocon-devel
-BuildRequires: openssl-devel libblkid-devel libcurl-devel gcc-c++ make wget tar libyaml libyaml-devel  leatherman yaml-cpp-devel
+#BuildRequires: boost-devel >= 1.59 cpp-hocon cpp-hocon-devel
+#BuildRequires: openssl-devel libblkid-devel libcurl-devel gcc-c++ make wget tar libyaml libyaml-devel  leatherman yaml-cpp-devel
+#BuildRequires: rapidjson-devel
+BuildRequires:  boost-system >= 1.63.0
+BuildRequires:  boost-thread >= 1.63.0
+BuildRequires:  boost-filesystem >= 1.63.0
+BuildRequires:  boost-regex >= 1.63.0
+BuildRequires:  boost-date-time >= 1.63.0
+BuildRequires:  boost-timer >= 1.63.0
+BuildRequires:  boost-locale >= 1.63.0
+BuildRequires:  boost-random >= 1.63.0
+BuildRequires:  boost-serialization >= 1.63.0
+BuildRequires:  boost-iostreams >= 1.63.0
+BuildRequires:  boost-signals >= 1.63.0
+BuildRequires:  boost-math >= 1.63.0
+BuildRequires:  boost >= 1.63.0
+BuildRequires:  boost-devel >= 1.63.0
+BuildRequires:  cpp-hocon >= 0.1.4
+BuildRequires:  yaml-cpp >= 0.5.2
+BuildRequires:  yaml-cpp-devel >= 0.5.2
+BuildRequires:  leatherman >= 0.10.1
+BuildRequires:  leatherman-devel >= 0.10.1
+BuildRequires:  rapidjson >= 1.1.0
+BuildRequires:  rapidjson-devel >= 1.1.0
+BuildRequires:  libuuid >= 2.23.2
+BuildRequires:  libgcc >= 4.8.5
+BuildRequires:  libstdc++ >= 4.8.5
+BuildRequires:  libstdc++-devel >= 4.8.5
+BuildRequires:  libblkid >= 2.23.2
+BuildRequires:  libblkid-devel >= 2.23.2
+BuildRequires:  openssl-libs >= 1.0.1e
+BuildRequires:  openssl-devel >= 1.0.1e
+BuildRequires:  cpp-hocon-devel >= 0.1.4
+BuildRequires:  gcc-c++ >= 4.8.5
+BuildRequires:  gcc >= 4.8.5
+BuildRequires:  cpp >= 4.8.5
+BuildRequires:  make >= 3.82
+BuildRequires:  cmake >= 3.6.1
+BuildRequires:  wget tar libcurl-devel libyaml libyaml-devel
 Requires:      dmidecode pciutils virt-what net-tools which rubygem-semantic_puppet cpp-hocon leatherman
 
 %description
@@ -39,7 +76,7 @@ fi
 git clone %{repo} %{name}-%{version}
 cd %{name}-%{version}
 #git checkout -b stable
-#git checkout tags/3.4.1
+git checkout tags/3.4.1
 
 #%patch0
 

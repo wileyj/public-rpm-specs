@@ -1,8 +1,6 @@
-%include %{_rpmconfigdir}/macros.d/macros.rubygems
 %global srcname sensu
 %global remoteversion %(echo `gem list ^%{srcname}$ -r |  grep %{srcname} | cut -f2 -d" " | tr -d '()' | tr -d ','`)
 
-%include        %{_rpmconfigdir}/macros.d/macros.rubygems
 %global         upstart     0
 %global         systemd     0
 %global         gem_bin     /usr/bin/gem
