@@ -1,0 +1,15 @@
+python-amqp.spec
+python-anyjson.spec
+python-argparse.spec
+python-billiard.spec
+python-django-nose.spec
+python-django-timezone-field.spec
+python-protobuf-py3.spec
+python-psutil.spec
+python-pygments.spec
+python-pypuppetdb.spec
+python-simplejson.spec
+python-uwsgi_metrics.spec
+python-uwsgi.spec
+python-virtualenv.spec
+python-websocket-client.spec
