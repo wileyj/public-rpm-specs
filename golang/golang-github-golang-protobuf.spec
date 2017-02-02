@@ -1,4 +1,5 @@
-%define repo https://github.com/golang/protobuf
+#%define repo https://github.com/golang/protobuf
+%define repo            https://%{provider}.%{provider_tld}/%{repo_owner}/%{project}
 %global provider        github
 %global provider_tld    com
 %global repo_owner      golang
@@ -10,7 +11,6 @@
 %define release_ver 1
 %global revision %(echo `git ls-remote %{repo}  | head -1 | cut -f 1 | cut -c1-7`)
 
-%include                %{_rpmconfigdir}/macros.d/macros.golang
 Name:                   golang-%{provider}-%{repo_owner}-%{project}
 Version:                %{gitversion}
 Release:                %{release_ver}.%{revision}.%{dist}
@@ -18,8 +18,9 @@ Summary:                %{_summary}
 License:                Go License
 Vendor:                 %{vendor}
 Packager:               %{packager}
-BuildRequires:          git golang >= 1.5.0
-Requires:               golang >= 1.5.0
+BuildRequires:          git golang >= 1.8.0
+BuildRequires:          golang-rpm-macros
+Requires:               golang >= 1.8.0
 Provides:               %{name}
 Provides:               %{name}-devel
 Provides:               golang(%{import_path}) 
@@ -36,7 +37,7 @@ fi
 %build
 export GOPATH=%{buildroot}%{gopath}
 
-go get -d -t -u %{import_path}/...
+go get -d -t -u -v -insecure %{import_path}/...
 %{__rm} -f %{buildroot}%{gopath}/src/%{import_path}/.travis.yml
 (
     echo '%defattr(-,root,root,-)'

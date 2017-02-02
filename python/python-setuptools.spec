@@ -1,34 +1,48 @@
-%if 0%{?amzn} >= 1
-%define python python27
-BuildRequires: %{python} %{python}-rpm-macros %{python}-devel
-Requires: %{python} %{python}-setuptools
+%global with_python3 1
+%define pypi_name setuptools
+%define pypi_alternate1 easy_install
+%define repo https://github.com/pypa/%{pypi_name}
+
+%global pypi_version_test %(echo `curl -s https://pypi.python.org/pypi/%{pypi_name} | grep "<title>" | awk '{print $2}'`)
+%if "%{?pypi_version_test:%{pypi_version_test}}%{!?pypi_version_test:0}" == "of"
+%global pypi_version %(echo `curl -s https://pypi.python.org/pypi/%{pypi_name} | sed -n -e '/<table class="list">/{n;n;n;n;n;n;n;n;p;};h' | cut -d'"' -f2 | cut -d'/' -f4`)
+%global pypi_url https://pypi.python.org/pypi/%{pypi_name}/%{pypi_version}
+%define multi true
 %else
-%define python python
-BuildRequires: %{python} %{python}-rpm-macros %{python}-devel
-Requires: %{python} %{python}-setuptools
+%global pypi_version %{pypi_version_test}
+%global pypi_url https://pypi.python.org/pypi/%{pypi_name}
+%define multi false
 %endif
+%global pypi_summary %(echo `curl -s %{pypi_url} | grep '<meta name="description" content=' | cut -d'"' -f4`)
 
-%define repo https://github.com/pypa/setuptools
-%define pkgname setuptools
-%define pip_version %(echo `curl -s https://pypi.python.org/pypi/%{pkgname} | grep "<title>" | awk '{print $2}'`)
-%define filelist %{pkgname}-%{version}-filelist
-
-Name:           %{python}-%{pkgname}
-Version:        %{pip_version}
-Release:        1.%{dist}
-Summary:        Easily download, build, install, upgrade, and uninstall Python packages
+Name:           python-%{pypi_name}
+Version:        %{pypi_version}
+Release:        1.%{?dist}
+Summary:        "%{pypi_summary}"
 Group:          Development/Languages
-License:        BSD
-Packager:       %{packager}
-Vendor:         %{vendor}
-URL:            http://pypi.python.org/pypi/redis
-BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+License:        MIT
+URL:            %{pypi_url}
+BuildRequires:  python-devel python2-rpm-macros python-srpm-macros 
+Requires: python-six
+Requires: python
+BuildArch:      noarch
 
 %description
-Easily download, build, install, upgrade, and uninstall Python packages
+%{summary} for Python
 
-%setup -q -c -T                                                                                                                                                  
- 
+%if 0%{?with_python3}
+%package -n python3-%{pypi_name}
+Summary:        "%{pypi_summary}"
+Group:          Development/Languages
+Provides:       python3-%{pypi_name} = %{version}-%{release}
+Obsoletes:      python3-%{pypi_name} < %{version}-%{release}
+BuildRequires:  python3-devel python3-rpm-macros python-srpm-macros
+Requires: python3
+
+%description -n python3-%{pypi_name}
+%{summary} for Python 3
+%endif
+
 %prep
 if [ -d %{name}-%{version} ];then
     rm -rf %{name}-%{version}
@@ -37,69 +51,120 @@ git clone %{repo} %{name}-%{version}
 cd %{name}-%{version}
 git submodule init
 git submodule update
-
-DIR=`ls $RPM_BUILD_DIR | grep setuptools`
 chmod -R u+w %{_builddir}/%{name}-%{version}
+
+%if 0%{?with_python3}
+rm -rf %{py3dir}
+cp -a . %{py3dir}
+%endif
+
+rm -rf %{py2dir}
+cp -a . %{py2dir}
+
 
 %build
 cd $RPM_BUILD_DIR/%{name}-%{version}
-%{__python} bootstrap.py
-%{__python} setup.py build
+%if 0%{?with_python3}
+pushd %{py3dir}
+%{__python3} bootstrap.py
+%{__python3} setup.py build
+popd
+%endif
+
+pushd %{py2dir}
+%{__python2} bootstrap.py
+%{__python2} setup.py build
+popd
+
 
 %install
 cd $RPM_BUILD_DIR/%{name}-%{version}
-#cd $RPM_BUILD_DIR/$DIR
-rm -rf $RPM_BUILD_ROOT
-%{__python} setup.py install --skip-build --root $RPM_BUILD_ROOT
+pushd %{py2dir}
+%{__python2} setup.py install -O1 --skip-build --root $RPM_BUILD_ROOT
+for file in %{pypi_alternate1}; do
+%__cp %{buildroot}%{_bindir}/${file} %{buildroot}%{_bindir}/${file}-%{python_version}
+done
+find %{buildroot}%{_prefix} -type d -depth -exec rmdir {} \; 2>/dev/null
+popd
 
-# no empty directories
-find %{buildroot}%{_prefix}             \
-    -type d -depth                      \
-    -exec rmdir {} \; 2>/dev/null
+%if 0%{?with_python3}
+pushd %{py3dir}
+%{__python3} setup.py install -O1 --skip-build --root $RPM_BUILD_ROOT
+for file in %{pypi_alternate1}; do
+%__cp %{buildroot}%{_bindir}/${file} %{buildroot}%{_bindir}/${file}-%{python3_version}
+done
+find %{buildroot}%{_prefix} -type d -depth -exec rmdir {} \; 2>/dev/null
+popd
+%endif
 
-%{__perl} -MFile::Find -le '
-    find({ wanted => \&wanted, no_chdir => 1}, "%{buildroot}");
-    #print "%doc  src Changes examples README";
-    for my $x (sort @dirs, @files) {
-        push @ret, $x unless indirs($x);
-        }
-    print join "\n", sort @ret;
+for file in %{pypi_alternate1}; do
+%__rm -f %{buildroot}%{_bindir}/${file}
+done
 
-    sub wanted {
-        return if /auto$/;
+%post
+for file in %{pypi_alternate1};do
+if [ -f %{_bindir}/$file ];then
+%__rm -f  %{_bindir}/$file
+fi
+%__ln_s %{_bindir}/${file}-%{python_version}  %{_bindir}/$file
+done
 
-        local $_ = $File::Find::name;
-        my $f = $_; s|^\Q%{buildroot}\E||;
-        return unless length;
-        return $files[@files] = $_ if -f $f;
 
-        $d = $_;
-        /\Q$d\E/ && return for reverse sort @INC;
-        $d =~ /\Q$_\E/ && return
-            for qw|/etc %_prefix/man %_prefix/bin %_prefix/share|;
+%postun
+for file in %{pypi_alternate1};do
+if [ -f %{_bindir}/$file ];then
+%__rm -f  %{_bindir}/$file
+fi
+%if 0%{?with_python3}
+if [ -f %{_bindir}/${file}-%{python3_version} ]; then
+%__ln_s %{_bindir}/${file}-%{python3_version}  %{_bindir}/$file
+fi
+%endif
+done
 
-        $dirs[@dirs] = $_;
-        }
+%if 0%{?with_python3}
+%post -n python3-%{pypi_name}
+for file in %{pypi_alternate1};do
+  if [ ! -f %{_bindir}/${file}-%{python_version} ];then
+    if [ -f %{_bindir}/$file ];then
+      %__rm -f  %{_bindir}/$file
+    fi
+    %__ln_s %{_bindir}/${file}-%{python3_version}  %{_bindir}/$file
+  fi
+done
 
-    sub indirs {
-        my $x = shift;
-        $x =~ /^\Q$_\E\// && $x ne $_ && return 1 for @dirs;
-        }
-    ' > %filelist
+%postun -n python3-%{pypi_name}
+for file in %{pypi_alternate1};do
+  if [ ! -f %{_bindir}/${file}-%{python_version} ];then
+    if [ -f %{_bindir}/$file ];then
+      %__rm -f  %{_bindir}/$file
+    fi
+    if [ -f %{_bindir}/${file}-%{python_version} ]; then
+      %__ln_s %{_bindir}/${file}-%{python_version}  %{_bindir}/$file
+    fi
+  fi
+done
+%endif
 
-[ -z %filelist ] && {
-    echo "ERROR: empty %files listing"
-    exit -1
-    }
+
 
 %clean
 [ "$RPM_BUILD_ROOT" != "/" ] && %__rm -rf $RPM_BUILD_ROOT
 [ "%{buildroot}" != "/" ] && %__rm -rf %{buildroot}
 [ "%{_builddir}/%{name}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}
 [ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}
-[ "%{_builddir}/%{pkgname}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{pkgname}-%{version}
+[ "%{_builddir}/python-%{pypi_name}-%{version}-%{release}" != "/" ] && %__rm -rf %{_builddir}/python-python-%{pypi_name}-%{version}-%{release}
+[ "%{_builddir}/python2-%{pypi_name}-%{version}-%{release}" != "/" ] && %__rm -rf %{_builddir}/python2-python-%{pypi_name}-%{version}-%{release}
+[ "%{_builddir}/python3-%{pypi_name}-%{version}-%{release}" != "/" ] && %__rm -rf %{_builddir}/python3-python-%{pypi_name}-%{version}-%{release}
 
-%files -f %{name}-%{version}/%filelist
-%defattr(-,root,root)
 
-%changelog
+%if 0%{?with_python3}
+%files -n python3-%{pypi_name}
+%{python3_sitelib}/*
+%{_bindir}/*%{python3_version}
+%endif
+
+%files -n python-%{pypi_name}
+%{python2_sitelib}/*
+%{_bindir}/*%{python_version}
+

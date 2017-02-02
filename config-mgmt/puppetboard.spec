@@ -11,7 +11,7 @@ Requires: %{python} %{python}-setuptools
 %define macro %{_rpmconfigdir}/macros.d/macros.python
 
 %define repo https://github.com/voxpupuli/puppetboard
-%define gitversion %(echo `curl -s https://github.com/voxpupuli/puppetboard/releases | grep 'class="css-truncate-target"' | head -1 |  tr -d '\\-</span class="css-truncate-target">'`)
+%define gitversion %(echo `curl -s https://github.com/voxpupuli/puppetboard/releases | grep 'class="css-truncate-target"' | head -1 |  tr -d '\\-</span class="css-truncate-targetv">'`)
 %global revision %(echo `git ls-remote %{repo}.git  | head -1 | cut -f 1| cut -c1-7`)
 %define rel_version 1
 

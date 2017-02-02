@@ -1,28 +1,14 @@
-%if 0%{?amzn} >= 1
-%global __os_install_post /usr/lib/rpm/amazon/brp-compress \
-  %{!?__debug_package:/usr/lib/rpm/amazon/brp-strip %{__strip}} \
-  /usr/lib/rpm/amazon/brp-strip-static-archive %{__strip} \
-  /usr/lib/rpm/amazon/brp-strip-comment-note %{__strip} %{__objdump} \
-  /usr/lib/rpm/amazon/brp-python-hardlink
-%else
-%global __os_install_post /usr/lib/rpm/redhat/brp-compress \
-  %{!?__debug_package:/usr/lib/rpm/redhat/brp-strip %{__strip}} \
-  /usr/lib/rpm/redhat/brp-strip-static-archive %{__strip} \
-  /usr/lib/rpm/redhat/brp-strip-comment-note %{__strip} %{__objdump} \
-  /usr/lib/rpm/redhat/brp-python-hardlink
-%endif
-
+%global with_python3 0
 %define name scons
-%define version 2.5.0
-%define release 10
+%define version 2.5.1
+%define release 1.%{?dist}
 %define _unpackaged_files_terminate_build 0
 
 Summary: an Open Source software construction tool
 Name: %{name}
 Version: %{version}
-Release: %{release}.%{dist}
+Release: %{release}
 Source0: %{name}-%{version}.tar.gz
-#Copyright: The SCons Foundation
 License: MIT, freely distributable
 Group: Development/Tools
 BuildRoot: %{_tmppath}/%{name}-buildroot
@@ -30,7 +16,11 @@ Prefix: %{_prefix}
 BuildArchitectures: noarch
 Vendor: The SCons Development Team <scons-dev@scons.org>
 Packager: The SCons Development Team <scons-dev@scons.org>
-Requires: python >= 2.4
+%if 0%{?with_python3}
+Requires: python3
+%else
+Requires: python
+%endif
 Url: http://www.scons.org/
 
 %description
@@ -52,22 +42,27 @@ defined Builder and/or Scanner objects.
 %setup
 
 %build
-python setup.py build
+%if 0%{?with_python3}
+%{__python3} setup.py build
+%else
+%{__python} setup.py build
+%endif
 
 %install
-python setup.py install --root=$RPM_BUILD_ROOT --install-lib=/usr/lib/scons --install-scripts=/usr/bin --install-data=/usr/share
+%if 0%{?with_python3}
+%{__python3} setup.py install --root=$RPM_BUILD_ROOT --install-lib=/usr/lib/scons --install-scripts=/usr/bin --install-data=/usr/share
+%else
+%{__python} setup.py install --root=$RPM_BUILD_ROOT --install-lib=/usr/lib/scons --install-scripts=/usr/bin --install-data=/usr/share
+%endif
 
 %clean
-[ "$RPM_BUILD_ROOT" != "/" ] && %__rm -rf $RPM_BUILD_ROOT
-[ "%{buildroot}" != "/" ] && %__rm -rf %{buildroot}
-[ "%{_builddir}/%{name}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}
-[ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}
+rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root)
+%attr(0755,root,root) /usr/bin/scons*
+%dir /usr/lib/scons
+/usr/lib/scons/*
 %doc %{_mandir}/man1/scons.1*
 %doc %{_mandir}/man1/sconsign.1*
 %doc %{_mandir}/man1/scons-time.1*
-/usr/bin/%{name}*
-%dir /usr/lib/%{name}
-/usr/lib/%{name}/*

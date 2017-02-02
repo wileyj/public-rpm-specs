@@ -425,7 +425,8 @@ fi
 #%dir %{_app_codedir}/environments/dev/manifests
 #%dir %{_app_codedir}/environments/staging/manifests
 #%dir %{_app_codedir}/environments/qa/manifests
-
+%config(noreplace)  %{vendor_dir}/%{name}/share/locale/config.yaml
+%{vendor_dir}/%{name}/share/locale/%{name}.pot
 
 %files server
 %defattr(-, puppet, puppet)
@@ -442,4 +443,5 @@ fi
 #%{_master_bindir}/extlookup2hiera
 %{_mandir}/man8/puppet-ca.8.gz
 %{_mandir}/man8/puppet-master.8.gz
+
 

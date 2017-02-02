@@ -1,58 +1,94 @@
-%if 0%{?amzn} >= 1
-%define python python27
-BuildRequires: %{python} %{python}-rpm-macros %{python}-devel
-Requires: %{python} %{python}-setuptools
+%global _python_bytecompile_errors_terminate_build 0
+%global with_python3 0
+%define pypi_name gyp
+%define repo https://chromium.googlesource.com/experimental/external/gyp
+
+%global revision %(echo `git ls-remote %{repo}.git  | head -1 | cut -f 1| cut -c1-7`)
+%define rel_version 1
+%define build_time %(echo `date +%s`)
+%define pypi_release %{revision}.%{?dist}
+%define pypi_summary "GYP is intended to support large projects that need to be built on multiple platforms"
+
+Name:           %{pypi_name}
+Version:        %{build_time}
+Release:        %{pypi_release}
+Summary:        "%{pypi_summary}"
+Group:          Development/Languages
+License:        MIT
+URL:            %{pypi_url}
+Provides:       python-%{pypi_name} = %{version}-%{release}
+%if 0%{?with_python3}
+BuildRequires:  python3-devel python3-rpm-macros python-srpm-macros
+Requires:       python3-six
 %else
-%define python python
-BuildRequires: %{python} %{python}-rpm-macros %{python}-devel
-Requires: %{python} %{python}-setuptools
+BuildRequires:  python-devel python-rpm-macros python-srpm-macros
+Requires:       python-six
 %endif
 
-BuildRequires: git 
-
-Name:           gyp
-Version:        4.9.79
-Release:        1.%{dist}
-Summary:        GYP is a Meta-Build system
-Group:          Development/Languages
-License:        GPL
-Packager: 	%{packager}
-Vendor: 	%{vendor}
-URL:            https://gyp.gsrc.io/
-Source0:        %{name}.tar.gz
-BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-BuildArch:      noarch
-
 %description
-GYP is intended to support large projects that need to be built on multiple platforms (e.g., Mac, Windows, Linux), and where it is important that the project can be built using the IDEs that are popular on each platform as if the project is a “native” one.
+%{summary} for Python
 
-It can be used to generate XCode projects, Visual Studio projects, Ninja build files, and Makefiles. In each case GYP’s goal is to replicate as closely as possible the way one would set up a native build of the project using the IDE.
-
-GYP can also be used to generate “hybrid” projects that provide the IDE scaffolding for a nice user experience but call out to Ninja to do the actual building (which is usually much faster than the native build systems of the IDEs).
 
 %prep
-%setup -q -n %{name}
+if [ -d %{name}-%{version} ];then
+    rm -rf %{name}-%{version}
+fi
+if [ -d %{buildroot} ]; then
+    rm -rf %{buildroot}
+fi
+git clone %{repo} %{name}-%{version}
+cd $RPM_BUILD_DIR/%{name}-%{version}
+git submodule init
+git submodule update
+
+%if 0%{?with_python3}
+rm -rf %{py3dir}
+cp -a . %{py3dir}
+%else
+rm -rf %{py2dir}
+cp -a . %{py2dir}
+%endif
 
 %build
-%{__python} setup.py build
-
+cd $RPM_BUILD_DIR/%{name}-%{version}
+%if 0%{?with_python3}
+pushd %{py3dir}
+%{__python3} setup.py build
+popd
+%else
+pushd %{py2dir}
+%{__python2} setup.py build
+popd
+%endif
 
 %install
-rm -rf $RPM_BUILD_ROOT
-%{__python} setup.py install --skip-build --root $RPM_BUILD_ROOT
+cd $RPM_BUILD_DIR/%{name}-%{version}
+%if 0%{?with_python3}
+pushd %{py3dir}
+%{__python3} setup.py install -O1 --skip-build --root $RPM_BUILD_ROOT
+find %{buildroot}%{_prefix} -type d -depth -exec rmdir {} \; 2>/dev/null
+popd
+%else
+pushd %{py2dir}
+%{__python2} setup.py install -O1 --skip-build --root $RPM_BUILD_ROOT
+find %{buildroot}%{_prefix} -type d -depth -exec rmdir {} \; 2>/dev/null
+popd
+%endif
 
- 
 %clean
 [ "$RPM_BUILD_ROOT" != "/" ] && %__rm -rf $RPM_BUILD_ROOT
 [ "%{buildroot}" != "/" ] && %__rm -rf %{buildroot}
 [ "%{_builddir}/%{name}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}
 [ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}
+[ "%{_builddir}/python-%{pypi_name}-%{version}-%{release}" != "/" ] && %__rm -rf %{_builddir}/python-python-%{pypi_name}-%{version}-%{release}
+[ "%{_builddir}/python2-%{pypi_name}-%{version}-%{release}" != "/" ] && %__rm -rf %{_builddir}/python2-python-%{pypi_name}-%{version}-%{release}
+[ "%{_builddir}/python3-%{pypi_name}-%{version}-%{release}" != "/" ] && %__rm -rf %{_builddir}/python3-python-%{pypi_name}-%{version}-%{release}
+
 
 %files
-%defattr(-,root,root,-)
-%{python_sitelib}/%{name}/
-%{python_sitelib}/%{name}*.egg-info
-%{_bindir}/gyp*
-
-%changelog
-
+%{_bindir}/%{pypi_name}*
+%if 0%{?with_python3}
+%{python3_sitelib}/*
+%else
+%{python2_sitelib}/*
+%endif

@@ -52,13 +52,11 @@ echo '%dir "%{gopath}/src/%{import_path}"' >> %{_builddir}/%{name}-%{version}-fi
 %{__sed} -i -e 's/%dir ""//g' %{_builddir}/%{name}-%{version}-filelist
 %{__sed} -i -e '/^$/d' %{_builddir}/%{name}-%{version}-filelist
 
-
 %clean
 [ "$RPM_BUILD_ROOT" != "/" ] && %__rm -rf $RPM_BUILD_ROOT
 [ "%{buildroot}" != "/" ] && %__rm -rf %{buildroot}
 [ "%{_builddir}/%{name}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}
 [ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}
-%__rm -f %{_builddir}/%{name}-%{version}-filelist
 
 %files -f %{name}-%{version}-filelist
 

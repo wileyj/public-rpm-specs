@@ -1,3 +1,4 @@
+%global __os_install_post %{nil}
 %define _major 2
 %define _minor 2
 %define _patch 0

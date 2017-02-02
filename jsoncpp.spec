@@ -83,7 +83,7 @@ cd ../..
 cd %{name}-%{version}/build/release
 make DESTDIR=%{buildroot} INSTALL="install -p" install
 cd  ../..
-mv %{buildroot}/usr/local/lib %{buildroot}%{_libdir}
+mv %{buildroot}/usr/local/lib64 %{buildroot}%{_libdir}
 mv %{buildroot}/usr/local/include %{buildroot}%{_includedir}
 rm -rf %{buildroot}/opt
 rm -rf %{buildroot}/usr/local

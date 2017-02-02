@@ -1,4 +1,5 @@
-%define repo https://github.com/grpc-ecosystem/grpc-gateway
+#%define repo https://github.com/grpc-ecosystem/grpc-gateway
+%define repo            https://%{provider}.%{provider_tld}/%{repo_owner}/%{project}
 %global provider        github
 %global provider_tld    com
 %global repo_owner      grpc-ecosystem
@@ -6,11 +7,10 @@
 %global import_path     %{provider}.%{provider_tld}/%{repo_owner}/%{project}
 %define _summary        %(echo `curl -s %{repo} | grep "<title>" | cut -f2 -d ":" | sed 's|</title>||'`)
 %define gitversion %(echo `date +%Y%m`)
-%global filelist        %{_builddir}/%{name}-%{version}-filelist
 %define release_ver 1
 %global revision %(echo `git ls-remote %{repo}  | head -1 | cut -f 1 | cut -c1-7`)
 
-%include                %{_rpmconfigdir}/macros.d/macros.golang
+
 Name:                   golang-%{provider}-%{repo_owner}-%{project}
 Version:                %{gitversion}
 Release:                %{release_ver}.%{revision}.%{dist}
@@ -18,8 +18,9 @@ Summary:                %{_summary}
 License:                Go License
 Vendor:                 %{vendor}
 Packager:               %{packager}
-BuildRequires:          git golang >= 1.5.0
-Requires:               golang >= 1.5.0
+BuildRequires:          git golang >= 1.8.0
+BuildRequires:          golang-rpm-macros
+Requires:               golang >= 1.8.0
 Provides:               %{name}
 Provides:               %{name}-devel
 Provides:               golang(%{import_path}) 
@@ -27,8 +28,6 @@ Provides:               golang(%{import_path})-devel
 Requires:		golang-golang-google-grpc
 Requires:		golang-golang-x-net
 Requires:		golang-github-rogpeppe-fastuuid
-Requires:		golang-github-golang-protobuf
-Requires:		golang-github-google-go-querystring
 Requires:		golang-github-dghubble-sling
 %description
 %{summary}
@@ -39,42 +38,47 @@ Requires:		golang-github-dghubble-sling
 export GOPATH=%{buildroot}%{gopath}
 
 go get %{import_path}/...
-%{__rm} -f %{buildroot}%{gopath}/src/%{import_path}/.travis.yml
-%{__rm} -rf %{buildroot}%{gopath}/src/google.golang.org
-%{__rm} -rf %{buildroot}%{gopath}/src/golang.org
-%{__rm} -rf %{buildroot}%{gopath}/src/github.com/rogpeppe
-%{__rm} -rf %{buildroot}%{gopath}/src/github.com/golang
-%{__rm} -rf %{buildroot}%{gopath}/src/github.com/google
-%{__rm} -rf %{buildroot}%{gopath}/src/github.com/dghubble
+for pkg_dir in `find %{buildroot}%{gopath}/pkg/linux_amd64/ -maxdepth 2 \
+! -path %{buildroot}%{gopath}/pkg/linux_amd64/ \
+! -path %{buildroot}%{gopath}/pkg/linux_amd64/%{provider}.%{provider_tld} \
+! -path %{buildroot}%{gopath}/pkg/linux_amd64/%{provider}.%{provider_tld}/google \
+! -path %{buildroot}%{gopath}/pkg/linux_amd64/%{provider}.%{provider_tld}/golang \
+! -path %{buildroot}%{gopath}/pkg/linux_amd64/%{provider}.%{provider_tld}/%{repo_owner}`; do
+    %__rm -rf ${pkg_dir}
+done
 
-%{__rm} -rf %{buildroot}%{gopath}/pkg/linux_amd64/google.golang.org
-%{__rm} -rf %{buildroot}%{gopath}/pkg/linux_amd64/golang.org
-%{__rm} -rf %{buildroot}%{gopath}/pkg/linux_amd64/github.com/rogpeppe
-%{__rm} -rf %{buildroot}%{gopath}/pkg/linux_amd64/github.com/golang
-%{__rm} -rf %{buildroot}%{gopath}/pkg/linux_amd64/github.com/google
-%{__rm} -rf %{buildroot}%{gopath}/pkg/linux_amd64/github.com/dghubble
-(
-    echo '%defattr(-,root,root,-)'
-    find %{buildroot}%{gopath}/src/%{import_path} -type d -printf '%%%dir "%p"\n' | %{__sed} -e 's|%{buildroot}||g'
-    find %{buildroot}%{gopath}/src/%{import_path} -type f -printf '%%%attr(664, root, root) "%p"\n' | %{__sed} -e 's|%{buildroot}||g'
-    #find %{buildroot}%{gopath}/pkg/linux_amd64/%{provider}.%{provider_tld}/%{repo_owner} -type d -printf '%%%dir "%p"\n' | %{__sed} -e 's|%{buildroot}||g'
-    find %{buildroot}%{gopath}/pkg/linux_amd64/%{provider}.%{provider_tld}/%{repo_owner} -type f -printf '%%%attr(664, root, root) "%p"\n' | %{__sed} -e 's|%{buildroot}||g'
-    find %{buildroot}%{gopath}/bin/* -type d -printf '%%%dir "%p"\n' | %{__sed} -e 's|%{buildroot}||g'
-    find %{buildroot}%{gopath}/bin -type f -printf '%%%attr(750, root, root) "%p"\n' | %{__sed} -e 's|%{buildroot}||g'
-    find %{buildroot}%{gopath}/pkg/linux_amd64/%{provider}.%{provider_tld}/%{project}* -type f -printf '%%%attr(750, root, root) "%p"\n' | %{__sed} -e 's|%{buildroot}||g'
-) > %{filelist}
-echo '%dir "%{gopath}/src/%{import_path}"' >> %{filelist}
-%{__sed} -i -e 's/%dir ""//g' %{filelist}
-%{__sed} -i -e '/^$/d' %{filelist}
+for src_dir in `find %{buildroot}%{gopath}/src/ -maxdepth 2 \
+! -path %{buildroot}%{gopath}/src/ \
+! -path %{buildroot}%{gopath}/src/%{provider}.%{provider_tld} \
+! -path %{buildroot}%{gopath}/src/%{provider}.%{provider_tld}/google \
+! -path %{buildroot}%{gopath}/src/%{provider}.%{provider_tld}/golang
+! -path %{buildroot}%{gopath}/src/%{provider}.%{provider_tld}/%{repo_owner}`; do
+    %__rm -rf ${src_dir}
+done
+
+for google_dir in `find %{buildroot}%{gopath}/pkg/linux_amd64/%{provider}.%{provider_tld}/google -maxdepth 1 \
+! -path %{buildroot}%{gopath}/pkg/linux_amd64/%{provider}.%{provider_tld}/google/go-querystring`; do
+    %__rm -rf ${src_dir}
+done
+
+for google_dir in `find %{buildroot}%{gopath}/src/%{provider}.%{provider_tld}/google -maxdepth 1 \
+! -path %{buildroot}%{gopath}/src/%{provider}.%{provider_tld}/google/go-querystring`; do
+    %__rm -rf ${src_dir}
+done
+
+if [ -f  %{buildroot}%{gopath}/src/%{import_path}/.travis.yml ];then
+    %__rm -f %{buildroot}%{gopath}/src/%{import_path}/.travis.yml
+fi
 
 %clean
 [ "$RPM_BUILD_ROOT" != "/" ] && %__rm -rf $RPM_BUILD_ROOT
 [ "%{buildroot}" != "/" ] && %__rm -rf %{buildroot}
 [ "%{_builddir}/%{name}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}
 [ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}
-%__rm -f %{_builddir}/%{filelist}
 
-%files -f %{filelist}
+%files
+%{gopath}/src/*
+%{gopath}/pkg/*
+%{gopath}/bin/*
 
 %changelog
-
