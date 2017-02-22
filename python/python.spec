@@ -451,7 +451,7 @@ considerably, and a lot of deprecated features have finally been removed.
 %package libs
 Summary:        Python 3 runtime libraries
 Group:          Development/Libraries
-Requires:       system-python-libs%{?_isa} = %{version}-%{release}
+Requires:       system-%{name}-libs%{?_isa} = %{version}-%{release}
 
 # expat 2.1.0 added the symbol XML_SetHashSalt without bumping SONAME.  We use
 # this symbol (in pyexpat), so we must explicitly state this dependency to
@@ -464,18 +464,18 @@ Obsoletes: python3-enum34 < 1.0.4-5%{?dist}
 %description libs
 This package contains files used to embed Python 3 into applications.
 
-%package -n system-python
+%package -n system-%{name}
 Summary:        System Python executable
 Group:          Development/Libraries
-Requires:       system-python-libs%{?_isa} = %{version}-%{release}
+Requires:       system-%{name}-libs%{?_isa} = %{version}-%{release}
 Provides:       system-python(abi) = %{pybasever}
 
-%description -n system-python
-System Python provides a binary interpreter which uses system-python-libs,
+%description -n system-%{name}
+System Python provides a binary interpreter which uses system-%{name}-libs,
 a subset of standard Python library considered essential to run various tools,
 requiring Python, that consider themselves "system tools".
 
-%package -n system-python-libs
+%package -n system-%{name}-libs
 Summary:        System Python runtime libraries
 Group:          Development/Libraries
 
@@ -483,7 +483,7 @@ Group:          Development/Libraries
 
 Requires: expat >= 2.1.0
 
-%description -n system-python-libs
+%description -n system-%{name}-libs
 This package contains files used to embed System Python into applications.
 
 %package devel
@@ -1034,7 +1034,7 @@ echo '[ $? -eq 127 ] && echo "Could not find python%{LDVERSION_optimized}-`uname
 
 # System Python: Copy the executable to libexec
 mkdir -p %{buildroot}%{_libexecdir}
-cp %{buildroot}%{_bindir}/python%{pybasever} %{buildroot}%{_libexecdir}/system-python
+cp %{buildroot}%{_bindir}/python%{pybasever} %{buildroot}%{_libexecdir}/system-%{name}
 
 # ======================================================
 # Running the upstream test suite
@@ -1115,9 +1115,9 @@ rm -fr %{buildroot}
 
 %postun libs -p /sbin/ldconfig
 
-%post -n system-python-libs -p /sbin/ldconfig
+%post -n system-%{name}-libs -p /sbin/ldconfig
 
-%postun -n system-python-libs -p /sbin/ldconfig
+%postun -n system-%{name}-libs -p /sbin/ldconfig
 
 
 
@@ -1200,12 +1200,12 @@ rm -fr %{buildroot}
 
 ##################################################################################
 
-%files -n system-python
+%files -n system-%{name}
 %defattr(-,root,root,-)
 %doc LICENSE README
-%{_libexecdir}/system-python
+%{_libexecdir}/system-%{name}
 
-%files -n system-python-libs
+%files -n system-%{name}-libs
 %defattr(-,root,root,-)
 %doc LICENSE README
 %dir %{pylibdir}
