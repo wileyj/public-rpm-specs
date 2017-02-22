@@ -1,4 +1,4 @@
-%global with_python3 1
+%global with_python3 0
 
 Summary: Library providing XML and HTML support
 Name: libxml2
@@ -11,6 +11,8 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-root
 
 %if 0%{?with_python3}
 BuildRequires: python3-devel
+%else
+BuildRequires: python-devel
 %endif
 BuildRequires: zlib-devel
 BuildRequires: pkgconfig
@@ -57,13 +59,20 @@ Requires: libxml2 = %{version}-%{release}
 Static library for libxml2 provided for specific uses or shaving a few
 microseconds when parsing, do not link to them for generic purpose packages.
 
+%package docs
+Summary: docs for libxml2
+Group: Development/Libraries
+Requires: libxml2 = %{version}-%{release}
+
+%description docs
+docs for libxml2
+
 %if 0%{?with_python3}
 %package -n %{name}-python3
 Summary: Python 3 bindings for the libxml2 library
 Group: Development/Libraries
 Requires: libxml2 = %{version}-%{release}
-Obsoletes: %{name}-python3 < 2.9.2-6
-Obsoletes: %{name}-python <= 2.9.2-6
+Obsoletes: %{name}-python3 < %{version}
 Provides: %{name}-python3 = %{version}-%{release}
 
 %description -n %{name}-python3
@@ -75,13 +84,12 @@ This library allows to manipulate XML files. It includes support
 to read, modify and write XML and HTML files. There is DTDs support
 this includes parsing and validation even with complex DTDs, either
 at parse time or later once the document has been modified.
-%endif
-
+%else
 %package -n %{name}-python
 Summary: Python bindings for the libxml2 library
 Group: Development/Libraries
 Requires: libxml2 = %{version}-%{release}
-Obsoletes: %{name}-python < 2.9.2-6
+Obsoletes: %{name}-python < %{version}
 Provides: %{name}-python = %{version}-%{release}
 Provides: %{name}-python = %{version}-%{release}
 
@@ -94,7 +102,7 @@ This library allows to manipulate XML files. It includes support
 to read, modify and write XML and HTML files. There is DTDs support
 this includes parsing and validation even with complex DTDs, either
 at parse time or later once the document has been modified.
-
+%endif
 
 %prep
 %setup -q -n %{name}
@@ -108,7 +116,7 @@ sed -i 's|#!/usr/bin/%{python} |#!%{__python3} |' py3doc/*.py
 %if 0%{?with_python3}
 %configure --with-python=%{__python3}
 %else
-%configure
+%configure --with-python=%{__python}
 %endif
 make %{_smp_mflags}
 find doc -type f -exec chmod 0644 \{\} \;
@@ -176,11 +184,13 @@ gzip -9 -c doc/libxml2-api.xml > doc/libxml2-api.xml.gz
 %files -n %{name}-python3
 %defattr(-, root, root)
 %{python3_sitearch}/*
-%endif
-
+%else
 %files -n %{name}-python
 %defattr(-, root, root)
-%{python3_sitearch}/*
+%{python_sitearch}/*
+%endif 
+
+%files docs
 %doc python/TODO
 %doc python/libxml2class.txt
 %doc doc/*.py
