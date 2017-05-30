@@ -21,7 +21,7 @@ Provides:               %{name}
 Provides:               %{name}-devel
 Provides:               golang(%{import_path}) 
 Provides:               golang(%{import_path})-devel
-Source1:		py_init.py
+#Source1:		py_init.py
 
 
 %description
@@ -36,7 +36,7 @@ go get %{import_path}
 
 %__mkdir_p %{buildroot}/bin
 %__install -m 0755 %{buildroot}%{gopath}/bin/%{project} %{buildroot}/bin/%{project}
-%__install -m 0755 %{SOURCE1}  %{buildroot}/bin/py_init
+#%__install -m 0755 %{SOURCE1}  %{buildroot}/bin/py_init
 
 %__rm -rf %{buildroot}%{gopath}
 
@@ -48,6 +48,6 @@ go get %{import_path}
 
 %files
 /bin/%{project}
-/bin/py_init
+#/bin/py_init
 
 %changelog

@@ -1,14 +1,14 @@
-#%define repo https://github.com/hashicorp/serf
+#%define repo https://github.com/hashicorp/consul-template
 %define repo            https://%{provider}.%{provider_tld}/%{repo_owner}/%{project}
 %global provider        github
 %global provider_tld    com
 %global repo_owner      hashicorp
-%global project         serf
+%global project         consul-template
 %global import_path     %{provider}.%{provider_tld}/%{repo_owner}/%{project}
 %define _summary        %(echo `curl -s %{repo} | grep "<title>" | cut -f2 -d ":" | sed 's|</title>||'`)
-%define gitversion %(echo `curl -s %{repo}/releases | grep 'class="tag-name"' | head -1 |  tr -d '\\-</span class="tag-name">v'`)
-%define release_ver 1
+%define gitversion %(echo `curl -s %{repo}/releases | grep 'class="tag-name"' | head -1 |  tr -d '\\-</span class="tag-name">vr'`)
 %global revision %(echo `git ls-remote %{repo}  | head -1 | cut -f 1 | cut -c1-7`)
+%global release_ver 1
 
 Name:           %{project}
 Version:        %{gitversion}
@@ -17,13 +17,9 @@ Summary:        %{_summary}
 License:        Go License
 Vendor:         %{vendor}
 Packager:       %{packager}
+
 BuildRequires:          git golang >= 1.8
 BuildRequires:          golang-rpm-macros
-BuildRequires:		gox
-BuildRequires:		golang-github-mitchellh-iochan
-BuildRequires:		govendor
-
-
 Provides:       golang-%{provider}
 Provides:       golang(%{import_path}) = %{version}-%{release}
 Provides:       %{name} = %{version}
@@ -39,15 +35,14 @@ Requires: golang
 %{project} devel
 
 %prep
-if [ -d %{buildroot} ]; then
+if [ -d %{buildroot} ];then
   %{__rm} -rf %{buildroot}
 fi
 
 %build
 export GOPATH=%{buildroot}%{gopath}
 
-go get -d -u -t -v %{import_path}/...
-#go get %{import_path}
+go get %{import_path}
 for pkg_dir in `find %{buildroot}%{gopath}/pkg/linux_amd64/ -maxdepth 2 \
 ! -path %{buildroot}%{gopath}/pkg/linux_amd64/ \
 ! -path %{buildroot}%{gopath}/pkg/linux_amd64/%{provider}.%{provider_tld} \
@@ -64,21 +59,18 @@ done
 if [ -f  %{buildroot}%{gopath}/src/%{import_path}/.travis.yml ];then
     %__rm -f %{buildroot}%{gopath}/src/%{import_path}/.travis.yml
 fi
-cd %{buildroot}%{gopath}/src/%{provider}.%{provider_tld}/%{repo_owner}/%{project}
-%__mkdir_p %{buildroot}%{gopath}/bin
-
-make bin
 %__mkdir_p %{buildroot}%{_bindir}
 %__mv %{buildroot}%{gopath}/bin/%{name} %{buildroot}%{_bindir}/%{name}
 
-#%clean
-#[ "$RPM_BUILD_ROOT" != "/" ] && %__rm -rf $RPM_BUILD_ROOT
-#[ "%{buildroot}" != "/" ] && %__rm -rf %{buildroot}
-#[ "%{_builddir}/%{name}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}
-#[ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}
+%clean
+[ "$RPM_BUILD_ROOT" != "/" ] && %__rm -rf $RPM_BUILD_ROOT
+[ "%{buildroot}" != "/" ] && %__rm -rf %{buildroot}
+[ "%{_builddir}/%{name}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}
+[ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}
 
-%files -n %{name}-devel
+%files -n %{project}-devel
 %{gopath}/src/*
+%{gopath}/pkg/*
 
 %files
 %{_bindir}/%{name}

@@ -11,7 +11,7 @@
 %global revision %(echo `git ls-remote %{repo}  | head -1 | cut -f 1 | cut -c1-7`)
 
 
-Name:                   golang-%{provider}-%{repo_owner}-%{project}
+Name:                   %{project}
 Version:                %{gitversion}
 Release:                %{release_ver}.%{revision}.%{dist}
 Summary:                %{_summary}
@@ -30,6 +30,13 @@ Requires:		golang-github-mitchellh-iochan
 %description
 %{summary}
 
+%package -n %{project}-devel
+Summary: %{project} devel
+Requires: golang
+
+%description -n %{project}-devel
+%{project} devel
+
 %prep
 if [ -d %{buildroot} ]; then
   %{__rm} -rf %{buildroot}
@@ -39,12 +46,6 @@ fi
 export GOPATH=%{buildroot}%{gopath}
 
 go get %{import_path}
-for pkg_dir in `find %{buildroot}%{gopath}/pkg/linux_amd64/ -maxdepth 2 \
-! -path %{buildroot}%{gopath}/pkg/linux_amd64/ \
-! -path %{buildroot}%{gopath}/pkg/linux_amd64/%{provider}.%{provider_tld} \
-! -path %{buildroot}%{gopath}/pkg/linux_amd64/%{provider}.%{provider_tld}/%{repo_owner}`; do
-    %__rm -rf ${pkg_dir}
-done
 
 for src_dir in `find %{buildroot}%{gopath}/src/ -maxdepth 2 \
 ! -path %{buildroot}%{gopath}/src/ \
@@ -52,9 +53,14 @@ for src_dir in `find %{buildroot}%{gopath}/src/ -maxdepth 2 \
 ! -path %{buildroot}%{gopath}/src/%{provider}.%{provider_tld}/%{repo_owner}`; do
     %__rm -rf ${src_dir}
 done
+%__rm -rf %{buildroot}%{gopath}/src/%{provider}.%{provider_tld}/%{repo_owner}/iochan
+%__rm -rf %{buildroot}%{gopath}/pkg/linux_amd64/
+
 if [ -f  %{buildroot}%{gopath}/src/%{import_path}/.travis.yml ];then
     %__rm -f %{buildroot}%{gopath}/src/%{import_path}/.travis.yml
 fi
+%__mkdir_p %{buildroot}%{_bindir}
+%__mv %{buildroot}%{gopath}/bin/%{name} %{buildroot}%{_bindir}/%{name}
 
 %clean
 [ "$RPM_BUILD_ROOT" != "/" ] && %__rm -rf $RPM_BUILD_ROOT
@@ -62,9 +68,10 @@ fi
 [ "%{_builddir}/%{name}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}
 [ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}
 
-%files
+%files -n %{project}-devel
 %{gopath}/src/*
-%{gopath}/pkg/*
-%{gopath}/bin/*
+
+%files
+%{_bindir}/%{name}
 
 %changelog

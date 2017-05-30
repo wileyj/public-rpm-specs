@@ -2,7 +2,7 @@
 %define repo            https://%{provider}.%{provider_tld}/%{repo_owner}/%{project}
 %global provider        github
 %global provider_tld    com
-%global repo_owner      mitchellh
+%global repo_owner      hashicorp
 %global project         packer
 %global import_path     %{provider}.%{provider_tld}/%{repo_owner}/%{project}
 %define _summary        %(echo `curl -s %{repo} | grep "<title>" | cut -f2 -d ":" | sed 's|</title>||'`)
@@ -19,13 +19,20 @@ Vendor:         %{vendor}
 Packager:       %{packager}
 BuildRequires:          git golang >= 1.8
 BuildRequires:          golang-rpm-macros
-Requires:               golang >= 1.8
 Provides:       golang-%{provider}
 Provides:       golang(%{import_path}) = %{version}-%{release}
+Provides:       %{name} = %{version}
 
 
 %description
 %{summary}
+
+%package -n %{project}-devel
+Summary: %{project} devel
+Requires: golang
+
+%description -n %{project}-devel
+%{project} devel
 
 %prep
 if [ -d %{buildroot} ];then
@@ -52,6 +59,8 @@ done
 if [ -f  %{buildroot}%{gopath}/src/%{import_path}/.travis.yml ];then
     %__rm -f %{buildroot}%{gopath}/src/%{import_path}/.travis.yml
 fi
+%__mkdir_p %{buildroot}%{_bindir}
+%__mv %{buildroot}%{gopath}/bin/%{name} %{buildroot}%{_bindir}/%{name}
 
 %clean
 [ "$RPM_BUILD_ROOT" != "/" ] && %__rm -rf $RPM_BUILD_ROOT
@@ -60,8 +69,10 @@ fi
 [ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}
 
 %files
+%{_bindir}/%{name}
+
+%files -n %{project}-devel
 %{gopath}/src/*
 %{gopath}/pkg/*
-%{gopath}/bin/*
 
 %changelog

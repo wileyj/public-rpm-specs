@@ -19,7 +19,6 @@ Vendor:         %{vendor}
 Packager:       %{packager}
 BuildRequires:          git golang >= 1.8
 BuildRequires:          golang-rpm-macros
-Requires:               golang >= 1.8
 Provides:       golang-%{provider}
 Provides:       golang(%{import_path}) = %{version}-%{release}
 Requires:	golang-github-dgrijalva-jwt-go
@@ -27,7 +26,7 @@ Requires:	golang-github-jbenet-go-context
 Requires:	golang-github-mitchellh-mapstructure 
 Requires:	golang-github-palourde-mergo
 Requires:	golang-github-bencaron-gosensu
-
+Provides:       %{name} = %{version}
 
 %description
 %{summary}
