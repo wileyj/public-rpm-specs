@@ -20,13 +20,19 @@ Packager:       %{packager}
 
 BuildRequires:          git golang >= 1.8
 BuildRequires:          golang-rpm-macros
-Requires:               golang >= 1.8
 Provides:       golang-%{provider}
 Provides:       golang(%{import_path}) = %{version}-%{release}
-
+Provides:       %{name} = %{version}
 
 %description
 %{summary}
+
+%package -n %{project}-devel
+Summary: %{project} devel
+Requires: golang
+
+%description -n %{project}-devel
+%{project} devel
 
 %prep
 if [ -d %{buildroot} ];then
@@ -53,6 +59,8 @@ done
 if [ -f  %{buildroot}%{gopath}/src/%{import_path}/.travis.yml ];then
     %__rm -f %{buildroot}%{gopath}/src/%{import_path}/.travis.yml
 fi
+%__mkdir_p %{buildroot}%{_bindir}
+%__mv %{buildroot}%{gopath}/bin/%{name} %{buildroot}%{_bindir}/%{name}
 
 %clean
 [ "$RPM_BUILD_ROOT" != "/" ] && %__rm -rf $RPM_BUILD_ROOT
@@ -60,9 +68,11 @@ fi
 [ "%{_builddir}/%{name}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}
 [ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}
 
-%files
+%files -n %{project}-devel
 %{gopath}/src/*
 %{gopath}/pkg/*
-%{gopath}/bin/*
+
+%files
+%{_bindir}/%{name}
 
 %changelog

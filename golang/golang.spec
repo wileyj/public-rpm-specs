@@ -16,7 +16,8 @@ License:        BSD
 URL:            http://golang.org/
 BuildRequires:  golang > 1.4 git pcre-devel /bin/hostname 
 BuildRequires:  golang-rpm-macros
-Provides:       go = %{version}-%{release}
+#Provides:       go = %{version}-%{release}
+Provides:       %{name} = %{version}-%{release}
 Requires:       %{name}-bin
 Requires:       %{name}-src = %{version}-%{release}
 Obsoletes:      %{name}-docs < 1.1-4
@@ -63,7 +64,7 @@ Requires:     %{name} = %{version}-%{release}
 
 %package        bin
 Summary:        Golang core compiler tools
-Requires:       go = %{version}-%{release}
+Requires:       %{name} = %{version}-%{release}
 Obsoletes:      %{name}-pkg-bin-linux-386 < 1.4.99
 Obsoletes:      %{name}-pkg-bin-linux-amd64 < 1.4.99
 Obsoletes:      %{name}-pkg-bin-linux-arm < 1.4.99
@@ -208,9 +209,9 @@ chmod a+x %{buildroot}%{_sysconfdir}/profile.d/%{name}.sh
 %{_sbindir}/update-alternatives --remove go %{goroot}/bin/go
 
 %clean
-[ "%{buildroot}" != "/" ] && %__rm -rf %{buildroot}
-[ "%{_builddir}/%{name}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}
-[ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}
+#[ "%{buildroot}" != "/" ] && %__rm -rf %{buildroot}
+#[ "%{_builddir}/%{name}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}
+#[ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}
 
 %files
 %dir %{goroot}/doc
@@ -228,6 +229,32 @@ chmod a+x %{buildroot}%{_sysconfdir}/profile.d/%{name}.sh
 %{gopath}
 %{goroot}/*
 %{gopath}/*
+
+#%{gopath}/api
+#%{gopath}/AUTHORS
+#%{gopath}/bin
+#%{gopath}/CONTRIBUTORS
+#%{gopath}/favicon.ico
+#%{gopath}/LICENSE
+#%{gopath}/PATENTS
+#%{gopath}/robots.txt
+#%{gopath}/VERSION.cache
+
+#%dir %{gopath}/src
+#%dir %{goroot}/doc
+#%dir %{goroot}/pkg
+#%dir %{goroot}/bin
+#%dir %{goroot}/misc
+#%dir %{goroot}/test
+#%dir %{goroot}/lib
+%exclude %{gopath}/src
+%exclude %{goroot}/doc
+%exclude %{goroot}/misc
+%exclude %{goroot}/test
+%exclude %{goroot}/lib
+%exclude %{goroot}/pkg
+%exclude %{goroot}/bin
+
 %{_sysconfdir}/gdbinit.d
 %{_sysconfdir}/prelink.conf.d
 %{_sysconfdir}/profile.d

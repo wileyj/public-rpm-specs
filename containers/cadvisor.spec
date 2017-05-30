@@ -25,7 +25,7 @@ Provides:       golang-%{provider}
 Provides:       golang(%{import_path}) = %{version}-%{release}
 
 
-%include %{_rpmconfigdir}/macros.d/macros.golang
+#%include %{_rpmconfigdir}/macros.d/macros.golang
 %description
 %{summary}
 
