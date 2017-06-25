@@ -38,7 +38,7 @@ Provides:       python3-%{pypi_name} = %{version}-%{release}
 Obsoletes:      python3-%{pypi_name} < %{version}-%{release}
 Requires: python3
 BuildRequires:  python3-devel python3-rpm-macros python-srpm-macros
-
+BuildArch:      noarch
 
 %description -n python3-%{pypi_name}
 %{summary} for Python 3

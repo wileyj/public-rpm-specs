@@ -23,7 +23,6 @@ License:        MIT
 URL:            %{pypi_url}
 Provides:       python-%{pypi_name} = %{version}-%{release}
 Provides:       python-%{pypi_alternate} = %{version}-%{release}
-BuildArch:      x86_64
 Obsoletes:      python-%{pypi_name} < %{version}-%{release}
 BuildRequires:  python-devel python2-rpm-macros python-srpm-macros
 BuildRequires:	zeromq-devel

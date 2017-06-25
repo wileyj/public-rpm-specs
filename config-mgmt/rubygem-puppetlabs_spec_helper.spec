@@ -2,7 +2,7 @@
 %global gemname puppetlabs_spec_helper
 %global gemdesc %(echo `gem list ^%{gemname}$ -r -d | tail -1`)
 %global remoteversion %(echo `gem list ^%{gemname}$ -r |  cut -f2 -d" " | tr -d '()'`)
-%include %{_rpmconfigdir}/macros.d/macros.rubygems
+#%include %{_rpmconfigdir}/macros.d/macros.rubygems
 
 Summary: %{gemdesc}
 Name: rubygem-%{gemname}

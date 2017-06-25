@@ -1,5 +1,5 @@
 %global _python_bytecompile_errors_terminate_build 0
-%include %{_rpmconfigdir}/macros.d/macros.rubygems
+#%include %{_rpmconfigdir}/macros.d/macros.rubygems
 %global _plugin filemgr-agent
 %define repo https://github.com/puppetlabs/mcollective-%{_plugin}
 %define gitversion %(echo `curl -s %{repo}/releases | grep 'class="tag-name"' | head -1 |  tr -d '\\-</span class="tag-name">'`)

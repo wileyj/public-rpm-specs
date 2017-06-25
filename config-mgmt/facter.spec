@@ -16,9 +16,6 @@ URL:            https://puppetlabs.com/%{name}
 Patch0:		facter-ruby-2.3.patch
 #Patch1:        facter-2.3.0.patch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-#BuildRequires: boost-devel >= 1.59 cpp-hocon cpp-hocon-devel
-#BuildRequires: openssl-devel libblkid-devel libcurl-devel gcc-c++ make wget tar libyaml libyaml-devel  leatherman yaml-cpp-devel
-#BuildRequires: rapidjson-devel
 BuildRequires:  boost-system >= 1.63.0
 BuildRequires:  boost-thread >= 1.63.0
 BuildRequires:  boost-filesystem >= 1.63.0
@@ -38,8 +35,8 @@ BuildRequires:  yaml-cpp >= 0.5.2
 BuildRequires:  yaml-cpp-devel >= 0.5.2
 BuildRequires:  leatherman >= 0.10.1
 BuildRequires:  leatherman-devel >= 0.10.1
-BuildRequires:  rapidjson >= 1.1.0
-BuildRequires:  rapidjson-devel >= 1.1.0
+#BuildRequires:  rapidjson >= 1.1.0-2
+#BuildRequires:  rapidjson-devel >= 1.1.0-2
 BuildRequires:  libuuid >= 2.23.2
 BuildRequires:  libgcc >= 4.8.5
 BuildRequires:  libstdc++ >= 4.8.5
@@ -76,7 +73,7 @@ fi
 git clone %{repo} %{name}-%{version}
 cd %{name}-%{version}
 #git checkout -b stable
-git checkout tags/3.4.1
+#git checkout tags/3.4.1
 
 #%patch0
 
@@ -88,19 +85,28 @@ cd %{name}-%{version}
 rm -rf %{buildroot}
 %__mkdir_p release
 pwd
-cd release
+#cd release
 export CLASSPATH="$CLASSPATH:%{_builddir}/%{name}-%{version}/release/lib"
-cmake -DCMAKE_INSTALL_PREFIX:PATH=%{_prefix} -DRUBY_INCLUDE_DIR=/usr/include/ruby -DRUBY_LIBRARY=/usr/lib64/ruby ..
+#cmake -DCMAKE_INSTALL_PREFIX:PATH=%{_prefix} -DRUBY_INCLUDE_DIR=/usr/include/ruby -DRUBY_LIBRARY=/usr/lib64/ruby  ..
+#make DESTDIR=%{buildroot} INSTALL="install -p" install
+cmake -DCMAKE_BUILD_TYPE=Release \
+-DCOVERALLS=ON \
+-DCMAKE_PREFIX_PATH=%{_prefix} \
+-DRUBY_INCLUDE_DIR=/usr/include/ruby \
+-DRUBY_LIBRARY=/usr/lib64/ruby \
+. 
+make -j2
 make DESTDIR=%{buildroot} INSTALL="install -p" install
-
-#export CLASSPATH="/usr/java/current/lib:/opt/rpmbuild/BUILD/%{name}-%{version}/release/lib"
-#cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr -DRUBY_INCLUDE_DIR=/usr/include/ruby -DRUBY_LIBRARY=/usr/lib64/ruby ..
-#make DESTDIR=/opt/rpmbuild/BUILDROOT/facter-3.4.1-1.local.el7.x86_64 'INSTALL=install -p' install
 
 # Create directory for external facts
 %__mkdir_p %{buildroot}%{factpath}
+#%__mv %{buildroot}/usr/local/share/* %{buildroot}/usr/share/
+#%__rm -rf %{buildroot}/usr/local/share
+#%__mv %{buildroot}/usr/local/* %{buildroot}/usr/
+#%__rm -rf %{buildroot}/usr/local
+%__install -D -pv -m 0644 %{_builddir}/%{name}-%{version}/man/man8/%{name}.8 %{buildroot}/%{_mandir}/man8/%{name}.8
 %__mkdir_p %{buildroot}%{_bindir}
-install -D -pv -m 644 %{_builddir}/%{name}-%{version}/man/man8/%{name}.8 %{buildroot}/%{_mandir}/man8/%{name}.8
+%__ln_s -f /usr/local/bin/%{name} %{buildroot}%{_bindir}/%{name}
 
 %postun -p /sbin/ldconfig
 if [ "$1" -ge 1 ]; then
@@ -121,9 +127,12 @@ fi
 %{_bindir}/%{name}
 %dir %{factpath}
 %{_mandir}/man8/%{name}*
-%{_datarootdir}/ruby/vendor_ruby/facter.rb
-%{_prefix}/lib/lib%{name}*
-%{_includedir}/%{name}/
-%{_datarootdir}/ruby/vendor_ruby/facter.jar
+/usr/local/*
+#%{_datarootdir}/ruby/vendor_ruby/facter.rb
+#%{_prefix}/lib/lib%{name}*
+#%{_includedir}/%{name}/
+#%{_datarootdir}/ruby/vendor_ruby/facter.jar
+/usr/share/ruby/vendor_ruby/facter.jar 
+/usr/share/ruby/vendor_ruby/facter.rb 
 
 %changelog

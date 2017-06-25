@@ -1,14 +1,15 @@
-#%define repo https://github.com/go-amz/amz
+#%define repo https://github.com/golang/time
 %define repo            https://%{provider}.%{provider_tld}/%{repo_owner}/%{project}
-%global provider        gopkg
-%global provider_tld    in
-%global repo_owner      amz.v1
-%global project         ec2
-%global import_path     %{provider}.%{provider_tld}/%{repo_owner}
+%global provider        golang
+%global provider_tld    org
+%global repo_owner      x 
+%global project         time
+%global import_path     %{provider}.%{provider_tld}/%{repo_owner}/%{project}
 %define _summary        %(echo `curl -s %{repo} | grep "<title>" | cut -f2 -d ":" | sed 's|</title>||'`)
-%define gitversion %(echo `date +%s`)
-%global revision %(echo `git ls-remote %{repo}.git  | head -1 | cut -f 1| cut -c1-7`)
-%global release_ver 1
+%define gitversion %(echo `date +%Y%m`)
+%define release_ver 1
+%global revision %(echo `git ls-remote %{repo}  | head -1 | cut -f 1 | cut -c1-7`)
+
 
 Name:                   golang-%{provider}-%{repo_owner}-%{project}
 Version:                %{gitversion}
@@ -24,12 +25,12 @@ Provides:               %{name}
 Provides:               %{name}-devel
 Provides:               golang(%{import_path}) 
 Provides:               golang(%{import_path})-devel
-
-
+Requires:		golang-golang-x-text
+Requires:		golang-golang-x-crypto
+Requires:		golango-golang-x-net
 %description
 %{summary}
 
- 
 %prep
 if [ -d %{buildroot} ]; then
   %{__rm} -rf %{buildroot}
@@ -38,7 +39,7 @@ fi
 %build
 export GOPATH=%{buildroot}%{gopath}
 
-go get %{import_path}/ec2
+go get -d -t -u %{import_path}/...
 for pkg_dir in `find %{buildroot}%{gopath}/pkg/linux_amd64/ -maxdepth 2 \
 ! -path %{buildroot}%{gopath}/pkg/linux_amd64/ \
 ! -path %{buildroot}%{gopath}/pkg/linux_amd64/%{provider}.%{provider_tld} \
@@ -65,6 +66,5 @@ fi
 %files
 %{gopath}/src/*
 %{gopath}/pkg/*
-%{gopath}/bin/*
 
 %changelog

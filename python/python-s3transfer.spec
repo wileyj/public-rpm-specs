@@ -48,6 +48,7 @@ Requires: python3-python-dateutil
 Requires: python3-docutils
 Requires: python3-six
 Requires: python3
+BuildArch:      noarch
 
 %description -n python3-%{pypi_name}
 %{summary} for Python 3

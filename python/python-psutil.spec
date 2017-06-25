@@ -22,11 +22,7 @@ License:        MIT
 URL:            %{pypi_url}
 Provides:       python-%{pypi_name} = %{version}-%{release}
 Obsoletes:      python-%{pypi_name} < %{version}-%{release}
-%if 0%{?with_python3}
-BuildRequires:  python3-devel
-%endif
 BuildRequires:  python-devel
-BuildArch:      x86_64
 Requires: python
 
 %description
@@ -38,6 +34,7 @@ Summary:        "%{pypi_summary}"
 Group:          Development/Languages
 Provides:       python3-%{pypi_name} = %{version}-%{release}
 Obsoletes:      python3-%{pypi_name} < %{version}-%{release}
+BuildRequires:  python3-devel
 Requires: python3
 
 %description -n python3-%{pypi_name}

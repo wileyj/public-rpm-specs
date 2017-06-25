@@ -11,6 +11,7 @@ URL:           http://nodejs.org
 Source0:       %{_base}-v%{version}.tar.gz
 BuildRoot:     %{_tmppath}/%{name}-%{version}-%{release}-tmp
 Prefix:        /usr
+Provides: 	nodejs = %{version}
 BuildRequires: tar
 BuildRequires: gcc
 BuildRequires: gcc-c++
@@ -42,7 +43,7 @@ License:       MIT License
 URL:           http://nodejs.org
 Obsoletes:     npm
 Provides:      npm
-Requires:      nodejs
+Requires:      nodejs = %{version}
 
 %description npm
 Node.js is a server-side JavaScript environment that uses an asynchronous event-driven model.
@@ -51,7 +52,7 @@ This allows Node.js to get excellent performance based on the architectures of m
 %package devel
 Summary:       Header files for %{name}
 Group:         Development/Libraries
-Requires:      %{name}
+Requires:      nodejs = %{version}
 
 %description devel
 Node.js is a server-side JavaScript environment that uses an asynchronous event-driven model.

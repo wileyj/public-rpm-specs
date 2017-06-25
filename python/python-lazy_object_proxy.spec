@@ -27,7 +27,6 @@ Obsoletes:      python-%{pypi_name} < %{version}-%{release}
 BuildRequires:  python-devel python2-rpm-macros python-srpm-macros 
 Requires: python-six
 Requires: python
-BuildArch:      x86_64
 
 %description
 %{summary} for Python

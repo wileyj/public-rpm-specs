@@ -51,6 +51,7 @@ Requires: python3-Jinja2
 Requires: python3-itsdangerous
 Requires: python3-click
 Requires: python3-MarkupSafe
+BuildArch:      noarch
 
 %description -n python3-%{pypi_alternate}
 %{summary} for Python 3

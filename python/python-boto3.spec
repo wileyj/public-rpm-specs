@@ -50,6 +50,7 @@ Requires: python3-s3transfer
 Requires: python3-dateutil
 Requires: python3-docutils
 Requires: python3-six
+BuildArch:      noarch
 
 %description -n python3-%{pypi_name}
 %{summary} for Python 3

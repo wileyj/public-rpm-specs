@@ -9,7 +9,7 @@ Vendor:     %{vendor}
 Packager:   %{packager}
 BuildRoot:  %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildArch:  x86_64 
-BuildRequires:  autoconf 
+BuildRequires:  autoconf  help2man make automake xz make
 Requires:   autoconf
 Requires(post):  info
 Requires(preun): info

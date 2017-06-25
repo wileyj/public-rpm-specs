@@ -45,6 +45,7 @@ Requires: python3-requests
 Requires: python3-protobuf-py3
 Requires: python3-setuptools
 Requires: python3
+BuildArch:      noarch
 
 %description -n python3-%{pypi_name}
 %{summary} for Python 3

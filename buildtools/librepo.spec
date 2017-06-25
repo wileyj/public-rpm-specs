@@ -53,7 +53,6 @@ Python 2 bindings for the librepo library.
 %if 0%{with_python3}
 %package -n python3-%{name}
 Summary:        Python 3 bindings for the librepo library
-%{?system_python_abi}
 Provides:	python3-%{name} = %{version}
 BuildRequires:  python3-pygpgme
 BuildRequires:  python3-devel
@@ -91,21 +90,6 @@ pushd build-py3
 popd
 %endif
 
-%if 0%{with_tests}
-%check
-pushd build
-  #ctest -VV
-  make ARGS="-V" test
-popd
-
-%if 0%{with_python3}
-pushd build-py3
-  #ctest -VV
-  make ARGS="-V" test
-popd
-%endif
-%endif
-
 %install
 cd %{name}-%{version}
 pushd build
@@ -121,8 +105,8 @@ popd
 %postun -p /sbin/ldconfig
 
 %files
-%license COPYING
-%doc README.md
+#%license COPYING
+#%doc README.md
 %{_libdir}/%{name}.so.*
 
 %files devel

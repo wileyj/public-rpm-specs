@@ -1,4 +1,4 @@
-%include %{_rpmconfigdir}/macros.d/macros.rubygems
+#%include %{_rpmconfigdir}/macros.d/macros.rubygems
 %global gem_name gem2rpm
 %global remoteversion %(echo `gem list ^%{gem_name}$ -r |  grep %{gem_name} | cut -f2 -d" " | tr -d '()' | tr -d ','`)
 %global rubyabi 2.2.4
@@ -25,7 +25,7 @@ BuildRequires: ruby-devel
 BuildArch: x86_64
 Provides: rubygem-%{gem_name}
 Provides: rubygem(%{gem_name})
-%include %{SOURCE6}
+#%include %{SOURCE6}
 
 %description
 Generate source rpms and rpm spec files from a Ruby Gem.  The spec file tries

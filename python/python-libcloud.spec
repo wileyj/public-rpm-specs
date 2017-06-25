@@ -44,6 +44,7 @@ Provides:       python3-%{pypi_alternate} = %{version}-%{release}
 Obsoletes:      python3-%{pypi_name} < %{version}-%{release}
 BuildRequires:  python3-devel python3-rpm-macros python-srpm-macros
 Requires: python3
+BuildArch:      noarch
 
 %description -n python3-%{pypi_name}
 %{summary} for Python 3
@@ -54,8 +55,8 @@ Requires: python3
 if [ -d %{_builddir}/%{name}-%{version} ];then
     rm -rf %{_builddir}/%{name}-%{version}
 fi
-curl -o $RPM_SOURCE_DIR/%{name}.tar.bz2 `curl -s %{pypi_url} | grep tar.bz2 | cut -d '"' -f2 | cut -f1 -d "#" | tail -2 | grep 1`
-tar -xjvf $RPM_SOURCE_DIR/%{name}.tar.bz2
+curl -o $RPM_SOURCE_DIR/%{name}.tar.gz `curl -s %{pypi_url} | grep tar.gz | cut -d '"' -f2 | cut -f1 -d "#" | tail -2 | grep 1`
+tar -xzvf $RPM_SOURCE_DIR/%{name}.tar.gz
 mv %{_builddir}/%{pypi_name}-%{version} %{_builddir}/%{name}-%{version}
 chmod -R u+w %{_builddir}/%{name}-%{version}
 cd $RPM_BUILD_DIR/%{name}-%{version}

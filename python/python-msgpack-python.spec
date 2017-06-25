@@ -26,7 +26,6 @@ Provides:       python-%{pypi_alternate} = %{version}-%{release}
 Obsoletes:      python-%{pypi_name} < %{version}-%{release}
 BuildRequires:  python-devel python2-rpm-macros python-srpm-macros 
 Requires: python
-BuildArch:      x86_64
 
 %description
 %{summary} for Python
@@ -40,7 +39,6 @@ Provides:       python3-%{pypi_alternate} = %{version}-%{release}
 Obsoletes:      python3-%{pypi_name} < %{version}-%{release}
 BuildRequires:  python3-devel python3-rpm-macros python-srpm-macros
 Requires: python3
-
 
 %description -n python3-%{pypi_name}
 %{summary} for Python 3

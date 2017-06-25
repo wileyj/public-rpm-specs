@@ -50,6 +50,7 @@ Requires: python3-six
 Requires: python3-traceback2
 Requires: python3-linecache2
 Requires: python3
+BuildArch:      noarch
 
 %description -n python3-%{pypi_name}
 %{summary} for Python 3

@@ -1,3 +1,5 @@
+# https://elixir-lang.org/
+# https://github.com/rabbitmq/rabbitmq-server
 %global with_python3 1
 %global shortname rabbitmq
 %global erlang_minver R12B-3
@@ -13,7 +15,7 @@
 #%define rmq_erlapp_dir %{rmq_libdir}/rabbitmq_server-%{VERSION}
 
 Name: %{shortname}-server
-Version: 3.6.1
+Version: 3.6.10
 Release: 2.%{?dist}
 License: MPLv1.1
 Group: Development/Libraries
@@ -23,22 +25,27 @@ Source2: %{shortname}-script-wrapper
 Source3: %{shortname}-server.logrotate
 Source4: %{shortname}-server.ocf
 Source5: %{shortname}-server.tmpfiles
+Patch1: rabbitmq-server-0001-Remove-excessive-sd_notify-code.patch
+Patch2: rabbitmq-server-0002-Add-systemd-notification-support.patch
+Patch3: rabbitmq-server-0003-Revert-Distinct-exit-codes-for-CLI-utilities.patch
+Patch4: rabbitmq-server-0004-Allow-guest-login-from-non-loopback-connections.patch
+Patch5: rabbitmq-server-0005-rabbit_prelaunch-must-use-RABBITMQ_SERVER_ERL_ARGS.patch
+Patch101: rabbitmq-common-0001-Use-proto_dist-from-command-line.patch
+
 URL: http://www.rabbitmq.com/
 BuildArch: noarch
 
-BuildRequires: erlang >= %{erlang_minver} xmlto libxslt zip
+BuildRequires: erlang xmlto libxslt zip
 %if 0%{?with_python3}
 BuildRequires: python3-simplejson 
 %else
 BuildRequires: python-simplejson 
 %endif
-BuildRequires: erlang-observer erlang-gs erlang-et erlang-jinterface erlang-epmd erlang-reltool erlang-src
+BuildRequires: erlang-observer erlang-jinterface erlang-reltool 
+#BuildRequires: erlang-observer erlang-gs erlang-et erlang-jinterface erlang-epmd erlang-reltool erlang-src
 Requires: logrotate erlang erlang-observer erlang-gs erlang-et erlang-jinterface erlang-epmd erlang-reltool erlang-src
 Summary: The RabbitMQ server
 Requires(pre): shadow-utils
-
-Patch1: rabbitmq-common-0001-Use-ephemeral-port-for-probing.patch
-Patch2: rabbitmq-server-0001-Make-slaves-wait-timeout-configurable-instead-of-har.patch
 
 %description
 RabbitMQ is an implementation of AMQP, the emerging standard for high
@@ -48,35 +55,51 @@ scalable implementation of an AMQP broker.
 %prep
 %setup -q
 
+cd deps/rabbit
+%patch1 -p1
+%patch2 -p1
+%patch3 -p1
+%patch4 -p1
+%patch5 -p1
+cd ../..
+
 cd deps/rabbit_common
-%patch1 -p1 -b .ephemeral
-cd -
-%patch2 -p1 -b .slave_wait_timeout_configurable
+%patch101 -p1
+cd ../..
+
+# We have to remove it until common_test subpackage lands RHOS
+rm -f \
+        deps/amqp_client/src/rabbit_ct_client_helpers.erl \
+        deps/rabbit_common/src/rabbit_ct_broker_helpers.erl \
+        deps/rabbit_common/src/rabbit_ct_helpers.erl
 
 %build
 #USE_SPECS="true" USE_PROPER_QC="false" make %{?_smp_mflags}
-make %{?_smp_mflags}
+make %{?_smp_mflags} VERSION="%{version}"
 
 %install
 mkdir -p %{buildroot}%{_localstatedir}/lib/%{shortname}
 mkdir -p %{buildroot}%{_localstatedir}/log/%{shortname}
 
 make install \
+	VERSION="%{version}" \
         DESTDIR=%{buildroot} \
         PREFIX=%{_prefix} \
         RMQ_ROOTDIR=%{_rabbit_libdir}
 
 make install-bin \
+	VERSION="%{version}" \
         DESTDIR=%{buildroot} \
         PREFIX=%{_prefix} \
         RMQ_ROOTDIR=%{_rabbit_libdir}
 
 make install-man \
+	VERSION="%{version}" \
         DESTDIR=%{buildroot} \
         PREFIX=%{_prefix} \
         RMQ_ROOTDIR=%{_rabbit_libdir}
 
-mkdir -p %{buildroot}%{_localstatedir}/lib/rabbitmq
+mkdir -p %{buildroot}%{_localstatedir}/lib/rabbitmq/mnesia
 mkdir -p %{buildroot}%{_localstatedir}/log/rabbitmq
 sed -i -e 's|/usr/lib/rabbitmq/bin|%{_rabbit_libdir}/lib/rabbitmq_server-%{version}/sbin|g' %{S:2}
 
@@ -86,7 +109,7 @@ install -p -D -m 0755 %{S:2} %{buildroot}%{_sbindir}/rabbitmq-server
 install -p -D -m 0755 %{S:2} %{buildroot}%{_sbindir}/rabbitmq-plugins
 install -p -D -m 0755 %{S:4} %{buildroot}%{_exec_prefix}/lib/ocf/resource.d/rabbitmq/rabbitmq-server
 install -p -D -m 0644 %{S:3} %{buildroot}%{_sysconfdir}/logrotate.d/rabbitmq-server
-install -p -D -m 0644 docs/rabbitmq.config.example %{buildroot}%{_sysconfdir}/rabbitmq/rabbitmq.config
+install -p -D -m 0644 ./deps/rabbit/docs/rabbitmq-server.service.example %{buildroot}%{_unitdir}/%{name}.service
 
 rm %{buildroot}%{_rabbit_libdir}/lib/rabbitmq_server-%{version}/{LICENSE,LICENSE-*,INSTALL}
 
@@ -97,6 +120,19 @@ install -p -D -m 0644 %{SOURCE5} %{buildroot}%{_prefix}/lib/tmpfiles.d/%{name}.c
 #Build the list of files
 echo '%defattr(-,root,root, -)' >%{_builddir}/%{name}.files
 find %{buildroot} -path %{buildroot}%{_sysconfdir} -prune -o '!' -type d -printf "/%%P\n" >>%{filelist}
+
+## Make necessary symlinks
+#mkdir -p %{buildroot}%{_rabbit_libdir}/bin
+#for app in rabbitmq-defaults rabbitmq-env rabbitmq-plugins rabbitmq-server rabbitmqctl ; do
+#    ln -s %{_rabbit_libdir}/lib/rabbitmq_server-%{version}/sbin/${app} %{buildroot}%{_rabbit_libdir}/bin/${app}
+#done
+
+install -p -D -m 0755 scripts/rabbitmq-server.ocf %{buildroot}%{_exec_prefix}/lib/ocf/resource.d/rabbitmq/rabbitmq-server
+install -p -D -m 0755 scripts/rabbitmq-server-ha.ocf %{buildroot}%{_exec_prefix}/lib/ocf/resource.d/rabbitmq/rabbitmq-server-ha
+install -p -D -m 0644 %{S:3} %{buildroot}%{_sysconfdir}/logrotate.d/rabbitmq-server
+install -p -D -m 0644 ./deps/rabbit/docs/rabbitmq.config.example %{buildroot}%{_sysconfdir}/rabbitmq/rabbitmq.config
+install -d %{buildroot}%{_localstatedir}/run/rabbitmq
+install -p -D -m 0644 %{SOURCE5} %{buildroot}%{_prefix}/lib/tmpfiles.d/%{name}.conf
 
 
 %pre
@@ -166,7 +202,7 @@ done
 #%{_rabbit_libdir}/lib/rabbitmq_server-%{version}/
 #%{_initrddir}/%{name}
 #%dir /usr/lib/ocf/resource.d/%{shortname}/
-#/usr/lib/ocf/resource.d/%{shortname}/%{name}
+/usr/lib/ocf/resource.d/%{shortname}/%{name}*
 #%{_prefix}/lib/tmpfiles.d/%{name}.conf
 #%dir %attr(0750, rabbitmq, rabbitmq) %{_localstatedir}/lib/%{shortname}
 #%dir %attr(0750, rabbitmq, rabbitmq) %{_localstatedir}/log/%{shortname}

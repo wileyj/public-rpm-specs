@@ -1,7 +1,5 @@
-# http://download.oracle.com/otn-pub/java/jdk/8u66-b17/jdk-8u66-linux-x64.tar.gz
-# curl -L -b "oraclelicense=a" http://download.oracle.com/otn-pub/java/jdk/8u66-b17/jdk-8u66-linux-x64.tar.gz -O
-# curl -L -b "oraclelicense=a" http://download.oracle.com/otn-pub/java/jdk/8u66-b17/jdk-8u66-linux-x64.tar.gz -O
-# curl -L -b "oraclelicense=a" http://download.oracle.com/otn-pub/java/jdk/8u121-b13/jdk-8u121-linux-x64.tar.gz -O
+# http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html
+# curl -L -b "oraclelicense=a" http://download.oracle.com/otn-pub/java/jdk/8u131-b11/d54c1d3a095b4ff2b6607d096fa80163/jdk-8u131-linux-x64.tar.gz -O
 
 %define __os_install_post %{nil}
 %define _unpackaged_files_terminate_build 0
@@ -11,7 +9,7 @@
 
 Name:           jdk
 Summary:        Sun JDK
-Version:        1.8.0_121
+Version:        1.8.0_131
 Release:	1.%{dist}
 Url:            http://java.sun.com
 License:        Binary Code License Agreement
@@ -20,7 +18,7 @@ Packager: %{packager}
 Group:          Development/Libraries/Java
 #Buildroot:	java-build
 BuildRoot: 	%{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
-Source0:	%{name}-8u121-linux-x64.tar.gz
+Source0:	%{name}-8u131-linux-x64.tar.gz
 AutoReq:	0
 AutoProv:	0
 Provides:	jdk = %{version}

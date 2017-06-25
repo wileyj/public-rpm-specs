@@ -3,7 +3,7 @@
 %global revision %(echo `git ls-remote %{repo}.git  | head -1 | cut -f 1| cut -c1-7`)
 %define rel_version 1
 
-%include %{_rpmconfigdir}/macros.d/macros.rubygems
+#%include %{_rpmconfigdir}/macros.d/macros.rubygems
 %global gemname hiera
 %global puppet_base /etc/puppetlabs
 %global binpath /opt/puppetlabs/bin

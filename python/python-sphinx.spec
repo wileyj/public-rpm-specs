@@ -66,6 +66,7 @@ Requires: python3-requests
 Requires: python3-MarkupSafe
 Requires: python3-pytz
 Requires: python3
+BuildArch:      noarch
 
 %description -n python3-%{pypi_alternate}
 %{summary} for Python 3
@@ -108,18 +109,18 @@ popd
 cd $RPM_BUILD_DIR/%{name}-%{version}
 pushd %{py2dir}
 %{__python2} setup.py install -O1 --skip-build --root $RPM_BUILD_ROOT
-for file in %{pypi_alternate1} %{pypi_alternate2} %{pypi_alternate3} %{pypi_alternate4}; do
-%__cp %{buildroot}%{_bindir}/${file} %{buildroot}%{_bindir}/${file}-%{python_version}
-done
+#for file in %{pypi_alternate1} %{pypi_alternate2} %{pypi_alternate3} %{pypi_alternate4}; do
+#%__cp %{buildroot}%{_bindir}/${file} %{buildroot}%{_bindir}/${file}-%{python_version}
+#done
 find %{buildroot}%{_prefix} -type d -depth -exec rmdir {} \; 2>/dev/null
 popd
 
 %if 0%{?with_python3}
 pushd %{py3dir}
 %{__python3} setup.py install -O1 --skip-build --root $RPM_BUILD_ROOT
-for file in %{pypi_alternate1} %{pypi_alternate2} %{pypi_alternate3} %{pypi_alternate4}; do
-%__cp %{buildroot}%{_bindir}/${file} %{buildroot}%{_bindir}/${file}-%{python3_version}
-done
+#for file in %{pypi_alternate1} %{pypi_alternate2} %{pypi_alternate3} %{pypi_alternate4}; do
+#%__cp %{buildroot}%{_bindir}/${file} %{buildroot}%{_bindir}/${file}-%{python3_version}
+#done
 find %{buildroot}%{_prefix} -type d -depth -exec rmdir {} \; 2>/dev/null
 popd
 %endif
@@ -189,11 +190,12 @@ done
 %if 0%{?with_python3}
 %files -n python3-%{pypi_alternate}
 %{python3_sitelib}/*
-%{_bindir}/*%{python3_version} 
+#%{_bindir}/*%{python3_version} 
 
 %endif
 
 %files 
 %{python2_sitelib}/*
-%{_bindir}/*%{python_version} 
+#%{_bindir}/*%{python_version} 
+
 

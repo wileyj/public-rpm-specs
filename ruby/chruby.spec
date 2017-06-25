@@ -52,7 +52,7 @@ rm -rf $RPM_BUILD_ROOT
 %{__mkdir_p} %{buildroot}/opt/rubies
 %{__mkdir_p} %{buildroot}%{_bindir}
 %__ln_s /usr/local/bin/%{name}-exec  %{buildroot}%{_bindir}/%{name}
-
+%__mv %{buildroot}/doc %{buildroot}/usr/local/share
 cat <<EOF> %{buildroot}/etc/profile.d/chruby.sh
 if [ -n "$BASH_VERSION" ] || [ -n "$ZSH_VERSION" ]; then
   source /usr/local/share/chruby/chruby.sh
@@ -76,7 +76,7 @@ EOF
 %{_sysconfdir}/profile.d/%{name}.sh
 /usr/local/bin/%{name}-exec
 
-%files -n %{name}-docs
+#%files -n %{name}-docs
 %dir /usr/local/share/doc/%{name}-%{version}
 /usr/local/share/doc/%{name}-%{version}/*
 

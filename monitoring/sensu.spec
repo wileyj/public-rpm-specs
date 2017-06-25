@@ -85,7 +85,7 @@ Summary:        A monitoring server
 Group:          Monitoring
 License:        GPLv2
 #AutoReqProv:   no
-BuildRequires:  runit ruby
+BuildRequires:  ruby
 Requires:       autoconf openssl openssl-devel openssl-perl ruby ruby-devel runit rubygems ruby-irb ruby-libs zlib-devel zlib libyaml-devel libyaml
 Requires:       sensu-api  sensu-configs  sensu sensu-server = %{version} 
 Requires:       rubygem-sensu-extension  rubygem-amqp  rubygem-async_sinatra rubygem-childprocess rubygem-daemons  rubygem-em-http-request 

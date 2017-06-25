@@ -108,8 +108,8 @@ popd
 %if 0%{?with_python3}
 %files -n python3-%{pypi_name}
 %{python3_sitelib}/*
+%{_bindir}/django-admin*
 %endif
 
 %files 
 %{python2_sitelib}/*
-

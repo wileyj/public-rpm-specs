@@ -47,7 +47,7 @@ Requires: python3-itsdangerous
 Requires: python3-click
 Requires: python3
 Requires: python3-MarkupSafe
-
+BuildArch:      noarch
 
 %description -n python3-%{pypi_name}
 %{summary} for Python 3

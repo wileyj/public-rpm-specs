@@ -49,10 +49,7 @@ make DESTDIR=%{buildroot} INSTALL='install -p' install
 
 %files
 %attr(755,root,root) %{_sbindir}/%{name}
-%attr(755,root,root) %{_libexecdir}/sshg-blocker
-%attr(755,root,root) %{_libexecdir}/sshg-fw
-%attr(755,root,root) %{_libexecdir}/sshg-logtail
-%attr(755,root,root) %{_libexecdir}/sshg-parser
-%{_mandir}/man8/%{name}.8.*
-
+%attr(755,root,root) %{_libexecdir}/sshg*
+%{_mandir}/man8/%{name}*
+%{_mandir}/man7/%{name}*
 

@@ -53,6 +53,7 @@ Requires: python3-setuptools
 Requires: python3-cffi
 Requires: python3-pycparser
 Requires: python3
+BuildArch:      noarch
 
 %description -n python3-%{pypi_name}
 %{summary} for Python 3

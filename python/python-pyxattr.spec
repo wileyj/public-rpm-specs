@@ -24,9 +24,8 @@ Provides:       python-%{pypi_name} = %{version}-%{release}
 Provides:       %{pypi_name} = %{version}-%{release}
 Obsoletes:      python-%{pypi_name} < %{version}-%{release}
 Obsoletes:      %{pypi_name} < %{version}-%{release}
-BuildRequires:  python-devel python2-rpm-macros python-srpm-macros 
+BuildRequires:  python-devel python2-rpm-macros python-srpm-macros  libattr-devel
 Requires: python
-BuildArch: x86_64
 
 %description
 %{summary} for Python

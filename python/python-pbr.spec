@@ -44,6 +44,7 @@ BuildRequires:  python3-devel python3-rpm-macros python-srpm-macros python3-Babe
 BuildRequires: python3-pytz
 Requires: python3-Babel
 Requires: python3
+BuildArch:      noarch
 
 %description -n python3-%{pypi_name}
 %{summary} for Python 3

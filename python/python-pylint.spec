@@ -3,9 +3,8 @@
 %define pypi_name pylint
 %define pypi_alternate1 epylint
 %define pypi_alternate2 pylint
-%define pypi_alternate3 pylint-gui
-%define pypi_alternate4 pyreverse
-%define pypi_alternate5 symilar
+%define pypi_alternate3 pyreverse
+%define pypi_alternate4 symilar
 
 %global pypi_version_test %(echo `curl -s https://pypi.python.org/pypi/%{pypi_name} | grep "<title>" | awk '{print $2}'`)
 %if "%{?pypi_version_test:%{pypi_version_test}}%{!?pypi_version_test:0}" == "of"
@@ -51,6 +50,7 @@ Provides:       python3-%{pypi_name} = %{version}-%{release}
 Provides:       %{pypi_name} = %{version}-%{release}
 Obsoletes:      python3-%{pypi_name} < %{version}-%{release}
 BuildRequires:  python3-devel python3-rpm-macros python-srpm-macros
+BuildArch:      noarch
 
 Requires: python3
 Requires: python3-six
@@ -102,7 +102,7 @@ popd
 cd $RPM_BUILD_DIR/%{name}-%{version}
 pushd %{py2dir}
 %{__python2} setup.py install -O1 --skip-build --root $RPM_BUILD_ROOT
-for file in %{pypi_alternate1} %{pypi_alternate2} %{pypi_alternate3} %{pypi_alternate4} %{pypi_alternate5}; do
+for file in %{pypi_alternate1} %{pypi_alternate2} %{pypi_alternate3} %{pypi_alternate4} ; do
 %__cp %{buildroot}%{_bindir}/${file} %{buildroot}%{_bindir}/${file}-%{python_version}
 done
 find %{buildroot}%{_prefix} -type d -depth -exec rmdir {} \; 2>/dev/null
@@ -111,19 +111,19 @@ popd
 %if 0%{?with_python3}
 pushd %{py3dir}
 %{__python3} setup.py install -O1 --skip-build --root $RPM_BUILD_ROOT
-for file in %{pypi_alternate1} %{pypi_alternate2} %{pypi_alternate3} %{pypi_alternate4} %{pypi_alternate5}; do
+for file in %{pypi_alternate1} %{pypi_alternate2} %{pypi_alternate3} %{pypi_alternate4} ; do
 %__cp %{buildroot}%{_bindir}/${file} %{buildroot}%{_bindir}/${file}-%{python3_version}
 done
 find %{buildroot}%{_prefix} -type d -depth -exec rmdir {} \; 2>/dev/null
 popd
 %endif
 
-for file in %{pypi_alternate1} %{pypi_alternate2} %{pypi_alternate3} %{pypi_alternate4} %{pypi_alternate5}; do
+for file in %{pypi_alternate1} %{pypi_alternate2} %{pypi_alternate3} %{pypi_alternate4} ; do
 %__rm -f %{buildroot}%{_bindir}/${file}
 done
 
 %post
-for file in %{pypi_alternate1} %{pypi_alternate2} %{pypi_alternate3} %{pypi_alternate4} %{pypi_alternate5}; do
+for file in %{pypi_alternate1} %{pypi_alternate2} %{pypi_alternate3} %{pypi_alternate4} ; do
 if [ -f %{_bindir}/$file ];then
 %__rm -f  %{_bindir}/$file
 fi
@@ -132,7 +132,7 @@ done
 
 
 %postun
-for file in %{pypi_alternate1} %{pypi_alternate2} %{pypi_alternate3} %{pypi_alternate4} %{pypi_alternate5}; do
+for file in %{pypi_alternate1} %{pypi_alternate2} %{pypi_alternate3} %{pypi_alternate4} ; do
 if [ -f %{_bindir}/$file ];then
 %__rm -f  %{_bindir}/$file
 fi
@@ -145,7 +145,7 @@ done
 
 %if 0%{?with_python3}
 %post -n python3-%{pypi_name}
-for file in %{pypi_alternate1} %{pypi_alternate2} %{pypi_alternate3} %{pypi_alternate4} %{pypi_alternate5}; do
+for file in %{pypi_alternate1} %{pypi_alternate2} %{pypi_alternate3} %{pypi_alternate4} ; do
   if [ ! -f %{_bindir}/${file}-%{python_version} ];then
     if [ -f %{_bindir}/$file ];then
       %__rm -f  %{_bindir}/$file
@@ -155,7 +155,7 @@ for file in %{pypi_alternate1} %{pypi_alternate2} %{pypi_alternate3} %{pypi_alte
 done
 
 %postun -n python3-%{pypi_name}
-for file in %{pypi_alternate1} %{pypi_alternate2} %{pypi_alternate3} %{pypi_alternate4} %{pypi_alternate5}; do
+for file in %{pypi_alternate1} %{pypi_alternate2} %{pypi_alternate3} %{pypi_alternate4} ; do
   if [ ! -f %{_bindir}/${file}-%{python_version} ];then
     if [ -f %{_bindir}/$file ];then
       %__rm -f  %{_bindir}/$file

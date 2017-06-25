@@ -1,8 +1,6 @@
 %global with_python3 1
 %define pypi_name setuptools
 %define pypi_alternate1 easy_install
-%define repo https://github.com/pypa/%{pypi_name}
-
 %global pypi_version_test %(echo `curl -s https://pypi.python.org/pypi/%{pypi_name} | grep "<title>" | awk '{print $2}'`)
 %if "%{?pypi_version_test:%{pypi_version_test}}%{!?pypi_version_test:0}" == "of"
 %global pypi_version %(echo `curl -s https://pypi.python.org/pypi/%{pypi_name} | sed -n -e '/<table class="list">/{n;n;n;n;n;n;n;n;p;};h' | cut -d'"' -f2 | cut -d'/' -f4`)
@@ -38,6 +36,7 @@ Provides:       python3-%{pypi_name} = %{version}-%{release}
 Obsoletes:      python3-%{pypi_name} < %{version}-%{release}
 BuildRequires:  python3-devel python3-rpm-macros python-srpm-macros
 Requires: python3
+BuildArch:      noarch
 
 %description -n python3-%{pypi_name}
 %{summary} for Python 3
@@ -47,11 +46,11 @@ Requires: python3
 if [ -d %{name}-%{version} ];then
     rm -rf %{name}-%{version}
 fi
-git clone %{repo} %{name}-%{version}
-cd %{name}-%{version}
-git submodule init
-git submodule update
+curl -o $RPM_SOURCE_DIR/%{name}.zip `curl -s %{pypi_url} | grep zip | cut -d '"' -f2 | cut -f1 -d "#" | tail -2 | grep 1`
+unzip $RPM_SOURCE_DIR/%{name}.zip
+mv %{_builddir}/%{pypi_name}-%{version} %{_builddir}/%{name}-%{version}
 chmod -R u+w %{_builddir}/%{name}-%{version}
+cd $RPM_BUILD_DIR/%{name}-%{version}
 
 %if 0%{?with_python3}
 rm -rf %{py3dir}
@@ -61,92 +60,66 @@ cp -a . %{py3dir}
 rm -rf %{py2dir}
 cp -a . %{py2dir}
 
-
 %build
 cd $RPM_BUILD_DIR/%{name}-%{version}
 %if 0%{?with_python3}
 pushd %{py3dir}
-%{__python3} bootstrap.py
 %{__python3} setup.py build
 popd
 %endif
 
 pushd %{py2dir}
-%{__python2} bootstrap.py
 %{__python2} setup.py build
 popd
-
 
 %install
 cd $RPM_BUILD_DIR/%{name}-%{version}
 pushd %{py2dir}
 %{__python2} setup.py install -O1 --skip-build --root $RPM_BUILD_ROOT
-for file in %{pypi_alternate1}; do
-%__cp %{buildroot}%{_bindir}/${file} %{buildroot}%{_bindir}/${file}-%{python_version}
-done
+%__cp %{buildroot}%{_bindir}/%{pypi_alternate1} %{buildroot}%{_bindir}/%{pypi_alternate1}-%{python_version}
 find %{buildroot}%{_prefix} -type d -depth -exec rmdir {} \; 2>/dev/null
 popd
 
 %if 0%{?with_python3}
 pushd %{py3dir}
 %{__python3} setup.py install -O1 --skip-build --root $RPM_BUILD_ROOT
-for file in %{pypi_alternate1}; do
-%__cp %{buildroot}%{_bindir}/${file} %{buildroot}%{_bindir}/${file}-%{python3_version}
-done
+%__cp %{buildroot}%{_bindir}/%{pypi_alternate1} %{buildroot}%{_bindir}/%{pypi_alternate1}-%{python3_version}
 find %{buildroot}%{_prefix} -type d -depth -exec rmdir {} \; 2>/dev/null
 popd
 %endif
 
-for file in %{pypi_alternate1}; do
-%__rm -f %{buildroot}%{_bindir}/${file}
-done
-
-%post
-for file in %{pypi_alternate1};do
-if [ -f %{_bindir}/$file ];then
-%__rm -f  %{_bindir}/$file
-fi
-%__ln_s %{_bindir}/${file}-%{python_version}  %{_bindir}/$file
-done
+%__rm -f %{buildroot}%{_bindir}/%{pypi_alternate1}
 
 
 %postun
-for file in %{pypi_alternate1};do
-if [ -f %{_bindir}/$file ];then
-%__rm -f  %{_bindir}/$file
+if [ -f %{_bindir}/%{pypi_alternate1} ];then
+%__rm -f  %{_bindir}/%{pypi_alternate1}
 fi
 %if 0%{?with_python3}
-if [ -f %{_bindir}/${file}-%{python3_version} ]; then
-%__ln_s %{_bindir}/${file}-%{python3_version}  %{_bindir}/$file
+if [ -f %{_bindir}/%{pypi_alternate1}-%{python3_version} ]; then
+%__ln_s %{_bindir}/%{pypi_alternate1}-%{python3_version}  %{_bindir}/%{pypi_alternate1}
 fi
 %endif
-done
 
 %if 0%{?with_python3}
 %post -n python3-%{pypi_name}
-for file in %{pypi_alternate1};do
-  if [ ! -f %{_bindir}/${file}-%{python_version} ];then
-    if [ -f %{_bindir}/$file ];then
-      %__rm -f  %{_bindir}/$file
+  if [ ! -f %{_bindir}/%{pypi_alternate1}-%{python_version} ];then
+    if [ -f %{_bindir}/%{pypi_alternate1} ];then
+      %__rm -f  %{_bindir}/%{pypi_alternate1}
     fi
-    %__ln_s %{_bindir}/${file}-%{python3_version}  %{_bindir}/$file
+    %__ln_s %{_bindir}/%{pypi_alternate1}-%{python3_version}  %{_bindir}/%{pypi_alternate1}
   fi
-done
 
 %postun -n python3-%{pypi_name}
-for file in %{pypi_alternate1};do
-  if [ ! -f %{_bindir}/${file}-%{python_version} ];then
-    if [ -f %{_bindir}/$file ];then
-      %__rm -f  %{_bindir}/$file
+  if [ ! -f %{_bindir}/%{pypi_alternate1}-%{python_version} ];then
+    if [ -f %{_bindir}/%{pypi_alternate1} ];then
+      %__rm -f  %{_bindir}/%{pypi_alternate1}
     fi
-    if [ -f %{_bindir}/${file}-%{python_version} ]; then
-      %__ln_s %{_bindir}/${file}-%{python_version}  %{_bindir}/$file
+    if [ -f %{_bindir}/%{pypi_alternate1}-%{python_version} ]; then
+      %__ln_s %{_bindir}/%{pypi_alternate1}-%{python_version}  %{_bindir}/%{pypi_alternate1}
     fi
   fi
-done
 %endif
-
-
 
 %clean
 [ "$RPM_BUILD_ROOT" != "/" ] && %__rm -rf $RPM_BUILD_ROOT
@@ -167,4 +140,5 @@ done
 %files -n python-%{pypi_name}
 %{python2_sitelib}/*
 %{_bindir}/*%{python_version}
+
 

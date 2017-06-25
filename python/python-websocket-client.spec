@@ -42,7 +42,7 @@ Obsoletes:      python3-%{pypi_name} < %{version}-%{release}
 BuildRequires:  python3-devel python3-rpm-macros python-srpm-macros python3-setuptools
 Requires: python3
 Requires: python3-six
-
+BuildArch:      noarch
 %description -n python3-%{pypi_name}
 %{summary} for Python 3
 

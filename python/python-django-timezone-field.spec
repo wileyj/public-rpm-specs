@@ -41,6 +41,7 @@ BuildRequires:  python3-devel python3-rpm-macros python-srpm-macros
 Requires: python3
 Requires: python3-django-timezone-field >= 1.8
 Requires: python3-pytz
+BuildArch:      noarch
 
 %description -n python3-%{pypi_name}
 %{summary} for Python 3

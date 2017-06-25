@@ -1,32 +1,32 @@
+%define checkout remotes/origin/2016.11
 %global with_python3 0
 %global with_git 0
 %global include_tests 0
 %define use_systemd 1
 %define pypi_name salt
-%define repo https://github.com/saltstack/%{pypi_name}
 
-%global pypi_version_test %(echo `curl -s https://pypi.python.org/pypi/%{pypi_name} | grep "<title>" | awk '{print $2}'`)
+%define pypi_version_test %(echo `curl -s https://pypi.python.org/pypi/%{pypi_name} | grep "<title>" | awk '{print $2}'`)
 %if "%{?pypi_version_test:%{pypi_version_test}}%{!?pypi_version_test:0}" == "of"
-%global pypi_version %(echo `curl -s https://pypi.python.org/pypi/%{pypi_name} | sed -n -e '/<table class="list">/{n;n;n;n;n;n;n;n;p;};h' | cut -d'"' -f2 | cut -d'/' -f4`)
-%global pypi_url https://pypi.python.org/pypi/%{pypi_name}/%{pypi_version}
-%global url https://pypi.python.org/pypi/%{pypi_name}/%{pypi_version}
+%define pypi_version %(echo `curl -s https://pypi.python.org/pypi/%{pypi_name} | sed -n -e '/<table class="list">/{n;n;n;n;n;n;n;n;p;};h' | cut -d'"' -f2 | cut -d'/' -f4`)
+%define pypi_url https://pypi.python.org/pypi/%{pypi_name}/%{pypi_version}
+%define url https://pypi.python.org/pypi/%{pypi_name}/%{pypi_version}
 %else
-%global pypi_version %{pypi_version_test}
-%global pypi_url https://pypi.python.org/pypi/%{pypi_name}
-%global repo https://pypi.python.org/pypi/%{pypi_name}
+%define pypi_version %{pypi_version_test}
+%define pypi_url https://pypi.python.org/pypi/%{pypi_name}
 %endif
+%define repo https://pypi.python.org/pypi/%{pypi_name}
+%define revision 1
+%define pypi_release %{revision}.%{?dist}
 
 %global pypi_summary %(echo `curl -s %{pypi_url} | grep '<meta name="description" content=' | cut -d'"' -f4`)
 
 %if 0%{?with_git}
+%define repo https://github.com/saltstack/%{pypi_name}
 %define pypi_version %(echo `curl -s %{repo}/releases | grep 'class="css-truncate-target"' | head -1 |  tr -d '\\-</span class="css-truncate-target">'`)
 %global revision %(echo `git ls-remote %{repo}.git  | head -1 | cut -f 1| cut -c1-7`)
 %define rel_version 1
 %define build_time %(echo `date +%s`)
 %define pypi_release git.%{build_time}.%{revision}.%{?dist}
-%else
-%global revision 1
-%define pypi_release %{revision}.%{?dist}
 %endif
 
 Name:       %{pypi_name}
@@ -60,14 +60,13 @@ BuildRequires: python3-mock
 BuildRequires: python3-libcloud
 BuildRequires: python3-argparse
 BuildRequires:  python3-M2Crypto
-
-Requires: python3-M2rypto
+Requires: python3-M2Crypto
 Requires: python3-Jinja2
 Requires: python3-msgpack
 Requires: python3-PyYAML
 Requires: python3-MarkupSafe
-Requires: python3-paramiko
 Requires: python3-requests
+Requires: python3-paramiko
 Requires: python3-tornado
 Requires: python3-futures
 Requires: python3-pycrypto
@@ -77,6 +76,10 @@ Requires: python3-singledispatch
 Requires: python3-certifi
 Requires: python3-backports_abc
 Requires: python3-six
+Requires: python3-M2Crypto
+Requires: python3-chardet
+Requires: python3-urllib3
+Requires: python3-idna
 
 %else
 Provides:   python-%{pypi_name} = %{version}
@@ -111,7 +114,11 @@ Requires: python-singledispatch
 Requires: python-certifi
 Requires: python-backports_abc
 Requires: python-six
-Requires:  python-M2Crypto
+Requires: python-M2Crypto
+Requires: python-chardet
+Requires: python-urllib3
+Requires: python-idna
+
 %endif
 Requires: zeromq
 BuildRequires: zeromq-devel
@@ -147,6 +154,9 @@ The Salt master is the central server to which all minions connect.
 Summary: Client component for Salt, a parallel remote execution system
 Group:   System Environment/Daemons
 Requires: %{name} = %{version}-%{release}
+Requires:   e2fsprogs 
+Requires:   python-boto3
+Requires:   python-pip
 Provides:   python-%{pypi_name}-minion = %{version}
 Provides:   %{pypi_name}-minion = %{version}
 
@@ -205,8 +215,11 @@ fi
 if [ -d %{buildroot} ]; then
     rm -rf %{buildroot}
 fi
+%if 0%{?with_git}
 git clone %{repo} %{name}-%{version}
 cd %{name}-%{version}
+git checkout %{checkout}
+
 git submodule init
 git submodule update
 %if 0%{?with_python3}
@@ -216,17 +229,24 @@ cp -a . %{py3dir}
 rm -rf %{py2dir}
 cp -a . %{py2dir}
 %endif
+%else
+curl -o $RPM_SOURCE_DIR/%{name}.tar.gz `curl -s %{pypi_url} | grep tar.gz | cut -d '"' -f2 | cut -f1 -d "#" | tail -2 | grep 1`
+tar -xzvf $RPM_SOURCE_DIR/%{name}.tar.gz
+%__rm -f $RPM_SOURCE_DIR/%{name}.tar.gz
+#mv %{_builddir}/%{pypi_name}-%{version} %{_builddir}/%{name}-%{version}
+%endif
+
 
 %build
 cd $RPM_BUILD_DIR/%{name}-%{version}
 %if 0%{?with_python3}
-pushd %{py3dir}
+#pushd %{py3dir}
 %{__python3} setup.py build
-popd
+#popd
 %else
-pushd %{py2dir}
+#pushd %{py2dir}
 %{__python2} setup.py build
-popd
+#popd
 %endif
 
 %install
@@ -234,15 +254,15 @@ cd $RPM_BUILD_DIR/%{name}-%{version}
 
 
 %if 0%{?with_python3}
-pushd %{py3dir}
+#pushd %{py3dir}
 %{__python3} setup.py install -O1 --skip-build --root $RPM_BUILD_ROOT
 find %{buildroot}%{_prefix} -type d -depth -exec rmdir {} \; 2>/dev/null
-popd
+#popd
 %else
-pushd %{py2dir}
+#pushd %{py2dir}
 %{__python2} setup.py install -O1 --skip-build --root $RPM_BUILD_ROOT
 find %{buildroot}%{_prefix} -type d -depth -exec rmdir {} \; 2>/dev/null
-popd
+#popd
 %endif
 
 install -d -m 0755 %{buildroot}%{_var}/cache/%{name}

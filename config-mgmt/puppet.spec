@@ -40,7 +40,7 @@ Packager:       %{packager}
 Vendor:         %{vendor}
 URL:            http://puppetlabs.com
 Group:          System Environment/Base
-BuildRequires:  ruby >= 2.2 git facter
+BuildRequires:  ruby >= 2.2 git facter hiera
 Requires:       ruby >= 2.2 rubygem-ruby-shadow rubygem-json facter >= 3.1 hiera >= 3.0.0 shadow-utils rubygem-ast rubygem-hashdiff rubygem-json-schema rubygem-metaclass rubygem-msgpack rubygem-powerpack rubygem-puppet-lint rubygem-rspec-support rubygem-racc rubygem-redcarpet rubygem-ruby-progressbar rubygem-ruby-prof rubygem-vcr rubygem-yard rubygem-puppet-syntax rubygem-parser rubygem-hiera rubygem-rdoc rubygem-mocha rubygem-astrolabe rubygem-webmock rubygem-rspec-collection_matchers rubygem-rspec-its rubygem-rspec rubygem-rubocop rubygem-rspec-puppet rubygem-rspec-legacy_formatters rubygem-yarjuf rubygem-puppetlabs_spec_helper rubygem-librarian-puppet ruby-augeas puppetdb-termini
 BuildArch:      noarch
 Source1:        puppet.conf
@@ -356,10 +356,12 @@ fi
 %{rubylibdir}/hiera_puppet.rb
 %{rubylibdir}/puppet.rb
 %{rubylibdir}/puppet_x.rb
-%{rubylibdir}/semver.rb
+#%{rubylibdir}/semver.rb
 %attr(0755, puppet, puppet) %{_app_bindir}/%{name}
-%attr(0755, puppet, puppet) %{_app_bindir}/extlookup2hiera
-%{_sym_bindir}/extlookup2hiera
+#%attr(0755, puppet, puppet) %{_app_bindir}/extlookup2hiera
+%attr(0755, puppet, puppet)  /etc/puppetlabs/puppet/hiera.yaml
+%attr(0755, puppet, puppet)  /opt/puppetlabs/bin/extlookup2hiera
+#%{_sym_bindir}/extlookup2hiera
 %{_sym_bindir}/%{name}
 %{_bindir}/%{name}
 %{_bindir}/extlookup2hiera
@@ -401,7 +403,7 @@ fi
 # man pages
 %{_mandir}/man5/%{name}*
 %{_mandir}/man8/%{name}*
-%{_mandir}/man8/extlookup2hiera.8.gz
+#%{_mandir}/man8/extlookup2hiera.8.gz
 
 # These need to be owned by puppet so the server can
 # write to them. The separate %defattr's are required

@@ -1,6 +1,6 @@
 Name:           python-rpm-macros
-Version:        3
-Release:        11.%{?dist}
+Version:        4
+Release:        1.%{?dist}
 Summary:        The unversioned Python RPM macros
 
 License:        MIT

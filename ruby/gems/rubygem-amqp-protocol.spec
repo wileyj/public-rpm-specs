@@ -2,7 +2,7 @@
 %define repo https://rubygems.org/api/v1/gems
 %global gem_version %(echo `curl -s %{repo}/%{gem_name}.json | jq '.version' | tr -d '"'`)
 #%global gem_summary %( echo ` curl -s %{repo}/%{gem_name}.json | jq '.info' | sed -e 's/\\n/ /g' | tr -d '"'`)
-%global gem_summary 'rubygeem %{gem_name}'
+%global gem_summary 'rubygem %{gem_name}'
 
 Name: rubygem-%{gem_name}
 Version: %{gem_version}

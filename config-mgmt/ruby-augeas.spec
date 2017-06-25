@@ -2,7 +2,7 @@
 %global gemname ruby-augeas
 %global gemdesc %(echo `gem list ^%{gemname}$ -r -d | tail -1`)
 %global remoteversion %(echo `gem list ^%{gemname}$ -r |  cut -f2 -d" " | tr -d '()'`)
-%include %{_rpmconfigdir}/macros.d/macros.rubygems
+#%include %{_rpmconfigdir}/macros.d/macros.rubygems
 
 Summary: %{gemdesc}
 Name: %{gemname}
@@ -12,16 +12,14 @@ Group: Development/Languages
 License: Ruby
 Vendor: %{vendor}
 Packager: %{packager}
-Requires: ruby rubygems puppet
-BuildRequires: rubygems rubygems-devel 
+Requires: ruby rubygems puppet augeas
+BuildRequires: rubygems rubygems-devel augeas-devel
 BuildRequires: ruby ruby-devel gmp-devel
 BuildArch: x86_64
 Provides: rubygem-%{gemname} %{gemname}
 
 %description
 %{summary}
-
-
 
 %prep
 if [ -d %{name}-%{version} ];then

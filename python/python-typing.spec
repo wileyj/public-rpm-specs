@@ -46,6 +46,7 @@ Requires: python3-requests
 Requires: python3-six
 Requires: python3-websocket-client
 Requires: python3
+BuildArch:      noarch
 
 %description -n python3-%{pypi_name}
 %{summary} for Python 3

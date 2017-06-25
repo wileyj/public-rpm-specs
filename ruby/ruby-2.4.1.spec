@@ -1,6 +1,6 @@
 %global major_version 2
 %global minor_version 4
-%global teeny_version 0
+%global teeny_version 1
 %global patch_level 59
 %global major_minor_version %{major_version}.%{minor_version}
 %global ruby_version %{major_minor_version}.%{teeny_version}
@@ -17,17 +17,17 @@
 %global rubygems_version 2.2.2
 %global rubygems_dir %{_datadir}/rubygems
 %global irb_version %{ruby_version}
-%global bigdecimal_version 1.2.8
-%global did_you_mean_version 1.0.0
-%global io_console_version 0.4.5
-%global json_version 1.8.3
-%global minitest_version 5.8.3
-%global power_assert_version 0.2.6
-%global psych_version 2.0.17
-%global rake_version 10.4.2
-%global rdoc_version 4.2.1
+%global bigdecimal_version 1.3.0
+%global did_you_mean_version 1.1.0
+%global io_console_version 0.4.6
+%global json_version 2.0.2
+%global minitest_version 5.10.1
+%global power_assert_version 0.4.1
+%global psych_version 2.2.2
+%global rake_version 12.0.0
+%global rdoc_version 5.0.0
 %global net_telnet_version 0.1.1
-%global test_unit_version 3.1.5
+%global test_unit_version 3.2.3
 %global tapset_root %{_datadir}/systemtap
 %global tapset_dir %{tapset_root}/tapset
 %global tapset_libdir %(echo %{_libdir} | sed 's/64//')*
@@ -56,8 +56,8 @@ Source7: config.h
 Source8: rubygems.attr
 Source9: rubygems.req
 Source10: rubygems.prov
-%include %SOURCE4
-%include %SOURCE5
+#%include %SOURCE4
+#%include %SOURCE5
 
 Patch0: ruby-2.3.0-ruby_version.patch
 Patch1: ruby-2.1.0-Prevent-duplicated-paths-when-empty-version-string-i.patch
@@ -75,7 +75,7 @@ BuildRequires: libffi-devel
 BuildRequires: openssl-devel
 BuildRequires: libyaml-devel
 BuildRequires: readline-devel
-BuildRequires: tk-devel
+#BuildRequires: tk-devel
 BuildRequires: procps
 BuildRequires: %{_bindir}/dtrace
 BuildRequires: %{_bindir}/git
@@ -426,15 +426,15 @@ ln -s %{_bindir}/%{name}-%{ruby_version} %{buildroot}%{_bindir}/%{name}
 # http://bugs.ruby-lang.org/issues/7807
 sed -i 's/Version: \${ruby_version}/Version: %{ruby_version}/' %{buildroot}%{_libdir}/pkgconfig/%{name}.pc
 
-# Kill bundled certificates, as they should be part of ca-certificates.
-for cert in \
-  Class3PublicPrimaryCertificationAuthority.pem \
-  DigiCertHighAssuranceEVRootCA.pem \
-  EntrustnetSecureServerCertificationAuthority.pem \
-  GeoTrustGlobalCA.pem
-do
-  rm %{buildroot}%{rubygems_dir}/rubygems/ssl_certs/$cert
-done
+## Kill bundled certificates, as they should be part of ca-certificates.
+#for cert in \
+#  Class3PublicPrimaryCertificationAuthority.pem \
+#  DigiCertHighAssuranceEVRootCA.pem \
+#  EntrustnetSecureServerCertificationAuthority.pem \
+#  GeoTrustGlobalCA.pem
+#do
+#  rm %{buildroot}%{rubygems_dir}/rubygems/ssl_certs/$cert
+#done
 
 # Move macros file insto proper place and replace the %%{name} macro, since it
 # would be wrongly evaluated during build of other packages.
@@ -558,7 +558,7 @@ gem update --system --no-rdoc --no-ri
 %{_mandir}/man1/ruby*
 
 # http://fedoraproject.org/wiki/Packaging:Guidelines#Packaging_Static_Libraries
-%exclude %{_libdir}/libruby-static.a
+#%exclude %{_libdir}/libruby-static.a
 
 %files devel
 %doc BSDL
@@ -591,10 +591,10 @@ gem update --system --no-rdoc --no-ri
 # Platform independent libraries.
 %dir %{ruby_libdir}
 %{ruby_libdir}/*.rb
-%exclude %{ruby_libdir}/*-tk.rb
+#%exclude %{ruby_libdir}/*-tk.rb
 %exclude %{ruby_libdir}/irb.rb
-%exclude %{ruby_libdir}/tcltk.rb
-%exclude %{ruby_libdir}/tk*.rb
+#%exclude %{ruby_libdir}/tcltk.rb
+#%exclude %{ruby_libdir}/tk*.rb
 %exclude %{ruby_libdir}/psych.rb
 %{ruby_libdir}/cgi
 %{ruby_libdir}/digest
@@ -613,13 +613,20 @@ gem update --system --no-rdoc --no-ri
 %{ruby_libdir}/rss
 %{ruby_libdir}/shell
 %{ruby_libdir}/syslog
-%exclude %{ruby_libdir}/tk
-%exclude %{ruby_libdir}/tkextlib
+#%exclude %{ruby_libdir}/tk
+#%exclude %{ruby_libdir}/tkextlib
 %{ruby_libdir}/unicode_normalize
 %{ruby_libdir}/uri
 %{ruby_libdir}/webrick
-%{ruby_libdir}/xmlrpc
+#%{ruby_libdir}/xmlrpc
 %{ruby_libdir}/yaml
+%{gem_dir}/gems/xmlrpc-*
+#%{ruby_libarchdir}/forwardable/impl.rb
+/usr/share/ruby/forwardable/impl.rb
+
+%{gem_dir}/specifications/xmlrpc*
+%{gem_dir}/specifications/default/openssl*
+%{ruby_libarchdir}/enc/windows*
 
 # Platform specific libraries.
 %{_libdir}/libruby.so.*
@@ -723,9 +730,9 @@ gem update --system --no-rdoc --no-ri
 %{ruby_libarchdir}/stringio.so
 %{ruby_libarchdir}/strscan.so
 %{ruby_libarchdir}/syslog.so
-%exclude %{ruby_libarchdir}/tcltklib.so
-%{ruby_libarchdir}/thread.so
-%exclude %{ruby_libarchdir}/tkutil.so
+#%exclude %{ruby_libarchdir}/tcltklib.so
+#%{ruby_libarchdir}/thread.so
+#%exclude %{ruby_libarchdir}/tkutil.so
 %{ruby_libarchdir}/zlib.so
 
 %{tapset_root}

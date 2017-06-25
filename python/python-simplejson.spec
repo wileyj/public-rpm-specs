@@ -21,7 +21,6 @@ Group:          Development/Languages
 License:        MIT
 URL:            %{pypi_url}
 Provides:       python-%{pypi_name} = %{version}-%{release}
-BuildArch:      x86_64
 Obsoletes:      python-%{pypi_name} < %{version}-%{release}
 Requires: python
 %if 0%{?with_python3}

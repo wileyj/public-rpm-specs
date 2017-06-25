@@ -40,6 +40,7 @@ Summary:        "%{pypi_summary}"
 Group:          Development/Languages
 Provides:       python3-%{pypi_name} = %{version}-%{release}
 Obsoletes:      python3-%{pypi_name} < %{version}-%{release}
+BuildArch:      noarch
 
 %description -n python3-%{pypi_name}
 %{summary} for Python 3

@@ -1,5 +1,6 @@
 %global with_python3 1
 %define pypi_name python-dateutil
+%define pypi3_name python3-dateutil
 %define pypi_alternate dateutil
 
 
@@ -15,7 +16,7 @@
 %endif
 %global pypi_summary %(echo `curl -s %{pypi_url} | grep '<meta name="description" content=' | cut -d'"' -f4`)
 
-Name:           python-%{pypi_name}
+Name:           %{pypi_name}
 Version:        %{pypi_version}
 Release:        1.%{?dist}
 Summary:        "%{pypi_summary}"
@@ -33,7 +34,7 @@ Requires: python
 %{summary} for Python
 
 %if 0%{?with_python3}
-%package -n python3-%{pypi_name}
+%package -n %{pypi3_name}
 Summary:        "%{pypi_summary}"
 Group:          Development/Languages
 Provides:       python3-%{pypi_name} = %{version}-%{release}
@@ -42,9 +43,8 @@ Obsoletes:      python3-%{pypi_name} < %{version}-%{release}
 BuildRequires:  python3-devel python3-rpm-macros python-srpm-macros
 Requires: python3
 Requires: python3-six
-BuildArch:      noarch
 
-%description -n python3-%{pypi_name}
+%description -n %{pypi3_name}
 %{summary} for Python 3
 
 %endif
@@ -56,7 +56,7 @@ if [ -d %{_builddir}/%{name}-%{version} ];then
 fi
 curl -o $RPM_SOURCE_DIR/%{name}.tar.gz `curl -s %{pypi_url} | grep tar.gz | cut -d '"' -f2 | cut -f1 -d "#" | tail -2 | grep 1`
 tar -xzvf $RPM_SOURCE_DIR/%{name}.tar.gz
-mv %{_builddir}/%{pypi_name}-%{version} %{_builddir}/%{name}-%{version}
+#mv %{_builddir}/%{pypi_name}-%{version} %{_builddir}/%{name}-%{version}
 chmod -R u+w %{_builddir}/%{name}-%{version}
 cd $RPM_BUILD_DIR/%{name}-%{version}
 
@@ -107,7 +107,7 @@ popd
 
 
 %if 0%{?with_python3}
-%files -n python3-%{pypi_name}
+%files -n %{pypi3_name}
 %{python3_sitelib}/*
 %endif
 

@@ -42,7 +42,7 @@ cd %{name}-%{version}
 rm -rf %{buildroot}
 mkdir release && cd release
 %{__mkdir_p} %{buildroot}%{_includedir}
-cmake -DCMAKE_INSTALL_PREFIX=/usr ..
+cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_CXX_FLAGS="-I /usr/include/leatherman/vendor" ..
 make
 make DESTDIR=%{buildroot} INSTALL="install -p" install
 %__mv %{buildroot}/usr/lib %{buildroot}%{_libdir}
