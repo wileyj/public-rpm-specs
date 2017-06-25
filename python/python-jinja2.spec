@@ -26,7 +26,8 @@ Provides:       python-%{pypi_name} = %{version}-%{release}
 Provides:       python-%{pypi_alternate} = %{version}-%{release}
 Obsoletes:      python-%{pypi_name} < %{version}-%{release}
 BuildRequires:  python-devel python2-rpm-macros python-srpm-macros 
-Requires: python-MarkupSafe
+Requires: python-MarkupSafe 
+BuildRequires: python-setuptools
 Requires: python
 BuildArch:      noarch
 
@@ -42,7 +43,9 @@ Provides:       python3-%{pypi_alternate} = %{version}-%{release}
 Obsoletes:      python3-%{pypi_name} < %{version}-%{release}
 BuildRequires:  python3-devel python3-rpm-macros python-srpm-macros
 Requires: python3-MarkupSafe
+BuildRequires: python3-setuptools
 Requires: python3
+BuildArch:      noarch
 
 %description -n python3-%{pypi_name}
 %{summary} for Python 3

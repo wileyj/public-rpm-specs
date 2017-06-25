@@ -23,7 +23,6 @@ URL:            %{pypi_url}
 Provides:       python-%{pypi_name} = %{version}-%{release}
 Obsoletes:      python-%{pypi_name} < %{version}-%{release}
 BuildRequires:  python-devel python2-rpm-macros python-srpm-macros 
-BuildArch:      x86_64
 Requires: python
 
 %description

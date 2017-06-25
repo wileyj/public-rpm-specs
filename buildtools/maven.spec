@@ -1,3 +1,5 @@
+AutoReqProv: no
+%define bootstrap 1
 %define repo https://github.com/apache/maven
 %define gitversion %(echo `curl -s %{repo}/releases | grep 'class="tag-name"' | head -1 |  tr -d '\\-</span class="tag-name">maven-'`)
 %global revision %(echo `git ls-remote %{repo}.git  | head -1 | cut -f 1 | cut -c1-7`)
@@ -17,9 +19,13 @@ License:        Apache
 Vendor: 	%{vendor}
 Packager: 	%{packager}
 Group:          Application/Web
+%if 1%{?bootstrap}
 # require the binary apache-maven package, since mvn is required to build maven. of course it is. 
 BuildRequires:	apache-maven
-#Obsoletes:	apache-maven
+%endif
+
+Obsoletes:	apache-maven
+Requires:	glibc-devel
 
 %description
 Maven is a software project management and comprehension tool. Based on

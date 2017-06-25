@@ -37,7 +37,7 @@ Group:          Development/Languages
 Provides:       python3-%{pypi_name} = %{version}-%{release}
 Obsoletes:      python3-%{pypi_name} < %{version}-%{release}
 BuildRequires:  python3-devel python3-rpm-macros python-srpm-macros
-
+BuildArch:      noarch
 Requires: python3-six
 Requires: python3
 %description -n python3-%{pypi_name}

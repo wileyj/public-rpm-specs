@@ -48,7 +48,6 @@ Python 2 bindings for the hawkey library.
 %if 0%{with_python3}
 %package -n python3-%{name}
 Summary:        Python 3 bindings for the hawkey library
-%{?system_python_abi}
 Provides:	python3-%{name} = %{version}
 BuildRequires:  python3-pygpgme
 BuildRequires:  python3-devel

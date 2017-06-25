@@ -31,7 +31,7 @@ git submodule update
 
 %build
 cd %{name}-%{version}
-./bootstrap.sh
+#./bootstrap.sh
 ./autogen.sh
 ./configure
 make %{?_smp_mflags}

@@ -49,6 +49,7 @@ Requires: python3-billiard
 Requires: python3-kombu
 Requires: python3-amqp
 Requires: python3-vine
+BuildArch:      noarch
 
 %description -n python3-%{pypi_name}
 %{summary} for Python 3

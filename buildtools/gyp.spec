@@ -75,6 +75,12 @@ find %{buildroot}%{_prefix} -type d -depth -exec rmdir {} \; 2>/dev/null
 popd
 %endif
 
+%__mkdir_p %{buildroot}/%{_bindir}
+%__install -m0755 gyp %{buildroot}%{_bindir}/%{pypi_name}
+%if 0%{?with_python3}
+%__install -m0755 gyp %{buildroot}%{_bindir}/%{pypi_name}3
+%endif
+
 %clean
 [ "$RPM_BUILD_ROOT" != "/" ] && %__rm -rf $RPM_BUILD_ROOT
 [ "%{buildroot}" != "/" ] && %__rm -rf %{buildroot}
@@ -89,6 +95,7 @@ popd
 %{_bindir}/%{pypi_name}*
 %if 0%{?with_python3}
 %{python3_sitelib}/*
+%{_bindir}/%{pypi_name}3
 %else
 %{python2_sitelib}/*
 %endif

@@ -25,7 +25,6 @@ Obsoletes:      python-%{pypi_name} < %{version}-%{release}
 BuildRequires:  python-devel python2-rpm-macros python-srpm-macros 
 BuildRequires:  gpgme-devel
 Requires: python-six
-BuildArch: x86_64
 %filter_provides_in %{python_sitearch}/gpgme/_gpgme.so
 Requires: python
 

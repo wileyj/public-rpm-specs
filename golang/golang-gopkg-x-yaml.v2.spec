@@ -1,5 +1,5 @@
 #%define repo https://github.com/go-yaml/yaml
-%define repo            https://%{provider}.%{provider_tld}/%{repo_owner}/%{project}
+%define repo            https://%{provider}.%{provider_tld}/%{project}
 %global provider        gopkg
 %global provider_tld    in
 %global repo_owner      x

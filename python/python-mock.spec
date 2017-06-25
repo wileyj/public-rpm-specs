@@ -44,6 +44,7 @@ Requires: python3
 Requires: python3-funcsigs
 Requires: python3-pbr
 Requires: python3-six
+BuildArch:      noarch
 
 %description -n python3-%{pypi_name}
 %{summary} for Python 3

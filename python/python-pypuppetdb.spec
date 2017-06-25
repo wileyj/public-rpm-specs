@@ -25,9 +25,6 @@ BuildArch:      noarch
 Obsoletes:      python-%{pypi_name} < %{version}-%{release}
 Requires: python
 Requires: python-requests
-%if 0%{?with_python3}
-BuildRequires:  python3-devel
-%endif
 BuildRequires:  python-devel
 
 %description
@@ -41,6 +38,8 @@ Provides:       python3-%{pypi_name} = %{version}-%{release}
 Obsoletes:      python3-%{pypi_name} < %{version}-%{release}
 Requires: python3
 Requires: python3-requests
+BuildRequires:  python3-devel
+BuildArch:      noarch
 
 %description -n python3-%{pypi_name}
 %{summary} for Python 3

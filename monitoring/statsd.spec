@@ -35,10 +35,10 @@ ExclusiveArch: %{ix86} x86_64 %{arm} noarch
 %endif
 
 BuildRequires:  dos2unix
-BuildRequires:  nodejs-packaging
-BuildRequires:  nodeunit
-BuildRequires:  npm(temp)
-BuildRequires:  npm(underscore)
+BuildRequires:  nodejs-npm nodejs
+#BuildRequires:  nodeunit
+#BuildRequires:  npm(temp)
+#BuildRequires:  npm(underscore)
 
 Requires(pre):  shadow-utils
 

@@ -20,7 +20,7 @@ Vendor: 	%{vendor}
 Packager: 	%{packager}
 BuildRoot:	%{_tmppath}/build-%{name}-%{version}
 Obsoletes:  	hudson
-BuildRequires:	apache-maven
+BuildRequires:	maven
 Requires:	/usr/sbin/lgroupadd /usr/sbin/luseradd jdk jenkins-blueocean
 BuildArch:	x86_64
 

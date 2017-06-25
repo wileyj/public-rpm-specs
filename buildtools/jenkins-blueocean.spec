@@ -1,11 +1,11 @@
 %define repo https://github.com/jenkinsci/blueocean-plugin
 %define jb_prefix	/opt/%{name}
-%define gitversion %(echo `curl -s %{repo}/releases | grep 'class="tag-name"' | head -1 |  tr -d '\\-</span class="tag-name">'`)
+%define gitversion %(echo `curl -s %{repo}/releases | grep 'class="tag-name"' | head -1 |  tr -d 'blueocean-parent\\-</span class="tag-name">'`)
 %global revision %(echo `git ls-remote %{repo}.git  | head -1 | cut -f 1 | cut -c1-7`)
 %define rel_version 1
 
 Name:		jenkins-blueocean
-Version:	162
+Version:	%{gitversion}
 Release:	%{rel_version}.%{revision}.%{dist}
 Summary:	Continous Build Server UI
 URL:		http://jenkins-ci.org/
@@ -14,7 +14,7 @@ License:	MIT/X License, GPL/CDDL, ASL2
 Vendor: 	%{vendor}
 Packager: 	%{packager}
 BuildRoot:	%{_tmppath}/build-%{name}-%{version}
-BuildRequires:	apache-maven nodejs
+BuildRequires:	maven nodejs
 Requires: jenkins
 Requires:	maven nodejs
 Requires: %{name}-bin
@@ -144,7 +144,7 @@ git submodule update
 
 %build
 cd %{name}-%{version}
-/opt/apache-maven/bin/mvn clean install -DskipTests
+/opt/maven/bin/mvn clean install -DskipTests
 
 %install
 cd %{name}-%{version}
@@ -177,7 +177,7 @@ cp -pa bin/* %{buildroot}%{jb_prefix}/bin/
 %__install -m0644 Dockerfile %{buildroot}%{jb_prefix}/Dockerfile
 %__install -m0644 Jenkinsfile %{buildroot}%{jb_prefix}/Jenkinsfile
 %__install -m0644 LICENSE.txt %{buildroot}%{jb_prefix}/LICENSE.txt
-%__install -m0644 logo-yarrr.png %{buildroot}%{jb_prefix}/logo-yarrr.png 
+%__install -m0644 docu/pix/logo-yarrr.png %{buildroot}%{jb_prefix}/logo-yarrr.png 
 %__install -m0644 pom.xml %{buildroot}%{jb_prefix}/pom.xml
 %__install -m0644 PULL_REQUEST_TEMPLATE %{buildroot}%{jb_prefix}/PULL_REQUEST_TEMPLATE
 %__install -m0644 README.md %{buildroot}%{jb_prefix}/README.md
@@ -274,6 +274,7 @@ cp -pa blueocean-web/target/frontend %{buildroot}%{jb_prefix}/blueocean-web/
 %attr(0755,root,root) %{jb_prefix}/bin/setup.sh  
 %attr(0755,root,root) %{jb_prefix}/bin/start.sh
 %attr(0644,root,root) %{jb_prefix}/bin/package.json  
+%attr(0755,root,root) %{jb_prefix}/bin/ncuUpdate
 
 %files -n %{name}-commons
 %defattr(-,jenkins,jenkins)

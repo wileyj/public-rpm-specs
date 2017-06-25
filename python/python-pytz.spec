@@ -21,9 +21,9 @@ Group:          Development/Languages
 License:        MIT
 URL:            %{pypi_url}
 Provides:       python-%{pypi_name} = %{version}-%{release}
-BuildArch:      noarch
 Obsoletes:      python-%{pypi_name} < %{version}-%{release}
 BuildRequires:  python-devel python2-rpm-macros python-srpm-macros 
+BuildArch:      noarch
 Requires: python
 %description
 %{summary} for Python
@@ -36,7 +36,7 @@ Provides:       python3-%{pypi_name} = %{version}-%{release}
 Obsoletes:      python3-%{pypi_name} < %{version}-%{release}
 BuildRequires:  python3-devel python3-rpm-macros python-srpm-macros
 Requires: python3
-
+BuildArch:      noarch
 %description -n python3-%{pypi_name}
 %{summary} for Python 3
 
@@ -47,8 +47,8 @@ Requires: python3
 if [ -d %{_builddir}/%{name}-%{version} ];then
     rm -rf %{_builddir}/%{name}-%{version}
 fi
-curl -o $RPM_SOURCE_DIR/%{name}.tar.gz `curl -s %{pypi_url} | grep tar.gz | cut -d '"' -f2 | cut -f1 -d "#" | tail -2 | grep 1`
-tar -xzvf $RPM_SOURCE_DIR/%{name}.tar.gz
+curl -o pytz-2017.2.zip https://pypi.python.org/packages/a4/09/c47e57fc9c7062b4e83b075d418800d322caa87ec0ac21e6308bd3a2d519/pytz-2017.2.zip
+unzip $RPM_BUILD_DIR/pytz-2017.2.zip
 mv %{_builddir}/%{pypi_name}-%{version} %{_builddir}/%{name}-%{version}
 chmod -R u+w %{_builddir}/%{name}-%{version}
 cd $RPM_BUILD_DIR/%{name}-%{version}

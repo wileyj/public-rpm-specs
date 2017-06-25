@@ -1,13 +1,10 @@
-# https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-amazon-3.2.0.tgz
-# https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-rhel70-3.2.0.tgz
-
 %define lver amazon
 %define lver rhel70
 %define app_dir /opt/%{name}/product/%{version}
 
 Summary: Mongo DB Binary Builds
 Name: mongodb
-Version: 3.2.9
+Version: 3.4.5
 Release: 1.%{dist}
 License: GPL
 Vendor: %{vendor}
@@ -76,6 +73,7 @@ mkdir -p %{buildroot}%{app_dir}
 %{app_dir}/mongos
 %{app_dir}/mongostat
 %{app_dir}/mongooplog
+%{app_dir}/mongoreplay
 
 %changelog
 * Tue Jun 16 2015 Jesse Wiley <jesse@risingtidegames.com> 3.0.4-1

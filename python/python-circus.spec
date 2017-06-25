@@ -59,6 +59,7 @@ Requires: python3-singledispatch
 Requires: python3-certifi
 Requires: python3-backports_abc >= 0.4
 Requires: python3-six
+BuildArch:      noarch
 
 %description -n python3-%{pypi_name}
 %{summary} for Python 3

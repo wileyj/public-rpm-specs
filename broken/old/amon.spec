@@ -2,7 +2,7 @@
 # useradd --system --user-group --key USERGROUPS_ENAB=yes -M amon --shell /bin/false -d /etc/opt/amon
 
 
-%define git_repo https://github.com/amonapp/amon
+%define repo https://github.com/amonapp/amon
 %define git_version %(echo `curl -s  %{repo}/releases | grep 'class="css-truncate-target"' | head -1 |  tr -d '\\-</span class="css-truncate-target">'`)
 %global git_revision %(echo `git ls-remote %{repo}.git  | head -1 | cut -f 1| cut -c1-7`)
 %define git_summary        %(echo `curl -s %{repo} | grep "<title>" | cut -f2 -d ":" | sed 's|</title>||'`)

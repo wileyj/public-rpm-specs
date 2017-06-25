@@ -37,7 +37,8 @@ fi
 %build
 export GOPATH=%{buildroot}%{gopath}
 
-go get -d -t -u %{import_path}/...
+#go get -d -t -u %{import_path}/...
+go get %{import_path}
 for pkg_dir in `find %{buildroot}%{gopath}/pkg/linux_amd64/ -maxdepth 2 \
 ! -path %{buildroot}%{gopath}/pkg/linux_amd64/ \
 ! -path %{buildroot}%{gopath}/pkg/linux_amd64/%{provider}.%{provider_tld} \

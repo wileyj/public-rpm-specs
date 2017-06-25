@@ -13,6 +13,7 @@ Vendor: %{vendor}
 Packager: %{packager}
 Group:          Application/Web
 BuildRoot:  %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+Provides:	maven
 Source0:        %{name}-%{version}-bin.tar.gz
 Source1:        maven_path.sh
 
@@ -30,6 +31,12 @@ cp -R . %{buildroot}/%{_prefix}
 
 %__ln_s -f %{_prefix} %{buildroot}%{_symlink}
 
+%__mkdir_p  %{buildroot}/etc/profile.d
+cat <<EOF> %{buildroot}/etc/profile.d/maven.sh
+export MAVEN_OPTS="-Xmx512m -Xms256m -XX:MaxPermSize=256m"
+export MAVEN_HOME="%{_prefix}"
+EOF
+
 %clean
 [ "$RPM_BUILD_ROOT" != "/" ] && %__rm -rf $RPM_BUILD_ROOT
 [ "%{buildroot}" != "/" ] && %__rm -rf %{buildroot}
@@ -41,4 +48,4 @@ cp -R . %{buildroot}/%{_prefix}
 %dir %{_prefix}
 %{_prefix}/*
 %{_symlink}
-
+/etc/profile.d/maven.sh

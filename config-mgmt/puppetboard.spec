@@ -155,4 +155,4 @@ fi
 %{_appdir}/*
 
 %files libs -f %{name}-%{version}/%{filelist}
-
+/usr/lib/python2.7/site-packages/test/*

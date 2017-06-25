@@ -229,8 +229,8 @@ This plugin collects data from IPVS.
 Summary:       Java bindings for collectd
 Group:         System Environment/Daemons
 Requires:      %{name}%{?_isa} = %{version}-%{release}
-BuildRequires: java-devel
-BuildRequires: jpackage-utils
+BuildRequires: jdk
+#BuildRequires: jpackage-utils
 %description java
 These are the Java bindings for collectd.
 
@@ -547,7 +547,8 @@ git clone %{git_repo} %{name}-%{version}
 
 %build
 cd %{name}-%{version}
-%configure \
+sh build.sh
+%configure CXXFLAGS="-I/usr/java/current/include/" \
     --disable-dependency-tracking \
     --disable-silent-rules \
     --without-included-ltdl \

@@ -1,19 +1,18 @@
-#%define repo https://github.com/golang/sys
+#%define repo https://github.com/golang/net
 %define repo            https://%{provider}.%{provider_tld}/%{repo_owner}/%{project}
 %global provider        golang
 %global provider_tld    org
 %global repo_owner      x 
 %global project         sys
 %global import_path     %{provider}.%{provider_tld}/%{repo_owner}/%{project}
-%define _summary        %(echo `curl -s %{repo} | grep "<title>" | cut -f2 -d ":" | sed 's|</title>||'`)
+%define _summary        'golang-x-sys'
 %define gitversion %(echo `date +%Y%m`)
 %define release_ver 1
-%global revision %(echo `git ls-remote %{repo}  | head -1 | cut -f 1 | cut -c1-7`)
-
+#%global revision %(echo `git ls-remote %{repo}  | head -1 | cut -f 1 | cut -c1-7`)
 
 Name:                   golang-%{provider}-%{repo_owner}-%{project}
 Version:                %{gitversion}
-Release:                %{release_ver}.%{revision}.%{dist}
+Release:                %{release_ver}.%{dist}
 Summary:                %{_summary}
 License:                Go License
 Vendor:                 %{vendor}
@@ -25,7 +24,8 @@ Provides:               %{name}
 Provides:               %{name}-devel
 Provides:               golang(%{import_path}) 
 Provides:               golang(%{import_path})-devel
-
+Requires:		golang-golang-x-text
+Requires:		golang-golang-x-crypto
 %description
 %{summary}
 
@@ -38,12 +38,6 @@ fi
 export GOPATH=%{buildroot}%{gopath}
 
 go get -d -t -u %{import_path}/...
-for pkg_dir in `find %{buildroot}%{gopath}/pkg/linux_amd64/ -maxdepth 2 \
-! -path %{buildroot}%{gopath}/pkg/linux_amd64/ \
-! -path %{buildroot}%{gopath}/pkg/linux_amd64/%{provider}.%{provider_tld} \
-! -path %{buildroot}%{gopath}/pkg/linux_amd64/%{provider}.%{provider_tld}/%{repo_owner}`; do
-    %__rm -rf ${pkg_dir}
-done
 
 for src_dir in `find %{buildroot}%{gopath}/src/ -maxdepth 2 \
 ! -path %{buildroot}%{gopath}/src/ \
@@ -63,6 +57,5 @@ fi
 
 %files
 %{gopath}/src/*
-%{gopath}/pkg/*
 
 %changelog

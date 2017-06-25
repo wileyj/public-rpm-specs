@@ -11,7 +11,7 @@ Group:          Development/Languages
 License:        BSD
 URL:            https://github.com/ninja-build/ninja
 
-BuildRequires:	python >= 2.4, python-argparse, gcc, gcc-c++
+BuildRequires:	python >= 2.4, python-argparse, gcc, gcc-c++, asciidoc
 
 %description
 a small build system with a focus on speed http://ninja-build.org/

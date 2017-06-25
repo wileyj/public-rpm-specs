@@ -1,7 +1,7 @@
 %global provider        github
 %global provider_tld    com
-%global project         docker
-%global git_repo            docker
+%global project         moby
+%global git_repo        moby
 %global vendorname kubernetes
 %global repo_url https://%{provider}.%{provider_tld}/%{project}/%{git_repo}
 %global revision %(echo `git ls-remote %{repo_url}.git  | head -1 | cut -f 1 | cut -c1-7`)

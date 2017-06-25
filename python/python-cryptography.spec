@@ -25,7 +25,6 @@ Obsoletes:      python-%{pypi_name} < %{version}-%{release}
 BuildRequires:  python-devel python2-rpm-macros python-srpm-macros  python-setuptools
 BuildRequires:  python-pycparser
 Requires: python-six
-BuildArch:      x86_64
 Requires: python-idna
 Requires: python-pyasn1
 Requires: python-six

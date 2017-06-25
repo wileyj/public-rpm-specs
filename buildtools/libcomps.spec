@@ -1,12 +1,12 @@
-%define repo https://github.com/rpm-software-management/librepo
+%define repo https://github.com/rpm-software-management/libcomps
 %define gitversion %(echo `curl -s  %{repo}/releases | grep 'class="tag-name"' | head -1 |  tr -d '\\-</span class="tag-name">bro'`)
 %global revision %(echo `git ls-remote %{repo}.git  | head -1 | cut -f 1| cut -c1-7`)
 %define rel_version 1
 
 %global with_python3 1
-%global with_tests 1
+%global with_tests 0
 
-Name:           librepo
+Name:           libcomps
 Version:        %{gitversion}
 Release:        1.%{?dist}
 Summary:        A library providing C and Python (libcURL like) API for downloading packages and linux repository metadata in rpm-md format
@@ -27,10 +27,10 @@ Summary:        Repodata downloading library
 Requires:       %{name}%{?_isa} = %{version}-%{release}
 
 %description -n %{name}-devel
-Development files for librepo.
+Development files for libcomps.
 
 %package -n python-%{name}
-Summary:        Python bindings for the librepo library
+Summary:        Python bindings for the libcomps library
 Provides:	python-%{name} = %{version}
 BuildRequires:  pygpgme
 BuildRequires:  python-devel
@@ -43,12 +43,11 @@ BuildRequires:  pyxattr
 Requires:       %{name}%{?_isa} = %{version}-%{release}
 
 %description -n python-%{name}
-Python 2 bindings for the librepo library.
+Python 2 bindings for the libcomps library.
 
 %if 0%{with_python3}
 %package -n python3-%{name}
-Summary:        Python 3 bindings for the librepo library
-%{?system_python_abi}
+Summary:        Python 3 bindings for the libcomps library
 Provides:	python3-%{name} = %{version}
 BuildRequires:  python3-pygpgme
 BuildRequires:  python3-devel
@@ -61,7 +60,7 @@ BuildRequires:  python3-pyxattr
 Requires:       %{name}%{?_isa} = %{version}-%{release}
 
 %description -n python3-%{name}
-Python 3 bindings for the librepo library.
+Python 3 bindings for the libcomps library.
 %endif
 
 %prep
@@ -74,63 +73,39 @@ mkdir build build-py3
 
 %build
 cd %{name}-%{version}
-pushd build
-  %cmake ..
-  %make_build
-popd
-
+pushd libcomps
 %if 0%{with_python3}
-pushd build-py3
-  %cmake -DPYTHON_DESIRED:str=3 ..
+  %cmake -DPYTHON_DESIRED:str=3 .
   %make_build
-popd
+%else
+  %cmake .
+  %make_build
 %endif
-
-%if 0%{with_tests}
-%check
-pushd build
-  #ctest -VV
-  make ARGS="-V" test
 popd
-
-%if 0%{with_python3}
-pushd build-py3
-  #ctest -VV
-  make ARGS="-V" test
-popd
-%endif
-%endif
 
 %install
 cd %{name}-%{version}
-pushd build
+pushd libcomps
   %make_install
 popd
-%if 0%{with_python3}
-pushd build-py3
-  %make_install
-popd
-%endif 
 %post -p /sbin/ldconfig
 
 %postun -p /sbin/ldconfig
 
 %files
-%license COPYING
-%doc README.md
 %{_libdir}/%{name}.so.*
 
 %files devel
 %{_libdir}/%{name}.so
-%{_libdir}/pkgconfig/%{name}.pc
+#%{_libdir}/pkgconfig/%{name}.pc
 %{_includedir}/%{name}/
-
-%files -n python-%{name}
-%{python2_sitearch}/%{name}/
 
 %if 0%{with_python3}
 %files -n python3-%{name}
 %{python3_sitearch}/%{name}/
+%else
+%files -n python-%{name}
+%{python2_sitearch}/%{name}/
 %endif
 
 %changelog

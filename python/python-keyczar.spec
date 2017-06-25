@@ -14,7 +14,7 @@
 %endif
 %global pypi_summary %(echo `curl -s %{pypi_url} | grep '<meta name="description" content=' | cut -d'"' -f4`)
 
-Name:           python-%{pypi_name}
+Name:           %{pypi_name}
 Version:        %{pypi_version}
 Release:        1.%{?dist}
 Summary:        "%{pypi_summary}"
@@ -44,6 +44,7 @@ BuildRequires:  python3-devel python3-rpm-macros python-srpm-macros
 Requires: python3
 Requires: python3-pycrypto
 Requires: python3-pyasn1
+BuildArch:      noarch
 
 %description -n python3-%{pypi_name}
 %{summary} for Python 3
@@ -56,7 +57,7 @@ if [ -d %{_builddir}/%{name}-%{version} ];then
 fi
 curl -o $RPM_SOURCE_DIR/%{name}.tar.gz `curl -s %{pypi_url} | grep tar.gz | cut -d '"' -f2 | cut -f1 -d "#" | tail -2 | grep 1`
 tar -xzvf $RPM_SOURCE_DIR/%{name}.tar.gz
-mv %{_builddir}/%{pypi_name}-%{version} %{_builddir}/%{name}-%{version}
+#mv %{_builddir}/%{pypi_name}-%{version} %{_builddir}/%{name}-%{version}
 chmod -R u+w %{_builddir}/%{name}-%{version}
 cd $RPM_BUILD_DIR/%{name}-%{version}
 

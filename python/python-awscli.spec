@@ -64,6 +64,7 @@ Requires: python3-jmespath
 Requires: python3-dateutil
 Requires: python3-pyasn1
 Requires: python3-six
+BuildArch:      noarch
 
 %description -n python3-%{pypi_name}
 %{summary} for Python 3

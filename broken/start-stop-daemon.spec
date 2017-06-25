@@ -1,0 +1,47 @@
+Name:		start-stop-daemon
+Version:	1.9.18
+Release:	1.%{dist}
+Summary:	A rewrite of the original Debian's start-stop-daemon Perl script in C
+
+Group:		System Environment/Base
+License:	Public Domain
+Packager: %{packager}
+Vendor: %{vendor}
+URL:		http://developer.axis.com/download/distribution
+Source0:	http://developer.axis.com/download/distribution/apps-sys-utils-start-stop-daemon-IR1_9_18-2.tar.gz
+BuildRoot:	%(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
+
+BuildRequires:	gcc
+
+%description
+A rewrite of the original Debian's start-stop-daemon Perl script
+in C (faster - it is executed many times during system startup).
+
+Can create a pidfiles for dumb programs
+
+%prep
+%setup -q -n apps
+
+%build
+cd sys-utils/start-stop-daemon-IR1_9_18-2
+gcc -o %{name} %{name}.c
+strip %{name}
+
+%install
+rm -rf %{buildroot}
+cd sys-utils/start-stop-daemon-IR1_9_18-2
+install -p -D -m 755 %{name} %{buildroot}/sbin/%{name}
+
+
+%clean
+[ "$RPM_BUILD_ROOT" != "/" ] && %__rm -rf $RPM_BUILD_ROOT
+[ "%{buildroot}" != "/" ] && %__rm -rf %{buildroot}
+[ "%{_builddir}/%{name}-%{version}" != "/" ] && %__rm -rf %{_builddir}/%{name}-%{version}
+[ "%{_builddir}/%{name}" != "/" ] && %__rm -rf %{_builddir}/%{name}
+
+%files
+%defattr(-,root,root,-)
+/sbin/%{name}
+
+%changelog
+

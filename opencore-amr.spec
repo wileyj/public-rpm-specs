@@ -1,5 +1,5 @@
 Name:           opencore-amr
-Version:        0.1.2
+Version:        0.1.5
 Release:        1.%{dist}
 Summary:        OpenCORE Adaptive Multi Rate Narrowband and Wideband speech lib
 Group:          System Environment/Libraries

@@ -32,7 +32,6 @@ Group:          Development/Languages
 License:        MIT
 URL:            %{pypi_url}
 Provides:       python-%{pypi_name} = %{version}-%{release}
-BuildArch:      x86_64
 Provides:       %{name} = %{version}-%{release}
 Provides:       %{name} = %{version}-%{release}
 Provides:       %{name}-runner

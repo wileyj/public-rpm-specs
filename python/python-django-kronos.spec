@@ -45,6 +45,7 @@ Requires: python3-django >= 1.7
 Requires: python3-crontab >= 1.9.0
 Requires: python3-six >= 1.9.0
 Requires: python3-dateutil
+BuildArch:      noarch
 
 %description -n python3-%{pypi_name}
 %{summary} for Python 3

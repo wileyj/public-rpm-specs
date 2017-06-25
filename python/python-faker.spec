@@ -48,6 +48,7 @@ Requires: python3
 Requires: python3-python-dateutil >= 2.4
 Requires: python3-six
 Requires: python3-ipaddress
+BuildArch:      noarch
 
 %description -n python3-%{pypi_name}
 %{summary} for Python 3

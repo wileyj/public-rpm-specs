@@ -1,6 +1,10 @@
+%define repo https://github.com/Graylog2/graylog2-server
+%define gitversion %(echo `curl -s %{repo}/releases | grep 'class="css-truncate-target"' | head -1 |  tr -d '\\-</span class="css-truncate-target">'`)
+%global revision %(echo `git ls-remote %{repo}.git  | head -1 | cut -f 1| cut -c1-7`)
+%define rel_version 1
+
 %define base_install_dir %{_javadir}{%name}
-%define __jar_repack %{nil
-}
+%define __jar_repack %{nil}
 Name:           graylog2-server
 Version:        0.20.2
 Release:        1.%{dist}
@@ -17,7 +21,7 @@ Source3:        log4j.xml
 Source4:	logrotate-%{name}
 BuildArch:      noarch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-
+Provides:	graylog graylog2
 Requires:       jpackage-utils
 Requires: 	logrotate
 
@@ -29,52 +33,58 @@ Requires(pre):  shadow-utils
 A distributed, highly available, RESTful search engine
 
 %prep
-%setup -q -n graylog2-server-0.20.2
-#we have to use a specific name here until graylog starts using real version number
+if [ -d %{name}-%{version} ];then
+    rm -rf %{name}-%{version}
+fi
+git clone %{repo} %{name}-%{version}
+cd %{name}-%{version}
+git submodule init
+git submodule update
 
 %build
-true
+cd %{name}-%{version}
 
 %install
-rm -rf $RPM_BUILD_ROOT
+cd %{name}-%{version}
+%__rm -rf $RPM_BUILD_ROOT
 # I know we can use -p to create the root directory, but this is more to
 # keep track of the required dir
-%{__mkdir} -p %{buildroot}/opt/graylog2/server
-%{__mkdir} -p %{buildroot}/opt/graylog2/server/bin
-%{__install} -p -m 755 graylog2-server.jar %{buildroot}/opt/graylog2/server
-%{__install} -p -m 755 bin/graylog2ctl %{buildroot}/opt/graylog2/server/bin/
+%__mkdir_p %{buildroot}/opt/graylog2/server
+%__mkdir_p %{buildroot}/opt/graylog2/server/bin
+%__install -p -m 755 graylog2-server.jar %{buildroot}/opt/graylog2/server
+%__install -p -m 755 bin/graylog2ctl %{buildroot}/opt/graylog2/server/bin/
 
 # config
-%{__mkdir} -p %{buildroot}%{_sysconfdir}/graylog2
-%{__install} -m 644 graylog2.conf.example %{buildroot}%{_sysconfdir}/graylog2/server.conf
+%__mkdir_p %{buildroot}%{_sysconfdir}/graylog2
+%__install -m 644 graylog2.conf.example %{buildroot}%{_sysconfdir}/graylog2/server.conf
 
 
 # logs
-%{__mkdir} -p %{buildroot}%{_localstatedir}/log/graylog2/web
-%{__mkdir} -p %{buildroot}/opt/graylog2/server/log
-%{__install} -p -m 644 %{SOURCE3} %{buildroot}/opt/graylog2/server/log4j.xml
+%__mkdir_p %{buildroot}%{_localstatedir}/log/graylog2/web
+%__mkdir_p %{buildroot}/opt/graylog2/server/log
+%__install} -p -m 644 %{SOURCE3} %{buildroot}/opt/graylog2/server/log4j.xml
 
 # plugins
-%{__mkdir} -p %{buildroot}/opt/graylog2/server/plugin/alarm_callbacks
-%{__mkdir} -p %{buildroot}/opt/graylog2/server/plugin/filters
-%{__mkdir} -p %{buildroot}/opt/graylog2/server/plugin/initializers
-%{__mkdir} -p %{buildroot}/opt/graylog2/server/plugin/inputs
-%{__mkdir} -p %{buildroot}/opt/graylog2/server/plugin/ouput
-%{__mkdir} -p %{buildroot}/opt/graylog2/server/plugin/transports
+%__mkdir_p %{buildroot}/opt/graylog2/server/plugin/alarm_callbacks
+%__mkdir_p %{buildroot}/opt/graylog2/server/plugin/filters
+%__mkdir_p %{buildroot}/opt/graylog2/server/plugin/initializers
+%__mkdir_p %{buildroot}/opt/graylog2/server/plugin/inputs
+%__mkdir_p %{buildroot}/opt/graylog2/server/plugin/ouput
+%__mkdir_p %{buildroot}/opt/graylog2/server/plugin/transports
 
 # sysconfig and init
-%{__mkdir} -p %{buildroot}%{_sysconfdir}/sysconfig
-%{__mkdir} -p %{buildroot}%{_sysconfdir}/init.d
-%{__mkdir} -p %{buildroot}%{_sysconfdir}/logrotate.d
-%{__install} -m 755 %{SOURCE1} %{buildroot}%{_sysconfdir}/init.d/%{name}
-%{__install} -m 755 %{SOURCE2} %{buildroot}%{_sysconfdir}/sysconfig/%{name}
-%{__install} -m 644 %{SOURCE4}  %{buildroot}%{_sysconfdir}/logrotate.d/%name
+%__mkdir_p %{buildroot}%{_sysconfdir}/sysconfig
+%__mkdir_p %{buildroot}%{_sysconfdir}/init.d
+%__mkdir_p %{buildroot}%{_sysconfdir}/logrotate.d
+%__install -m 755 %{SOURCE1} %{buildroot}%{_sysconfdir}/init.d/%{name}
+%__install -m 755 %{SOURCE2} %{buildroot}%{_sysconfdir}/sysconfig/%{name}
+%__install -m 644 %{SOURCE4}  %{buildroot}%{_sysconfdir}/logrotate.d/%name
 
 #Docs and other stuff
-%{__install} -p -m 644 COPYING %{buildroot}/opt/graylog2/server
-%{__install} -p -m 644 build_date %{buildroot}/opt/graylog2/server
-%{__install} -p -m 644 README.markdown %{buildroot}/opt/graylog2/server
-%{__mkdir} -p %{buildroot}/var/run/graylog2
+%__install -p -m 644 COPYING %{buildroot}/opt/graylog2/server
+%__install -p -m 644 build_date %{buildroot}/opt/graylog2/server
+%__install -p -m 644 README.markdown %{buildroot}/opt/graylog2/server
+%__mkdir_p %{buildroot}/var/run/graylog2
 %pre
 # create graylog2 group
 if ! getent group graylog2 >/dev/null; then

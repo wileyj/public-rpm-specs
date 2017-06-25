@@ -1,4 +1,5 @@
 %global with_python3 0
+%global app_dir /opt/carbon
 %define repo https://github.com/graphite-project/carbon
 %define gitversion %(echo `curl -s %{repo}/releases | grep 'span class="tag-name"' | head -1 |  tr -d 'vru\\-</span class="tag-name">'`)
 %global revision %(echo `git ls-remote %{repo}.git  | head -1 | cut -f 1| cut -c1-7`)
@@ -62,37 +63,41 @@ CFLAGS="$RPM_OPT_FLAGS"
 %install
 cd %{name}-%{version}
 [ "%{buildroot}" != "/" ] && %{__rm} -rf %{buildroot}
-%{__python} -c 'import setuptools; execfile("setup.py")' install --skip-build --root %{buildroot}
+%{__python} -c 'import setuptools; execfile("setup.py")' install --skip-build --root %{buildroot}%{app_dir}
 
 # Create log and var directories
-%{__mkdir_p} %{buildroot}%{_localstatedir}/log/%{name}-cache
-%{__mkdir_p} %{buildroot}%{_localstatedir}/log/%{name}-relay
-%{__mkdir_p} %{buildroot}%{_localstatedir}/log/%{name}-aggregator
-%{__mkdir_p} %{buildroot}%{_localstatedir}/lib/%{name}
+%__mkdir_p %{buildroot}%{_localstatedir}/log/%{name}-cache
+%__mkdir_p %{buildroot}%{_localstatedir}/log/%{name}-relay
+%__mkdir_p %{buildroot}%{_localstatedir}/log/%{name}-aggregator
+%__mkdir_p %{buildroot}%{_localstatedir}/lib/%{name}
+%__mkdir_p %{buildroot}/opt/graphite/conf
+%__mkdir_p %{buildroot}/opt/graphite/lib
+%__mkdir_p %{buildroot}/opt/graphite/bin
 
 # Install system configuration and init scripts
-%{__install} -Dp -m0755 %{SOURCE1} %{buildroot}%{_initrddir}/%{name}-cache
-%{__install} -Dp -m0644 %{SOURCE2} %{buildroot}%{_sysconfdir}/sysconfig/%{name}-cache
-%{__install} -Dp -m0755 %{SOURCE3} %{buildroot}%{_initrddir}/%{name}-relay
-%{__install} -Dp -m0644 %{SOURCE4} %{buildroot}%{_sysconfdir}/sysconfig/%{name}-relay
-%{__install} -Dp -m0755 %{SOURCE5} %{buildroot}%{_initrddir}/%{name}-aggregator
-%{__install} -Dp -m0644 %{SOURCE6} %{buildroot}%{_sysconfdir}/sysconfig/%{name}-aggregator
+%__install -Dp -m0755 %{SOURCE1} %{buildroot}%{_initrddir}/%{name}-cache
+%__install -Dp -m0644 %{SOURCE2} %{buildroot}%{_sysconfdir}/sysconfig/%{name}-cache
+%__install -Dp -m0755 %{SOURCE3} %{buildroot}%{_initrddir}/%{name}-relay
+%__install -Dp -m0644 %{SOURCE4} %{buildroot}%{_sysconfdir}/sysconfig/%{name}-relay
+%__install -Dp -m0755 %{SOURCE5} %{buildroot}%{_initrddir}/%{name}-aggregator
+%__install -Dp -m0644 %{SOURCE6} %{buildroot}%{_sysconfdir}/sysconfig/%{name}-aggregator
 
 # Install default configuration files
-%{__mkdir_p} %{buildroot}%{_sysconfdir}/%{name}
-%{__install} -Dp -m0644 conf/carbon.conf.example %{buildroot}%{_sysconfdir}/%{name}/carbon.conf
-%{__install} -Dp -m0644 conf/storage-schemas.conf.example %{buildroot}%{_sysconfdir}/%{name}/storage-schemas.conf
+%__mkdir_p %{buildroot}%{_sysconfdir}/%{name}
+%__install -Dp -m0644 conf/carbon.conf.example %{buildroot}%{_sysconfdir}/%{name}/carbon.conf
+%__install -Dp -m0644 conf/storage-schemas.conf.example %{buildroot}%{_sysconfdir}/%{name}/storage-schemas.conf
 
 # Create transient files in buildroot for ghosting
-%{__mkdir_p} %{buildroot}%{_localstatedir}/lock/subsys
-%{__touch} %{buildroot}%{_localstatedir}/lock/subsys/%{name}-cache
-%{__touch} %{buildroot}%{_localstatedir}/lock/subsys/%{name}-relay
-%{__touch} %{buildroot}%{_localstatedir}/lock/subsys/%{name}-aggregator
+%__mkdir_p %{buildroot}%{_localstatedir}/lock/subsys
+%__touch %{buildroot}%{_localstatedir}/lock/subsys/%{name}-cache
+%__touch %{buildroot}%{_localstatedir}/lock/subsys/%{name}-relay
+%__touch %{buildroot}%{_localstatedir}/lock/subsys/%{name}-aggregator
 
-%{__mkdir_p} %{buildroot}%{_localstatedir}/run
-%{__touch} %{buildroot}%{_localstatedir}/run/%{name}-cache.pid
-%{__touch} %{buildroot}%{_localstatedir}/run/%{name}-relay.pid
-%{__touch} %{buildroot}%{_localstatedir}/run/%{name}-aggregator.pid
+%__mkdir_p %{buildroot}%{_localstatedir}/run
+%__touch %{buildroot}%{_localstatedir}/run/%{name}-cache.pid
+%__touch %{buildroot}%{_localstatedir}/run/%{name}-relay.pid
+%__touch %{buildroot}%{_localstatedir}/run/%{name}-aggregator.pid
+
 
 %pre
 %{__getent} group %{name} >/dev/null || %{__groupadd} -r %{name}
