@@ -77,8 +77,8 @@ Requires: python3-certifi
 Requires: python3-backports_abc
 Requires: python3-six
 Requires: python3-M2Crypto
-Requires: python3-chardet
-Requires: python3-urllib3
+Requires: python3-chardet >= 3.0.4
+#Requires: python3-urllib3 >= 1.21.1
 Requires: python3-idna
 
 %else
@@ -115,8 +115,8 @@ Requires: python-certifi
 Requires: python-backports_abc
 Requires: python-six
 Requires: python-M2Crypto
-Requires: python-chardet
-Requires: python-urllib3
+Requires: python-chardet >= 3.0.4
+#Requires: python-urllib3 >= 1.21.1
 Requires: python-idna
 
 %endif
