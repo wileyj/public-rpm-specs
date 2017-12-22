@@ -1,8 +1,12 @@
+%define repo https://github.com/antirez/redis
+%define gitversion %(echo `curl -s  %{repo}/releases | grep 'class="tag-name"' | head -1 |  tr -d '\\-</span class="tag-name">'`)
+%global revision %(echo `git ls-remote %{repo}.git  | head -1 | cut -f 1| cut -c1-7`)
+%define rel_version 2
+
 %define pid_dir %{_localstatedir}/run/redis
 %define pid_file %{pid_dir}/redis.pid
-%define redis_ver 3.2.3
+%define redis_ver %{gitversion}
 %define redis_rel 1.%{dist}
-%define _default_patch_fuzz 2
 %define redis_group redis
 %define redis_user redis
 %define redis_gid 490
@@ -18,11 +22,10 @@ Vendor: %{vendor}
 Group: Applications/Multimedia
 URL: http://code.google.com/p/redis/
 
-Source0: redis-%{redis_ver}.tar.gz
 Source2: redis.init
 Source3: redis.logrotate
 Source4: redis.conf
-Patch0:  hiredis-Makefile.patch
+Source5: redis.service
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires: gcc, make
@@ -71,13 +74,18 @@ Requires: redis = %{version}
 
 
 %prep
-%setup -n %{name}-%{redis_ver}
-%patch0 -p0
+if [ -d %{name}-%{version} ];then
+    rm -rf %{name}-%{version}
+fi
+git clone %{repo} %{name}-%{version}
+cd %{name}-%{version}
 
 %build
+cd %{name}-%{version}
 %{__make}
 
 %install
+cd %{name}-%{version}
 %{__rm} -rf %{buildroot}
 mkdir -p %{buildroot}%{_bindir}
 %{__install} -Dp -m 0755 src/redis-server %{buildroot}%{_sbindir}/redis-server
@@ -93,6 +101,10 @@ mkdir -p %{buildroot}%{_bindir}
 %{__install} -p -d -m 0755 %{buildroot}%{_localstatedir}/lib/redis
 %{__install} -p -d -m 0755 %{buildroot}%{_localstatedir}/log/redis
 %{__install} -p -d -m 0755 %{buildroot}%{pid_dir}
+
+# install systemd/init scripts
+install -d %{buildroot}%{_unitdir}
+install -p -m 644 %{SOURCE5} %{buildroot}%{_unitdir}
 
 pwd=`pwd`
 for i in `ls deps`; do
@@ -111,11 +123,8 @@ cd $pwd
 
 
 %pre
-getent group %{redis_group} >/dev/null || \
-    /usr/sbin/groupadd %{redis_group} -g %{redis_gid} 2>/dev/null
-getent passwd %{redis_user} >/dev/null || \
-    /usr/sbin/useradd -u %{redis_uid} -c '%{redis_user}' -g %{redis_gid} -d %{_localstatedir}/lib/redis -s /bin/false %{redis_user} 2>/dev/null
-exit 0
+getent group %{redis_group} >/dev/null || /usr/sbin/groupadd %{redis_group} -g %{redis_gid} 2>/dev/null
+getent passwd %{redis_user} >/dev/null || /usr/sbin/useradd -u %{redis_uid} -c '%{redis_user}' -g %{redis_gid} -d %{_localstatedir}/lib/redis -s /bin/false %{redis_user} 2>/dev/null
 
 
 
@@ -130,9 +139,21 @@ fi
 chown -R redis:redis %{_localstatedir}/lib/redis
 
 %postun
+if  getent passwd %{redis_user} >/dev/null; then
+    %{_bindir}/userdel %{redis_user}
+    if [ -d  %{_var}/run/%{name} ]; then
+        %__rm -rf  %{_var}/run/%{name}
+    fi
+fi
+#remove group
+if  getent group %{redis_group} >/dev/null; then
+        %{_sbindir}/groupdel %{redis_group}
+    fi
+fi
 /usr/sbin/userdel redis
 /usr/sbin/groupdel redis
-/sbin/chkconfig --add redis
+/sbin/chkconfig --del redis
+
 
 
 %clean
@@ -151,6 +172,7 @@ chown -R redis:redis %{_localstatedir}/lib/redis
 %dir %attr(0770,redis,redis) %{_localstatedir}/lib/redis
 %dir %attr(0755,redis,redis) %{_localstatedir}/log/redis
 %dir %attr(0755,redis,redis) %{_localstatedir}/run/redis
+%{_unitdir}/%{name}.service
 
 %files tools
 %{_bindir}/redis-benchmark
@@ -175,3 +197,4 @@ chown -R redis:redis %{_localstatedir}/lib/redis
 /usr/local/lib/libhiredis*
 /usr/local/include/hiredis/adapters/*.h
 /usr/local/include/hiredis/*.h
+/usr/local/lib/pkgconfig/hiredis.pc

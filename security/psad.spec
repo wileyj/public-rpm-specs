@@ -20,6 +20,12 @@ Url: http://www.cipherdyne.org/psad/
 Source: %name-%version.tar.gz
 BuildRoot: %_tmppath/%{name}-buildroot
 Requires: iptables
+Requires: whois
+Requires: psmisc
+Requires: perl-IPTables-ChainMgr
+Requires: perl-Date-Calc
+Requires: perl-Unix-Syslog
+
 #Prereq: rpm-helper
 
 %description
@@ -98,9 +104,9 @@ install -m 644 nf2csv.1 $RPM_BUILD_ROOT%{_mandir}/man1/
 #if [ ! -p /var/lib/psad/psadfifo ];
 #then [ -e /var/lib/psad/psadfifo ] && /bin/rm -f /var/lib/psad/psadfifo
 #fi
-#/bin/mknod -m 600 /var/lib/psad/psadfifo p
-#chown root.root /var/lib/psad/psadfifo
-#chmod 0600 /var/lib/psad/psadfifo
+/bin/mknod -m 600 /var/lib/psad/psadfifo p
+chown root.root /var/lib/psad/psadfifo
+chmod 0600 /var/lib/psad/psadfifo
 
 %post
 ### put the current hostname into the psad C binaries

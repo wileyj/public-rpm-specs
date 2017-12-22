@@ -106,8 +106,8 @@ rm %{buildroot}%{_libdir}/libzmq.la
 %{_libdir}/libzmq.so
 %{_libdir}/pkgconfig/libzmq.pc
 %{_includedir}/zmq*.h
-#%{_mandir}/man3/zmq*
-#%{_mandir}/man7/zmq*
+%{_mandir}/man3/zmq*
+%{_mandir}/man7/zmq*
 
 %files -n cppzmq-devel
 %{_includedir}/zmq.hpp

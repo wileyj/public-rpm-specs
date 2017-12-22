@@ -428,6 +428,8 @@ fi
 #%dir %{_app_codedir}/environments/staging/manifests
 #%dir %{_app_codedir}/environments/qa/manifests
 %config(noreplace)  %{vendor_dir}/%{name}/share/locale/config.yaml
+%{vendor_dir}/%{name}/share/locale/*
+
 %{vendor_dir}/%{name}/share/locale/%{name}.pot
 
 %files server

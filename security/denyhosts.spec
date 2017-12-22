@@ -1,4 +1,4 @@
-%global with_python3 1
+#%global with_python3  0
 %define pypi_name DenyHosts
 %define pypi_alternate denyhosts
 %define prefix /opt/denyhosts
@@ -17,12 +17,12 @@ Summary:        "%{pypi_summary}"
 Group:          Development/Languages
 License:        MIT
 URL:            %{repo}
-Source1: reset-blocked-ip.pl
+Source1: 	reset-blocked-ip.pl
+Source2: 	reset-blocked.py
 BuildArch: noarch
-%description
-%{summary} for Python
 
 %if 0%{?with_python3}
+
 Provides:       python3-%{pypi_name} = %{version}-%{release}
 Provides:       python3-%{pypi_alternate} = %{version}-%{release}
 Provides:       %{pypi_alternate} = %{version}-%{release}
@@ -32,7 +32,8 @@ Obsoletes:      python3-%{pypi_alternate} < %{version}-%{release}
 Obsoletes:      %{pypi_alternate} < %{version}-%{release}
 Obsoletes:      %{pypi_name} < %{version}-%{release}
 BuildRequires:  python3-devel python3-rpm-macros python-srpm-macros
-Requires:       python3-six
+BuildRequires:	python3-ipaddr
+Requires:       python3-six python3-ipaddr
 %else
 Provides:       python-%{pypi_name} = %{version}-%{release}
 Provides:       python-%{pypi_alternate} = %{version}-%{release}
@@ -46,6 +47,9 @@ BuildRequires:  python-devel python2-rpm-macros python-srpm-macros
 BuildRequires:  python-ipaddr
 Requires:       python-six python-ipaddr
 %endif
+
+%description
+%{summary} for Python
 
 %prep
 if [ -d %{name}-%{version} ];then
@@ -102,6 +106,7 @@ popd
 %{__mkdir_p} %{buildroot}%{prefix}/etc
 %{__cp} denyhosts.conf %{buildroot}%{prefix}/etc/%{pypi_alternate}.conf
 %{__install} -m 755 %{SOURCE1} %{buildroot}%{prefix}/bin/
+%{__install} -m 755 %{SOURCE2} %{buildroot}%{prefix}/bin/
 %{__mkdir_p} %{buildroot}%{_bindir}
 %{__ln_s} %{prefix}/bin/%{name}.py %{buildroot}%{_bindir}/%{pypi_alternate}.py
 %{__ln_s} %{prefix}/bin/%{name}.py %{buildroot}%{_bindir}/%{pypi_alternate}
@@ -140,6 +145,7 @@ fi
 %{prefix}/bin/daemon-control-dist
 %{_bindir}/%{pypi_alternate}
 %{prefix}/bin/reset-blocked-ip.pl
+%{prefix}/bin/reset-blocked.py
 %{prefix}/data
 %{_sysconfdir}/%{pypi_alternate}.conf
 %config (noreplace) %{prefix}/etc/%{pypi_alternate}*

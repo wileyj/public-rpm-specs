@@ -1,40 +1,51 @@
-%define major 0
-%define minor 4
+%define git_repo https://github.com/open-ch/log-user-session
+%define git_version %(echo `curl -s  %{git_repo}/releases | grep 'class="css-truncate-target"' | head -1 |  tr -d '\\-</span class="css-truncate-target">'`)
+%global git_revision %(echo `git ls-remote %{git_repo}.git  | head -1 | cut -f 1| cut -c1-7`)
+%define git_summary        %(echo `curl -s %{git_repo} | grep "<title>" | cut -f2 -d ":" | sed 's|</title>||'`)
+%define rel_version 1
+
 Name:           log-user-session
-Version:        %{major}.%{minor}
-Release:        1.%{dist}
-Summary:        Application to create ssh session logfiles
+Version:        %{git_version}
+Release:        %{rel_version}.%{dist}
+Summary:        %{git_summary}
 Group:          System Environment
 License:        MIT
-Vendor: %{vendor}
-Packager: %{packager}
+Vendor:         %{vendor}
+Packager:       %{packager}
 URL:            https://github.com/open-ch/log-user-session
-Source0:        %{name}-%{version}.tar.gz
 Source1:        %{name}.conf
-BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-%description 
+%description
 log-user-session is a program to store the content of a shell session (e.g via
 ssh) e.g. for auditing purposes. The tool is intended to be started by the ssh
 server daemon. The log is tamper-proof for non-root users.
 
 
 %prep
-rm -rf %{buildroot}
-
-%setup -q -n %{name}
-./autogen.sh
+if [ -d %{name}-%{version} ];then
+    rm -rf %{name}-%{version}
+fi
+git clone %{git_repo} %{name}-%{version}
+cd %{name}-%{version}
 
 %build
-%configure
-make
+cd %{name}-%{version}
+./autogen.sh
+%configure \
+        --includedir=%{_includedir}/apr-%{aprver} \
+        --with-installbuilddir=%{_libdir}/apr-%{aprver}/build \
+        --with-devrandom=/dev/urandom
+make %{?_smp_mflags}
 
 %install
+cd %{name}-%{version}
 rm -rf $RPM_BUILD_ROOT
 make install DESTDIR=$RPM_BUILD_ROOT
-chown root $RPM_BUILD_ROOT%{_bindir}/log-user-session
-chmod u+s $RPM_BUILD_ROOT%{_bindir}/log-user-session
-mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}
+echo "%{buildroot}%{_bindir}/%{name}
+read ans
+chown root:root %{buildroot}%{_bindir}/%{name}
+chmod u+s %{buildroot}%{_bindir}/%{name}
+mkdir -p %{buildroot}%{_sysconfdir}
 %__install -p -m 0644 %{SOURCE1} $RPM_BUILD_ROOT/%{_sysconfdir}/%{name}.conf
 
 %clean
@@ -48,3 +59,4 @@ mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}
 %{_bindir}/%{name}
 %{_sysconfdir}/%{name}.conf
 %{_mandir}/man8/%{name}.8.gz
+

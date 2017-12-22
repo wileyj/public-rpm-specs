@@ -1,6 +1,6 @@
-%define checkout remotes/origin/2016.11
+%define checkout remotes/origin/2017.7.2
 %global with_python3 0
-%global with_git 0
+%global with_git 1
 %global include_tests 0
 %define use_systemd 1
 %define pypi_name salt
@@ -22,7 +22,7 @@
 
 %if 0%{?with_git}
 %define repo https://github.com/saltstack/%{pypi_name}
-%define pypi_version %(echo `curl -s %{repo}/releases | grep 'class="css-truncate-target"' | head -1 |  tr -d '\\-</span class="css-truncate-target">'`)
+%define pypi_version %(echo `curl -s %{repo}/releases | grep 'class="css-truncate-target"' | head -1 |  tr -d '\\-v</span class="css-truncate-target">'`)
 %global revision %(echo `git ls-remote %{repo}.git  | head -1 | cut -f 1| cut -c1-7`)
 %define rel_version 1
 %define build_time %(echo `date +%s`)
@@ -38,10 +38,12 @@ License:    ASL 2.0
 URL:        http://saltstack.org/
 BuildArch: noarch
 Provides:   %{pypi_name} = %{version}
+%if %{use_systemd}
 BuildRequires:  systemd-units
+Requires:       systemd-python
+%endif
 BuildRequires:  git
 Requires:       dmidecode
-Requires:       systemd-python
 Requires:	zeromq
 %if 0%{?with_python3}
 Provides:   python3-%{pypi_name} = %{version}
@@ -50,7 +52,7 @@ BuildRequires: python3-M2Crypto
 BuildRequires: python3-devel
 BuildRequires: python3-pycrypto
 BuildRequires: python3-Jinja2
-BuildRequires: python3-msgpack
+#BuildRequires: python3-msgpack-python
 BuildRequires: python3-pip
 BuildRequires: python3-pyzmq
 BuildRequires: python3-PyYAML
@@ -62,7 +64,7 @@ BuildRequires: python3-argparse
 BuildRequires:  python3-M2Crypto
 Requires: python3-M2Crypto
 Requires: python3-Jinja2
-Requires: python3-msgpack
+Requires: python3-msgpack-python
 Requires: python3-PyYAML
 Requires: python3-MarkupSafe
 Requires: python3-requests
@@ -80,6 +82,18 @@ Requires: python3-M2Crypto
 Requires: python3-chardet >= 3.0.4
 #Requires: python3-urllib3 >= 1.21.1
 Requires: python3-idna
+Requires: python3-docker-py
+Requires: python3-docker-pycreds
+Requires: python3-msgpack-pure
+Requires: python3-GitPython
+Requires: python3-gnupg
+Requires: python3-passlib
+Requires: python3-libnacl
+#Requires: python3-pycryptodome
+Requires: python3-boto3
+Requires: python3-boto
+Requires: python3-dateutil
+Requires: python3-jmespath
 
 %else
 Provides:   python-%{pypi_name} = %{version}
@@ -88,7 +102,7 @@ BuildRequires: python-M2Crypto
 BuildRequires: python-devel
 BuildRequires: python-pycrypto
 BuildRequires: python-Jinja2
-BuildRequires: python-msgpack
+#BuildRequires: python-msgpack-python
 BuildRequires: python-pip
 BuildRequires: python-pyzmq
 BuildRequires: python-PyYAML
@@ -100,7 +114,7 @@ BuildRequires: python-argparse
 BuildRequires:  python-M2Crypto
 Requires: python-M2Crypto
 Requires: python-Jinja2
-Requires: python-msgpack
+Requires: python-msgpack-python
 Requires: python-PyYAML
 Requires: python-MarkupSafe
 Requires: python-requests
@@ -118,12 +132,24 @@ Requires: python-M2Crypto
 Requires: python-chardet >= 3.0.4
 #Requires: python-urllib3 >= 1.21.1
 Requires: python-idna
+Requires: python-docker-py
+Requires: python-docker-pycreds
+Requires: python-msgpack-pure
+Requires: python-GitPython
+Requires: python-gnupg
+Requires: python-passlib
+Requires: python-libnacl
+#Requires: python-pycryptodome
+Requires: python-boto3
+Requires: python-boto
+Requires: python-dateutil
+Requires: python-jmespath
 
 %endif
 Requires: zeromq
 BuildRequires: zeromq-devel
 
-%if 0%{?systemd_preun:1}
+%if %{use_systemd}
 Requires(post): systemd-units
 Requires(preun): systemd-units
 Requires(postun): systemd-units
@@ -143,7 +169,9 @@ servers, handle them quickly and through a simple and manageable interface.
 Summary: Management component for salt, a parallel remote execution system
 Group:   System Environment/Daemons
 Requires: %{name} = %{version}-%{release}
+%if %{use_systemd}
 Requires: systemd-python
+%endif
 Provides:   python-%{pypi_name}-master = %{version}
 Provides:   %{pypi_name}-master = %{version}
 
@@ -155,7 +183,6 @@ Summary: Client component for Salt, a parallel remote execution system
 Group:   System Environment/Daemons
 Requires: %{name} = %{version}-%{release}
 Requires:   e2fsprogs 
-Requires:   python-boto3
 Requires:   python-pip
 Provides:   python-%{pypi_name}-minion = %{version}
 Provides:   %{pypi_name}-minion = %{version}
@@ -245,7 +272,7 @@ cd $RPM_BUILD_DIR/%{name}-%{version}
 #popd
 %else
 #pushd %{py2dir}
-%{__python2} setup.py build
+%{__python27} setup.py build
 #popd
 %endif
 
@@ -260,7 +287,7 @@ find %{buildroot}%{_prefix} -type d -depth -exec rmdir {} \; 2>/dev/null
 #popd
 %else
 #pushd %{py2dir}
-%{__python2} setup.py install -O1 --skip-build --root $RPM_BUILD_ROOT
+%{__python27} setup.py install -O1 --skip-build --root $RPM_BUILD_ROOT
 find %{buildroot}%{_prefix} -type d -depth -exec rmdir {} \; 2>/dev/null
 #popd
 %endif
@@ -313,7 +340,7 @@ install -d -m 0700 %{buildroot}%{_sysconfdir}/%{name}/pki
 
 
 %preun master
-%if 0%{?systemd_preun:1}
+%if %{use_systemd}
   %systemd_preun salt-master.service
 %else
   if [ $1 -eq 0 ] ; then
@@ -324,7 +351,7 @@ install -d -m 0700 %{buildroot}%{_sysconfdir}/%{name}/pki
 %endif
 
 %preun syndic
-%if 0%{?systemd_preun:1}
+%if %{use_systemd}
   %systemd_preun salt-syndic.service
 %else
   if [ $1 -eq 0 ] ; then
@@ -335,7 +362,7 @@ install -d -m 0700 %{buildroot}%{_sysconfdir}/%{name}/pki
 %endif
 
 %preun minion
-%if 0%{?systemd_preun:1}
+%if %{use_systemd}
   %systemd_preun salt-minion.service
 %else
   if [ $1 -eq 0 ] ; then
@@ -346,21 +373,21 @@ install -d -m 0700 %{buildroot}%{_sysconfdir}/%{name}/pki
 %endif
 
 %post master
-%if 0%{?systemd_post:1}
+%if %{use_systemd}
   %systemd_post salt-master.service
 %else
   /bin/systemctl daemon-reload &>/dev/null || :
 %endif
 
 %post minion
-%if 0%{?systemd_post:1}
+%if %{use_systemd}
   %systemd_post salt-minion.service
 %else
   /bin/systemctl daemon-reload &>/dev/null || :
 %endif
 
 %postun master
-%if 0%{?systemd_post:1}
+%if %{use_systemd}
   %systemd_postun salt-master.service
 %else
   /bin/systemctl daemon-reload &>/dev/null
@@ -368,7 +395,7 @@ install -d -m 0700 %{buildroot}%{_sysconfdir}/%{name}/pki
 %endif
 
 %postun syndic
-%if 0%{?systemd_post:1}
+%if %{use_systemd}
   %systemd_postun salt-syndic.service
 %else
   /bin/systemctl daemon-reload &>/dev/null
@@ -376,7 +403,7 @@ install -d -m 0700 %{buildroot}%{_sysconfdir}/%{name}/pki
 %endif
 
 %postun minion
-%if 0%{?systemd_post:1}
+%if %{use_systemd}
   %systemd_postun salt-minion.service
 %else
   /bin/systemctl daemon-reload &>/dev/null
@@ -420,7 +447,8 @@ install -d -m 0700 %{buildroot}%{_sysconfdir}/%{name}/pki
 %{_bindir}/%{name}-run
 %{_bindir}/%{name}-unity
 %config(noreplace) %{_sysconfdir}/%{name}/master
-%if %{?use_systemd:1}%{!?use_systemd:0}
+%if %{use_systemd}
+#%if %{?use_systemd:1}%{!?use_systemd:0}
     %attr(0644, root, root) %{_unitdir}/%{name}-master.service
 %else
     %attr(0755, root, root) %{_initrddir}/%{name}-master
@@ -437,7 +465,8 @@ install -d -m 0700 %{buildroot}%{_sysconfdir}/%{name}/pki
 %config(noreplace) %{_sysconfdir}/%{name}/minion
 %doc %{_mandir}/man1/%{name}-proxy.1.gz
 %doc %{_mandir}/man1/spm.1.gz
-%if %{?use_systemd:1}%{!?use_systemd:0}
+%if %{use_systemd}
+#%if %{?use_systemd:1}%{!?use_systemd:0}
     %attr(0644, root, root) %{_unitdir}/%{name}-minion.service
 %else
     %attr(0755, root, root) %{_initrddir}/%{name}-minion
@@ -447,7 +476,8 @@ install -d -m 0700 %{buildroot}%{_sysconfdir}/%{name}/pki
 %files syndic
 %doc %{_mandir}/man1/%{name}-syndic.1.*
 %{_bindir}/%{name}-syndic
-%if %{?use_systemd:1}%{!?use_systemd:0}
+%if %{use_systemd}
+##%if %{?use_systemd:1}%{!?use_systemd:0}
     %attr(0644, root, root) %{_unitdir}/%{name}-syndic.service
 %else
     %attr(0755, root, root) %{_initrddir}/%{name}-syndic
@@ -457,7 +487,8 @@ install -d -m 0700 %{buildroot}%{_sysconfdir}/%{name}/pki
 %defattr(-,root,root)
 %doc %{_mandir}/man1/%{name}-api.1.*
 %{_bindir}/%{name}-api
-%if %{?use_systemd:1}%{!?use_systemd:0}
+%if %{use_systemd}
+#%if %{?use_systemd:1}%{!?use_systemd:0}
     %attr(0644, root, root) %{_unitdir}/%{name}-api.service
 %else
     %attr(0755, root, root) %{_initrddir}/%{name}-api

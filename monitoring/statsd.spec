@@ -7,11 +7,12 @@
 %define git_summary        %(echo `curl -s %{git_repo} | grep "<title>" | cut -f2 -d ":" | sed 's|</title>||'`)
 %define rel_version 1
 %define _prefix /opt/%{name}-%{version}
+#%define  nodejs_sitelib /usr/lib/node_modules
 
 # filter provides and requires from examples directory RHBZ#1263969
 %{?perl_default_filter}
 
-%global enable_tests 1
+%global enable_tests 0
 
 %if 0%{?fedora} >= 19 || 0%{?rhel} >= 7
 %bcond_without systemd
@@ -25,7 +26,7 @@ License:    MIT
 URL:        https://github.com/etsy/statsd/
 #Source0:    https://github.com/etsy/%{name}/archive/v%{version}.tar.gz#/%{name}-v%{version}.tar.gz
 Source1:    statsd.service
-Source2:    statsd.sysvinit
+Source2:    statsd.init
 
 BuildArch:      noarch
 %if 0%{?fedora} >= 19
@@ -35,7 +36,7 @@ ExclusiveArch: %{ix86} x86_64 %{arm} noarch
 %endif
 
 BuildRequires:  dos2unix
-BuildRequires:  nodejs-npm nodejs
+BuildRequires:  nodejs-npm nodejs nodejs-devel
 #BuildRequires:  nodeunit
 #BuildRequires:  npm(temp)
 #BuildRequires:  npm(underscore)
@@ -99,7 +100,6 @@ cp -pr exampleConfig.js %{buildroot}%{_sysconfdir}/%{name}/config.js
 %{__install} -Dp -m 0755 %{SOURCE2} %{buildroot}%{_initddir}/%{name}
 %endif
 
-%nodejs_symlink_deps
 
 
 %if 0%{?enable_tests}
@@ -155,8 +155,7 @@ fi
 %files
 # following macro is needed for el6
 %{!?_licensedir:%global license %%doc}
-%doc README.md CONTRIBUTING.md Changelog.md exampleConfig.js exampleProxyConfig.js docs/ examples/
-%license LICENSE
+#%doc README.md CONTRIBUTING.md Changelog.md exampleConfig.js exampleProxyConfig.js docs/ examples/
 %{nodejs_sitelib}/%{name}
 %{_bindir}/statsd
 %{_sysconfdir}/%{name}

@@ -12,7 +12,7 @@ Group:		System/Applications
 License:	MIT
 URL:		https://github.com/postmodern/chruby
 BuildArch:	noarch
-BuildRequires: 	make ruby-rpm-macros rubygem-rpm-macros
+BuildRequires: 	make ruby-devel rubygems-devel
 Provides:       chruby = %{version}
 Requires:	ruby rubygems ruby-install ruby
 %description

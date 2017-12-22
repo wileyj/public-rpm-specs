@@ -1,5 +1,5 @@
-%global with_python3 1
-%global with_python2 0
+%global with_python3 0
+%global with_python2 1
 %global with_git 1
 %define repo https://github.com/rpm-software-management/mock
 %global mockgid  135
@@ -103,13 +103,13 @@ cd $RPM_BUILD_DIR/%{name}-%{version}
 git submodule init
 git submodule update
 %if %{with_python3}
-for file in py/mock.py py/mockchain.py; do
+for file in mock/py/mock.py mock/py/mockchain.py; do
   sed -i 1"s|#!/usr/bin/python |#!/usr/bin/python3 |" $file
 done
 %endif
 
 %build
-cd $RPM_BUILD_DIR/%{name}-%{version}
+cd $RPM_BUILD_DIR/%{name}-%{version}/mock
 for i in py/mock.py py/mockchain.py; do
     perl -p -i -e 's|^__VERSION__\s*=.*|__VERSION__="%{version}"|' $i
     perl -p -i -e 's|^SYSCONFDIR\s*=.*|SYSCONFDIR="%{_sysconfdir}"|' $i
@@ -121,7 +121,7 @@ for i in docs/mockchain.1 docs/mock.1; do
 done
 
 %install
-cd $RPM_BUILD_DIR/%{name}-%{version}
+cd $RPM_BUILD_DIR/%{name}-%{version}/mock
 install -d %{buildroot}%{_bindir}
 install -d %{buildroot}%{_libexecdir}/mock
 install py/mockchain.py %{buildroot}%{_bindir}/mockchain
@@ -199,11 +199,11 @@ else
 fi
 :
 
-%check
-# ignore the errors for now, just print them and hopefully somebody will fix it one day
-pylint py/mockbuild/ py/*.py py/mockbuild/plugins/* || :
+#%check
+## ignore the errors for now, just print them and hopefully somebody will fix it one day
+#pylint py/mockbuild/ py/*.py py/mockbuild/plugins/* || :
 
-%files -f %{name}-%{version}/%{name}.cfgs
+%files -f %{name}-%{version}/%{name}/%{name}.cfgs
 %defattr(-, root, root)
 
 # executables

@@ -16,7 +16,7 @@
 
 Name:           python-%{pypi_alternate}
 Version:        %{pypi_version}
-Release:        1.%{?dist}
+Release:        100.%{?dist}
 Summary:        "%{pypi_summary}"
 Group:          Development/Languages
 License:        MIT

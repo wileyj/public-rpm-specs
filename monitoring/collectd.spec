@@ -1,4 +1,5 @@
 %global _hardened_build 1
+%global java_home /usr/java/current
 %global __provides_exclude_from ^%{_libdir}/collectd/.*\\.so$
 
 %define git_repo https://github.com/collectd/collectd
@@ -7,6 +8,8 @@
 %define git_summary        %(echo `curl -s %{git_repo} | grep "<title>" | cut -f2 -d ":" | sed 's|</title>||'`)
 %define rel_version 1
 %define _prefix /opt/%{name}-%{version}
+%define _includedir %{_prefix}/include
+%define _libdir %{_prefix}/lib64
 
 Summary: %{git_summary}
 Name: collectd
@@ -548,7 +551,9 @@ git clone %{git_repo} %{name}-%{version}
 %build
 cd %{name}-%{version}
 sh build.sh
-%configure CXXFLAGS="-I/usr/java/current/include/" \
+#export CXXFLAGS="-I/usr/java/current/include"
+#export CPPFLAGS="-I/usr/java/current/include"
+%configure CXXFLAGS="-I/usr/java/current/include" \
     --disable-dependency-tracking \
     --disable-silent-rules \
     --without-included-ltdl \
@@ -556,10 +561,12 @@ sh build.sh
     --disable-static \
     --disable-apple_sensors \
     --disable-aquaero \
-    --disable-barometer \
+    --disable-dpdkevents \
     --disable-dpdkstat \
+    --disable-barometer \
     --disable-grpc \
     --disable-intel_rdt \
+    --disable-intel_pmu \
 %ifarch aarch64
     --disable-iptables \
 %endif
@@ -625,15 +632,15 @@ cp -pv %{SOURCE1} %{buildroot}%{_sysconfdir}/httpd/conf.d/collectd.conf
 chmod +x %{buildroot}%{_datadir}/collectd/collection3/bin/*.cgi
 
 # Move the Perl examples to a separate directory.
-mkdir perl-examples
-find contrib -name '*.p[lm]' -exec mv {} perl-examples/ \;
+#mkdir perl-examples
+#find contrib -name '*.p[lm]' -exec mv {} perl-examples/ \;
 
 # Move config contribs
 mkdir -p %{buildroot}%{_sysconfdir}/collectd.d/
 cp %{SOURCE91} %{buildroot}%{_sysconfdir}/collectd.d/apache.conf
-cp %{SOURCE92} %{buildroot}%{_sysconfdir}/collectd.d/email.conf
 cp %{SOURCE93} %{buildroot}%{_sysconfdir}/collectd.d/mysql.conf
 cp %{SOURCE94} %{buildroot}%{_sysconfdir}/collectd.d/nginx.conf
+cp %{SOURCE92} %{buildroot}%{_sysconfdir}/collectd.d/email.conf
 cp %{SOURCE95} %{buildroot}%{_sysconfdir}/collectd.d/sensors.conf
 cp %{SOURCE96} %{buildroot}%{_sysconfdir}/collectd.d/snmp.conf
 cp %{SOURCE97} %{buildroot}%{_sysconfdir}/collectd.d/rrdtool.conf
@@ -681,8 +688,6 @@ make check
 
 
 %files
-%license COPYING
-%doc AUTHORS ChangeLog README
 %config(noreplace) %{_sysconfdir}/collectd.conf
 %config(noreplace) %{_sysconfdir}/collectd.d/
 %exclude %{_sysconfdir}/collectd.d/apache.conf
@@ -794,24 +799,24 @@ make check
 # collectdclient - TBD reintroduce -devel subpackage?
 %{_libdir}/libcollectdclient.so
 %{_libdir}/libcollectdclient.so.1
-%{_libdir}/libcollectdclient.so.1.0.0
+%{_libdir}/libcollectdclient.so.1.*
 %{_libdir}/pkgconfig/libcollectdclient.pc
 %{_includedir}/collectd/client.h
 %{_includedir}/collectd/lcc_features.h
 %{_includedir}/collectd/network.h
 %{_includedir}/collectd/network_buffer.h
 
-%doc %{_mandir}/man1/collectd.1*
-%doc %{_mandir}/man1/collectdctl.1*
-%doc %{_mandir}/man1/collectd-nagios.1*
-%doc %{_mandir}/man1/collectd-tg.1*
-%doc %{_mandir}/man1/collectdmon.1*
-%doc %{_mandir}/man5/collectd.conf.5*
-%doc %{_mandir}/man5/collectd-exec.5*
-%doc %{_mandir}/man5/collectd-python.5*
-%doc %{_mandir}/man5/collectd-threshold.5*
-%doc %{_mandir}/man5/collectd-unixsock.5*
-%doc %{_mandir}/man5/types.db.5*
+%doc %{_prefix}/share/man/man1/collectd.1*
+%doc %{_prefix}/share/man/man1/collectdctl.1*
+%doc %{_prefix}/share/man/man1/collectd-nagios.1*
+%doc %{_prefix}/share/man/man1/collectd-tg.1*
+%doc %{_prefix}/share/man/man1/collectdmon.1*
+%doc %{_prefix}/share/man/man5/collectd.conf.5*
+%doc %{_prefix}/share/man/man5/collectd-exec.5*
+%doc %{_prefix}/share/man/man5/collectd-python.5*
+%doc %{_prefix}/share/man/man5/collectd-threshold.5*
+%doc %{_prefix}/share/man/man5/collectd-unixsock.5*
+%doc %{_prefix}/share/man/man5/types.db.5*
 
 %files amqp
 %{_libdir}/collectd/amqp.so
@@ -866,7 +871,7 @@ make check
 %files email
 %{_libdir}/collectd/email.so
 %config(noreplace) %{_sysconfdir}/collectd.d/email.conf
-%doc %{_mandir}/man5/collectd-email.5*
+%doc %{_prefix}/share/man/man5/collectd-email.5*
 
 
 %files generic-jmx
@@ -902,11 +907,11 @@ make check
 %{_libdir}/collectd/java.so
 %dir %{_datadir}/collectd/java/
 %{_datadir}/collectd/java/collectd-api.jar
-%doc %{_mandir}/man5/collectd-java.5*
+%doc %{_prefix}/share/man/man5/collectd-java.5*
 
 
 %files lua
-%{_mandir}/man5/collectd-lua*
+%{_prefix}/share/man/man5/collectd-lua*
 %{_libdir}/collectd/lua.so
 
 
@@ -956,14 +961,14 @@ make check
 
 
 %files -n perl-Collectd
-%doc perl-examples/*
+#%doc perl-examples/*
 %{_libdir}/collectd/perl.so
 %{perl_vendorlib}/Collectd.pm
 %{perl_vendorlib}/Collectd/
 %config(noreplace) %{_sysconfdir}/collectd.d/perl.conf
-%doc %{_mandir}/man5/collectd-perl.5*
-%doc %{_mandir}/man3/Collectd::Unixsock.3pm*
-
+%doc %{_prefix}/share/man/man5/collectd-perl.5*
+%doc /usr/share/man/man3/Collectd::Unixsock.3pm.gz
+%doc /usr/share/perl5/vendor_perl/Collectd/Unixsock.pm
 
 %files pinba
 %{_libdir}/collectd/pinba.so
@@ -1007,7 +1012,7 @@ make check
 %files snmp
 %{_libdir}/collectd/snmp.so
 %config(noreplace) %{_sysconfdir}/collectd.d/snmp.conf
-%doc %{_mandir}/man5/collectd-snmp.5*
+%doc %{_prefix}/share/man/man5/collectd-snmp.5*
 
 
 %ifarch %ix86 x86_64
@@ -1054,6 +1059,15 @@ make check
 
 %files zookeeper
 %{_libdir}/collectd/zookeeper.so
+
+   /opt/collectd-d5.6.3/include/collectd/network_parse.h
+   /opt/collectd-d5.6.3/include/collectd/server.h
+   /opt/collectd-d5.6.3/include/collectd/types.h
+   /opt/collectd-d5.6.3/lib64/collectd/mcelog.so
+   /opt/collectd-d5.6.3/lib64/collectd/ovs_events.so
+   /opt/collectd-d5.6.3/lib64/collectd/ovs_stats.so
+   /opt/collectd-d5.6.3/lib64/collectd/snmp_agent.so
+   /opt/collectd-d5.6.3/lib64/collectd/synproxy.so
 
 
 %changelog

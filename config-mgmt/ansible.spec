@@ -89,7 +89,7 @@ pushd %{py3dir}
 popd
 %else
 pushd %{py2dir}
-%{__python2} setup.py build
+%{__python27} setup.py build
 popd
 %endif
 
@@ -102,7 +102,7 @@ find %{buildroot}%{_prefix} -type d -depth -exec rmdir {} \; 2>/dev/null
 popd
 %else
 pushd %{py2dir}
-%{__python2} setup.py install -O1 --skip-build --root $RPM_BUILD_ROOT
+%{__python27} setup.py install -O1 --skip-build --root $RPM_BUILD_ROOT
 find %{buildroot}%{_prefix} -type d -depth -exec rmdir {} \; 2>/dev/null
 popd
 %endif

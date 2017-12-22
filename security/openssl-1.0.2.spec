@@ -110,6 +110,8 @@ Summary: A general purpose cryptography library with TLS implementation
 Group: System Environment/Libraries
 Requires: ca-certificates >= 2008-5
 Requires: crypto-policies
+Requires: %{name}%{?_isa} = %{epoch}:%{version}-%{release}
+
 # Needed obsoletes due to the base/lib subpackage split
 Obsoletes: openssl < 1:1.0.1-0.3.beta3
 Obsoletes: openssl-fips < 1:1.0.1e-28

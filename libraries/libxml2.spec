@@ -1,4 +1,5 @@
-%global with_python3 0
+%global with_python3 1
+%global with_alinux 1
 
 Summary: Library providing XML and HTML support
 Name: libxml2
@@ -102,6 +103,26 @@ This library allows to manipulate XML files. It includes support
 to read, modify and write XML and HTML files. There is DTDs support
 this includes parsing and validation even with complex DTDs, either
 at parse time or later once the document has been modified.
+
+%package -n %{name}-python27
+Summary: Python bindings for the libxml2 library
+Group: Development/Libraries
+Requires: libxml2 = %{version}-%{release}
+Obsoletes: %{name}-python27 < %{version}
+Provides: %{name}-python27 = %{version}-%{release}
+Provides: %{name}-python27 = %{version}-%{release}
+
+%description -n %{name}-python27
+Built for Amazon Linux
+The libxml2-python package contains a Python 2 module that permits applications
+written in the Python programming language, version 2, to use the interface
+supplied by the libxml2 library to manipulate XML files.
+
+This library allows to manipulate XML files. It includes support
+to read, modify and write XML and HTML files. There is DTDs support
+this includes parsing and validation even with complex DTDs, either
+at parse time or later once the document has been modified.
+
 %endif
 
 %prep
@@ -188,6 +209,11 @@ gzip -9 -c doc/libxml2-api.xml > doc/libxml2-api.xml.gz
 %files -n %{name}-python
 %defattr(-, root, root)
 %{python_sitearch}/*
+
+%files -n %{name}-python27
+%defattr(-, root, root)
+%{python_sitearch}/*
+
 %endif 
 
 %files docs
