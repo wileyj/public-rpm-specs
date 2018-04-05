@@ -1,11 +1,11 @@
-%global srcname sensu
-%global remoteversion %(echo `gem list ^%{srcname}$ -r |  grep %{srcname} | cut -f2 -d" " | tr -d '()' | tr -d ','`)
+%global gem_name sensu
+%global remoteversion %(echo `gem list ^%{gem_name}$ -r |  grep %{gem_name} | cut -f2 -d" " | tr -d '()' | tr -d ','`)
 
 %global         upstart     0
 %global         systemd     1
 %global         gem_bin     /usr/bin/gem
-%global         app_dir     /opt/%{srcname}
-%define         conf_dir    %{_sysconfdir}/%{srcname}
+%global         app_dir     /opt/%{gem_name}
+%define         conf_dir    %{_sysconfdir}/%{gem_name}
 %global         extensions  %{conf_dir}/extensions
 %global         metrics     %{conf_dir}/metrics
 %global         mutators    %{conf_dir}/mutators
@@ -18,17 +18,17 @@
 %global         c_services    %{confd}/services
 %global         c_handlers    %{confd}/handlers
 %define         user    sensu
-%define         group   sensu
-%define         uid   488
-%define         gid   488
+%define         group   monitoring
+%define         uid   487
+%define         gid   487
 
-Name:           %{srcname}
+Name:           %{gem_name}
 Version:        %{remoteversion}
 Release:        1.%{dist}
 Summary:        A monitoring framework that aims to be simple, malleable, and scalable.
 License:        GPLv2
-Packager:       %{packager} 
-Vendor:         %{vendor} 
+Packager:       %{packager}
+Vendor:         %{vendor}
 URL:            https://github.com/%{name}/%{name}
 AutoReqProv:    no
 Source2:        %{name}-service.init
@@ -59,21 +59,21 @@ Source26:       runsvdir
 Source27:       runsv
 Source28:       chpst
 Source29:       %{name}-name.erb
-Source30:       config.json         
-Source31:       relay.rb            
-Source32:       metrics.rb          
-Source33:       check_cron.json     
-Source34:       check_sshd.json     
-Source35:       check_swapio.json   
-Source36:       check_vmstat.json   
-Source37:       client.json         
-Source38:       api.json            
-Source39:       config_relay.json   
-Source40:       rabbitmq.json       
-Source41:       redis.json          
-Source42:       email.json          
-Source43:       file.json           
-Source44:       handlers.json       
+Source30:       config.json
+Source31:       relay.rb
+Source32:       metrics.rb
+Source33:       check_cron.json
+Source34:       check_sshd.json
+Source35:       check_swapio.json
+Source36:       check_vmstat.json
+Source37:       client.json
+Source38:       api.json
+Source39:       config_relay.json
+Source40:       rabbitmq.json
+Source41:       redis.json
+Source42:       email.json
+Source43:       file.json
+Source44:       handlers.json
 
 
 %description
@@ -87,13 +87,13 @@ License:        GPLv2
 #AutoReqProv:   no
 BuildRequires:  ruby
 Requires:       autoconf openssl openssl-devel openssl-perl ruby ruby-devel runit rubygems ruby-irb ruby-libs zlib-devel zlib libyaml-devel libyaml
-Requires:       sensu-api  sensu-configs  sensu sensu-server = %{version} 
-Requires:       rubygem-sensu-extension  rubygem-amqp rubygem-childprocess 
-Requires:       rubygem-em-worker rubygem-sensu rubygem-sensu-extension 
+Requires:       sensu-api  sensu-configs  sensu sensu-server = %{version}
+Requires:       rubygem-sensu-extension  rubygem-amqp rubygem-childprocess
+Requires:       rubygem-em-worker rubygem-sensu rubygem-sensu-extension
 Requires:       rubygem-sensu-extensions  rubygem-sensu-logger rubygem-sensu-plugin rubygem-sensu-settings rubygem-sensu-spawn rubygem-sensu-transport rubygem-bigdecimal
 
 %description -n %{name}-server
-server for sensu 
+server for sensu
 #-----------------------------------------------------------------------
 
 %package -n     %{name}-client
@@ -107,7 +107,7 @@ Provides:       sensu-client = %{version}
 Client for the sensu server
 #-----------------------------------------------------------------------
 
-%package -n     %{name}-api 
+%package -n     %{name}-api
 Summary:        API service for sensu server
 License:        GPLv2
 #AutoReqProv:   no
@@ -150,17 +150,17 @@ do
     %{__mkdir_p} -m 0755 %{buildroot}/$dir
 done
 
-%{__sed} -i -e 's/\/opt\/%{name}\/bin\/ruby/\/usr\/bin\/ruby/g'  %{SOURCE19}
-%{__sed} -i -e 's/\/opt\/%{name}\/bin\/ruby/\/usr\/bin\/ruby/g'  %{SOURCE20}
-%{__sed} -i -e 's/\/opt\/%{name}\/bin\/ruby/\/usr\/bin\/ruby/g'  %{SOURCE29}
-%{__sed} -i -e 's/\/opt\/%{name}\/bin\/ruby/\/usr\/bin\/ruby/g'  %{SOURCE18}
-%{__sed} -i -e 's/\/opt\/%{name}\/bin\/ruby/\/usr\/bin\/ruby/g'  %{SOURCE17}
+#%{__sed} -i -e 's/\/opt\/%{name}\/bin\/ruby/\/usr\/bin\/ruby/g'  %{SOURCE19}
+#%{__sed} -i -e 's/\/opt\/%{name}\/bin\/ruby/\/usr\/bin\/ruby/g'  %{SOURCE20}
+#%{__sed} -i -e 's/\/opt\/%{name}\/bin\/ruby/\/usr\/bin\/ruby/g'  %{SOURCE29}
+#%{__sed} -i -e 's/\/opt\/%{name}\/bin\/ruby/\/usr\/bin\/ruby/g'  %{SOURCE18}
+#%{__sed} -i -e 's/\/opt\/%{name}\/bin\/ruby/\/usr\/bin\/ruby/g'  %{SOURCE17}
 
-%{__install} -p -m 0755 %{SOURCE23} %{buildroot}%{app_dir}/bin/utmpset  
-%{__install} -p -m 0755 %{SOURCE24} %{buildroot}%{app_dir}/bin/svlogd   
-%{__install} -p -m 0755 %{SOURCE25} %{buildroot}%{app_dir}/bin/sv   
-%{__install} -p -m 0755 %{SOURCE26} %{buildroot}%{app_dir}/bin/runsvdir 
-%{__install} -p -m 0755 %{SOURCE27} %{buildroot}%{app_dir}/bin/runsv    
+%{__install} -p -m 0755 %{SOURCE23} %{buildroot}%{app_dir}/bin/utmpset
+%{__install} -p -m 0755 %{SOURCE24} %{buildroot}%{app_dir}/bin/svlogd
+%{__install} -p -m 0755 %{SOURCE25} %{buildroot}%{app_dir}/bin/sv
+%{__install} -p -m 0755 %{SOURCE26} %{buildroot}%{app_dir}/bin/runsvdir
+%{__install} -p -m 0755 %{SOURCE27} %{buildroot}%{app_dir}/bin/runsv
 %{__install} -p -m 0755 %{SOURCE28} %{buildroot}%{app_dir}/bin/chpst
 
 for f in utmpset svlogd sv runsvdir runsv chpst
@@ -175,7 +175,7 @@ done
 %{__install} -p -m 0755 %{SOURCE20} %{buildroot}%{app_dir}/bin/%{name}-api
 
 %{__install} -p -m 0644 %{SOURCE30} %{buildroot}%{conf_dir}/config.json
-%{__install} -p -m 0755 %{SOURCE31} %{buildroot}%{ext_handlers}/relay.rb 
+%{__install} -p -m 0755 %{SOURCE31} %{buildroot}%{ext_handlers}/relay.rb
 %{__install} -p -m 0755 %{SOURCE32} %{buildroot}%{ext_mutators}/metrics.rb
 %{__install} -p -m 0644 %{SOURCE33} %{buildroot}%{c_checks}/check_cron.json
 %{__install} -p -m 0644 %{SOURCE34} %{buildroot}%{c_checks}/check_sshd.json
@@ -197,7 +197,7 @@ do
     %{__mkdir_p} -m 0755 %{buildroot}%{app_dir}/sv/%{name}-$d/log/main
     %{__install} -p -m 0755 %{SOURCE15}  %{buildroot}%{app_dir}/sv/%{name}-$d/log/run
     %{__install} -p -m 0755 %{SOURCE16}  %{buildroot}%{app_dir}/sv/%{name}-$d/run
-done 
+done
 %{__mkdir_p} %{buildroot}%{_var}/run/%{name}
 
 %{__sed} -i -e 's/prog="%{name}-<%= @sv %>"/prog="%{name}-client"/' %{buildroot}%{app_dir}/sv/%{name}-client/run
@@ -238,20 +238,20 @@ done
 %{__install} -p -m 0644 %{SOURCE13} %{buildroot}%{_unitdir}/%{name}-api.service
 
 # replace all lines in files that used the embedded files, since we're using custom built ruby
-for i in `find  %{buildroot} -type f | xargs grep "%{app_dir}/embedded/bin" |grep "\bPATH" | cut -f1 -d ":"`
-do
-    %{__sed} -i -e 's/PATH=\/opt\/%{name}\/embedded\/bin:/PATH=/g' $i
-done
-
-for i in `find  %{buildroot} -type f | xargs grep "%{app_dir}/embedded/lib/ruby/gems/2.0.0" |grep "\bGEM_PATH" | cut -f1 -d ":"`
-do
-    %{__sed} -i -e 's/GEM_PATH=\/opt\/%{name}\/embedded\/lib\/ruby\/gems\/2.0.0:/GEM_PATH=/g' $i
-done
-
-for i in `find  %{buildroot} -type f | xargs grep "%{app_dir}/embedded/bin/chpst" |grep "\bexec" | cut -f1 -d ":"`
-do
-    %{__sed} -i -e 's/\/opt\/%{name}\/embedded\/bin\/chpst/\/opt\/%{name}\/bin\/chpst/g' $i
-done
+#for i in `find  %{buildroot} -type f | xargs grep "%{app_dir}/embedded/bin" |grep "\bPATH" | cut -f1 -d ":"`
+#do
+#    %{__sed} -i -e 's/PATH=\/opt\/%{name}\/embedded\/bin:|PATH=/g' $i
+#done
+#
+#for i in `find  %{buildroot} -type f | xargs grep "%{app_dir}/embedded/lib/ruby/gems/2.0.0" |grep "\bGEM_PATH" | cut -f1 -d ":"`
+#do
+#    %{__sed} -i -e 's/GEM_PATH=\/opt\/%{name}\/embedded\/lib\/ruby\/gems\/2.0.0:/GEM_PATH=/g' $i
+#done
+#
+#for i in `find  %{buildroot} -type f | xargs grep "%{app_dir}/embedded/bin/chpst" |grep "\bexec" | cut -f1 -d ":"`
+#do
+#    %{__sed} -i -e 's/\/opt\/%{name}\/embedded\/bin\/chpst/\/opt\/%{name}\/bin\/chpst/g' $i
+#done
 
 # one-offs
 %{__sed} -i -e 's/\#!\/opt\/%{name}\/embedded\/bin\/ruby/\#\!\/usr\/bin\/ruby/g' %{buildroot}%{app_dir}/bin/%{name}-ctl
@@ -260,9 +260,16 @@ done
 %{__sed} -i -e 's/\/opt\/%{name}\/embedded\/bin\/%{name}-runsvdir/\/opt\/%{name}\/bin\/%{name}-runsvdir/g' %{buildroot}%{app_dir}/bin/%{name}-runsvdir
 %{__sed} -i -e 's/\/opt\/%{name}\/embedded\/bin\/runsvdir/\/opt\/%{name}\/bin\/runsvdir/g' %{buildroot}%{app_dir}/bin/%{name}-runsvdir
 
+for file in `find %{buildroot} -type f`; do
+    %{__sed} -i -e 's|/opt/%{gem_name}/bin/ruby|/usr/bin/ruby|g' $file
+    %{__sed} -i -e 's|/opt/%{gem_name}/embedded/bin/chpst|/opt\/%{gem_name}\/bin\/chpst|g' $file
+    %{__sed} -i -e 's|GEM_PATH=/opt/%{gem_name}/embedded/lib/ruby/gems/2.0.0:|GEM_PATH=|g' $file
+    %{__sed} -i -e 's|PATH=/opt/%{gem_name}/embedded/bin:|PATH=/usr/bin/ruby|g' $file
+done
+
 %pre
 %{_bindir}/getent group %{group}|| %{_sbindir}/groupadd -r -g %{gid} %{group}
-%{_bindir}/getent passwd %{user}|| %{_sbindir}/useradd -r -g %{group} -d %{app_dir} -s /bin/bash -c "Sensu User" -u %{uid} %{user} 
+%{_bindir}/getent passwd %{user}|| %{_sbindir}/useradd -r -g %{group} -d %{app_dir} -s /bin/bash -c "Sensu User" -u %{uid} %{user}
 
 %preun -n %{name}-client
 if [ $1 = 0 ] ; then
@@ -373,7 +380,7 @@ fi
 
 
 
-%files api 
+%files api
 %attr(755, %{user}, %{group})
 #%{_initrddir}/%{name}-api
 %attr(0644, %{user}, %{group}) %{_unitdir}/%{name}-api.service
@@ -408,5 +415,3 @@ fi
 %{c_handlers}/email.json
 %{c_handlers}/file.json
 %{c_handlers}/handlers.json
-
-

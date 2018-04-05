@@ -9,7 +9,8 @@
 %global revision %(echo `git ls-remote %{repo}  | head -1 | cut -f 1 | cut -c1-7`)
 
 Name:           golang
-Version:        %{git_version}
+#Version:        %{git_version}
+Version:        1.10
 Release:        %{release_ver}.%{revision}.%{dist}
 Summary:        The Go Programming Language
 License:        BSD

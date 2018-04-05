@@ -1,5 +1,5 @@
 %define repo https://github.com/draios/sysdig
-%define gitversion %(echo `curl -s %{repo}/releases | grep 'span class="css-truncate-target"' | head -1 |  tr -d '\\-</span class="css-truncate-target">vr'`)
+%define gitversion %(echo `curl -s %{repo}/releases | grep 'span class="tag-name"' | head -1 |  tr -d '\\-</span class="tag-name">vr'`)
 %global revision %(echo `git ls-remote %{repo}.git  | head -1 | cut -f 1| cut -c1-7`)
 %define rel_version 1
 
@@ -12,7 +12,7 @@ Packager:       %{packager}
 Vendor:         %{vendor}
 URL:            https://sysdig.com
 Group:          System Environment/Base
-BuildRequires:  git cmake
+BuildRequires:  git cmake jq-devel
 
 %description
 Sysdig is a universal system visibility tool with native support for containers
@@ -39,7 +39,21 @@ git submodule update
 cd %{name}-%{version}
 mkdir -p build/release
 cd build/release
-cmake -DCMAKE_BUILD_TYPE=release -DBUILD_STATIC_LIBS=ON -DBUILD_SHARED_LIBS=ON -DARCHIVE_INSTALL_DIR=%{buildroot} -G "Unix Makefiles" ../..
+cmake -DCMAKE_BUILD_TYPE=release -DBUILD_STATIC_LIBS=OFF -DBUILD_SHARED_LIBS=ON -DARCHIVE_INSTALL_DIR=%{buildroot} -G "Unix Makefiles" ../..
+cmake \
+-DUSE_BUNDLED_JQ=OFF \
+-DUSE_BUNDLED_JSONCPP=OFF \
+-DUSE_BUNDLED_ZLIB=OFF \
+-DUSE_BUNDLED_NCURSES=OFF \
+-DUSE_BUNDLED_B64=ON \
+-DUSE_BUNDLED_OPENSSL=OFF \
+-DUSE_BUNDLED_CURL=OFF \
+-DCMAKE_BUILD_TYPE=release \
+-DBUILD_STATIC_LIBS=OFF \
+-DBUILD_SHARED_LIBS=OFF \
+-DARCHIVE_INSTALL_DIR=%{buildroot} \
+-G 'Unix Makefiles' \
+../..
 make
 
 %install

@@ -15,10 +15,8 @@ Packager: %{packager}
 Requires: ruby rubygems 
 BuildRequires: rubygems rubygems-devel
 BuildRequires: ruby ruby-devel
-BuildRequires:	rubygem-rpm-macros
-BuildRequires:	ruby-rpm-macros
-Provides: rubygem-%{gem_name} = %{version}
-Provides: rubygem(%{gem_name}) = %{version}
+Provides: rubygem-%{gem_name}
+Provides: rubygem(%{gem_name})
 Obsoletes: rubygem-%{gem_name} < %{version}
 Obsoletes: rubygem(%{gem_name}) < %{version}
 
@@ -34,6 +32,8 @@ gem install --install-dir %{_builddir}/%{name}/%{gem_dir} --bindir %{_builddir}/
 %install
 find %{_builddir}/%{name} -type f -exec sed -i -e 's|/usr/local/bin/ruby|/usr/bin/ruby|g' {} \;
 cp -pa %{_builddir}/%{name}/* %{buildroot}/
+%__rm -f %{buildroot}/usr/lib64/gems/ruby/%{gem_name}-%{version}/gem.build_complete
+%__rm -f %{buildroot}/usr/lib64/gems/ruby/%{gem_name}-%{version}/gem_make.out
 
 %clean
 [ "%{buildroot}" != "/" ] && %__rm -rf %{buildroot}
@@ -42,4 +42,3 @@ cp -pa %{_builddir}/%{name}/* %{buildroot}/
 
 %files 
 %{gem_dir}/*
-%{_libdir}/*

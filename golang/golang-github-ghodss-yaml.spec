@@ -25,7 +25,7 @@ Provides:               %{name}
 Provides:               %{name}-devel
 Provides:               golang(%{import_path}) 
 Provides:               golang(%{import_path})-devel
-Requires:		golang-github-cloudfoundry-incubator-candiedyaml
+Requires:		golang-github-cloudfoundry-attic-candiedyaml
 %description
 %{summary}
 

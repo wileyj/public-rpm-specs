@@ -1,4 +1,4 @@
-%if 0%{?fedora}
+%if 0%{?fedora} || 0%{?rhel} > 7
 %global with_devel 1
 %global with_debug 1
 %global with_unit_test 1
@@ -10,6 +10,17 @@
 
 # modifying the dockerinit binary breaks the SHA1 sum check by docker
 %global __os_install_post %{_rpmconfigdir}/brp-compress
+
+# default overlay2 storage only on Fedora 26 and later
+%if 0%{?fedora} >= 26 || 0%{?rhel} > 7
+%global custom_storage 1
+%else
+%global custom_storage 0
+%endif
+
+%if 0%{?centos}
+%global with_migrator 0
+%endif
 
 # docker builds in a checksum of dockerinit into docker,
 # so stripping the binaries breaks docker
@@ -27,111 +38,134 @@
 %global import_path %{provider}.%{provider_tld}/%{project}/%{repo}
 
 # docker
-%global git0 https://github.com/projectatomic/%{repo}
-%global commit0 037a2f5e5b7cf1f7663f1840f7e84328806c08ef
-%global shortcommit0 %(c=%{commit0}; echo ${c:0:7})
+%global git_docker https://github.com/projectatomic/docker
+%global commit_docker 584d391084d425cc99142f11d8fb738f0159ce11
+%global shortcommit_docker %(c=%{commit_docker}; echo ${c:0:7})
 # docker_branch used in %%check
-%global docker_branch docker-1.12.6
+%global docker_branch docker-1.13.1
 
 # d-s-s
-%global git1 https://github.com/projectatomic/%{repo}-storage-setup/
-%global commit1 5e1f47b4251108c48b32aad22ae9494a7c3ee5fe
-%global shortcommit1 %(c=%{commit1}; echo ${c:0:7})
-%global dss_libdir %{_exec_prefix}/lib/%{repo}-storage-setup
+%global git_dss https://github.com/projectatomic/container-storage-setup/
+%global commit_dss 9b77bcb2cba8e272799fa21e2d484e9f6e7c34d0
+%global shortcommit_dss %(c=%{commit_dss}; echo ${c:0:7})
+%global dss_datadir %{_datadir}/%{repo}-storage-setup
 
 # docker-novolume-plugin
-%global git4 https://github.com/projectatomic/%{repo}-novolume-plugin
-%global commit4 c5212546ab01b4b7b62caba888d298ab63f53984
-%global shortcommit4 %(c=%{commit4}; echo ${c:0:7})
+%global git_novolume https://github.com/projectatomic/%{repo}-novolume-plugin
+%global commit_novolume 385ec70baac3ef356f868f391c8d7818140fbd44
+%global shortcommit_novolume %(c=%{commit_novolume}; echo ${c:0:7})
 
+%if 0%{?with_migrator}
 # v1.10-migrator
-%global git5 https://github.com/%{repo}/v1.10-migrator
-%global commit5 994c35cbf7ae094d4cb1230b85631ecedd77b0d8
-%global shortcommit5 %(c=%{commit5}; echo ${c:0:7})
+%global git_migrator https://github.com/%{repo}/v1.10-migrator
+%global commit_migrator 994c35cbf7ae094d4cb1230b85631ecedd77b0d8
+%global shortcommit_migrator %(c=%{commit_migrator}; echo ${c:0:7})
+%endif # with_migrator
 
 # docker-runc
-%global git6 https://github.com/projectatomic/runc/
-%global commit6 81b254244390bc636b20c87c34a3d9e1a8645069
-%global shortcommit6 %(c=%{commit6}; echo ${c:0:7})
+%global git_runc https://github.com/projectatomic/runc/
+%global commit_runc 1c91122c1d992cf1dc971ff14f78eddbf6fb06f5
+%global shortcommit_runc %(c=%{commit_runc}; echo ${c:0:7})
 
 # docker-containerd
-%global git7 https://github.com/projectatomic/containerd
-%global commit7 471f03c11413d9ab1523de24d3e79ae3a7b8126e
-%global shortcommit7 %(c=%{commit7}; echo ${c:0:7})
+%global git_containerd https://github.com/projectatomic/containerd
+%global commit_containerd 62a9c6081b0ade9da18b31e623253020db4a8295
+%global shortcommit_containerd %(c=%{commit_containerd}; echo ${c:0:7})
 
 # rhel-push-plugin
-%global git8 https://github.com/projectatomic/rhel-push-plugin
-%global commit8 eb9e6beb8767a4a102e011c2d6e70394629dfa91
-%global shortcommit8 %(c=%{commit5}; echo ${c:0:7})
+%global git_rhel_push https://github.com/projectatomic/rhel-push-plugin
+%global commit_rhel_push af9107b2aedb235338e32a3c19507cad3f218b0d
+%global shortcommit_rhel_push %(c=%{commit_rhel_push}; echo ${c:0:7})
 
 # docker-lvm-plugin
-%global git9 https://github.com/projectatomic/%{repo}-lvm-plugin
-%global commit9 bc03b5354aaa70ee14c482c4a861be08630bb755
-%global shortcommit9 %(c=%{commit6}; echo ${c:0:7})
+%global git_lvm https://github.com/projectatomic/%{repo}-lvm-plugin
+%global commit_lvm 8647404eed561d32835d6bc032b1c330ee31ed5b
+%global shortcommit_lvm %(c=%{commit_lvm}; echo ${c:0:7})
+
+# docker-proxy
+%global git_libnetwork https://github.com/docker/libnetwork
+%global commit_libnetwork 460ac8fa0bcc888f28f6dec93cdd3bf8b58f975a
+%global shortcommit_libnetwork %(c=%{commit_libnetwork}; echo ${c:0:7})
+
+# tini
+%global git_tini https://github.com/krallin/tini
+%global commit_tini 0effd37412ba5ae7e00af0db1f36f5dbc1671df9
+%global shortcommit_tini %(c=%{commit_tini}; echo ${c:0:7})
 
 Name: %{repo}
-%if 0%{?fedora} || 0%{?centos}
+%if 0%{?fedora} || 0%{?centos} || 0%{?rhel} > 7
 Epoch: 2
 %endif
-Version: 1.12.6
-Release: 17.git%{shortcommit0}.%{?dist}
+Version: 1.13.1
+Release: 44.git%{shortcommit_docker}.%{?dist}
 Summary: Automates deployment of containerized applications
 License: ASL 2.0
 URL: https://%{provider}.%{provider_tld}/projectatomic/%{repo}
 # Temp fix for rhbz#1315903
 #ExclusiveArch: %%{go_arches}
 ExclusiveArch: %{ix86} x86_64 %{arm} aarch64 ppc64le s390x %{mips}
-Source0: %{git0}/archive/%{commit0}/%{repo}-%{shortcommit0}.tar.gz
-Source1: %{git1}/archive/%{commit1}/%{repo}-storage-setup-%{shortcommit1}.tar.gz
-Source4: %{git4}/archive/%{commit4}/%{repo}-novolume-plugin-%{shortcommit4}.tar.gz
+Source0: %{git_docker}/archive/%{commit_docker}/%{repo}-%{shortcommit_docker}.tar.gz
+Source1: %{git_dss}/archive/%{commit_dss}/container-storage-setup-%{shortcommit_dss}.tar.gz
+Source4: %{git_novolume}/archive/%{commit_novolume}/%{repo}-novolume-plugin-%{shortcommit_novolume}.tar.gz
 Source5: %{repo}.service
 Source6: %{repo}.sysconfig
 Source7: %{repo}-storage.sysconfig
 Source8: %{repo}-logrotate.sh
 Source9: README.%{repo}-logrotate
 Source10: %{repo}-network.sysconfig
-Source11: %{git5}/archive/%{commit5}/v1.10-migrator-%{shortcommit5}.tar.gz
-Source12: %{git6}/archive/%{commit6}/runc-%{shortcommit6}.tar.gz
-Source13: %{git7}/archive/%{commit7}/containerd-%{shortcommit7}.tar.gz
+Source11: seccomp.json
+%if 0%{?with_migrator}
+Source11: %{git_migrator}/archive/%{commit_migrator}/v1.10-migrator-%{shortcommit_migrator}.tar.gz
+%endif # with_migrator
+Source12: %{git_runc}/archive/%{commit_runc}/runc-%{shortcommit_runc}.tar.gz
+Source13: %{git_containerd}/archive/%{commit_containerd}/containerd-%{shortcommit_containerd}.tar.gz
 Source14: %{repo}-containerd.service
+%if 0%{?with_migrator}
 Source15: v1.10-migrator-helper
+%endif # with_migrator
 Source16: %{repo}-common.sh
 Source17: README-%{repo}-common
-Source18: %{git8}/archive/%{commit8}/rhel-push-plugin-%{shortcommit8}.tar.gz
-Source19: %{git9}/archive/%{commit9}/%{repo}-lvm-plugin-%{shortcommit9}.tar.gz
+Source18: %{git_rhel_push}/archive/%{commit_rhel_push}/rhel-push-plugin-%{shortcommit_rhel_push}.tar.gz
+Source19: %{git_lvm}/archive/%{commit_lvm}/%{repo}-lvm-plugin-%{shortcommit_lvm}.tar.gz
 Source20: %{repo}.service.centos
 Source21: %{repo}-containerd.service.centos
+Source22: %{git_libnetwork}/archive/%{commit_libnetwork}/libnetwork-%{shortcommit_libnetwork}.tar.gz
+Source23: %{git_tini}/archive/%{commit_tini}/tini-%{shortcommit_tini}.tar.gz
 
 %if 0%{?with_debug}
 # Build with debug
 #Patch0:      build-with-debug-info.patch
 %endif
 
+BuildRequires: sed
 BuildRequires: git
-BuildRequires: audit-libs-devel
+BuildRequires: cmake
 BuildRequires: glibc-static
+BuildRequires: git
 BuildRequires: gpgme-devel
 BuildRequires: libassuan-devel
 BuildRequires: golang >= 1.6.2
 BuildRequires: go-md2man
 BuildRequires: device-mapper-devel
-%if 0%{?fedora}
+%if 0%{?fedora} || 0%{?rhel} > 7
 BuildRequires: godep
 BuildRequires: libseccomp-static >= 2.3.0
 %else %if 0%{?centos}
 BuildRequires: libseccomp-devel
 %endif
-BuildRequires: pkgconfig
+BuildRequires: pkgconfig(audit)
 BuildRequires: btrfs-progs-devel
 BuildRequires: sqlite-devel
 BuildRequires: pkgconfig(systemd)
-%if 0%{?fedora} >= 21
+%if 0%{?fedora} >= 21 || 0%{?rhel} > 7
+
 # Resolves: rhbz#1165615
 Requires: device-mapper-libs >= 1.02.90-1
 %endif
 
-Requires: skopeo-containers
+Requires: skopeo-containers >= 0.1.25-2
 Requires: gnupg
+Requires: atomic-registries >= 1.19.1-6
 
 # BZ#1399098
 Requires: python-rhsm-certificates
@@ -160,10 +194,12 @@ Requires: iptables
 # #1416929
 Requires: parted
 
+Requires: container-storage-setup
+
 # permitted by https://fedorahosted.org/fpc/ticket/341#comment:7
 # In F22, the whole package should be renamed to be just "docker" and
 # this changed to "Provides: docker-io".
-%if 0%{?fedora} >= 22
+%if 0%{?fedora} >= 22 || 0%{?rhel} > 7
 Provides: %{repo}-io = %{epoch}:%{version}-%{release}
 Obsoletes: %{repo}-io <= 1.5.0-19
 %endif
@@ -176,13 +212,24 @@ Obsoletes: %{repo}-storage-setup <= 0.5-3
 
 Requires: libseccomp >= 2.3.0
 
-%if 0%{?fedora}
+%if 0%{?fedora} || 0%{?rhel} > 7
 Recommends: oci-register-machine
 Recommends: oci-systemd-hook
+Recommends: criu
 %else
 Requires: oci-register-machine
 Requires: oci-systemd-hook
+Requires: criu
 %endif
+
+Requires: oci-umount >= 2:2.0.0-1
+
+%if %{custom_storage}
+Provides: variant_config(Atomic.host)
+Provides: variant_config(Cloud)
+Provides: variant_config(Server)
+Provides: variant_config(Workstation)
+%endif # custom_storage
 
 %description
 Docker is an open-source engine that automates the deployment of any
@@ -384,7 +431,7 @@ This package installs %{summary}. logrotate is assumed to be installed on
 containers for this to work, failures are silently ignored.
 
 %package novolume-plugin
-URL: %{git4}
+URL: %{git_novolume}
 License: MIT
 Summary: Block container starts with local volumes defined
 Requires: %{repo} = %{epoch}:%{version}-%{release}
@@ -434,6 +481,7 @@ Provides: %{repo}-io-zsh-completion = %{epoch}:%{version}-%{release}
 %description zsh-completion
 This package installs %{summary}.
 
+%if 0%{?with_migrator}
 %package v1.10-migrator
 Summary: Calculates SHA256 checksums for docker layer content
 License: ASL 2.0 and CC-BY-SA
@@ -448,15 +496,7 @@ The migration usually runs on daemon startup but it can be quite slow(usually
 100-200MB/s) and daemon will not be able to accept requests during
 that time. You can run this tool instead while the old daemon is still
 running and skip checksum calculation on startup.
-
-%package rhsubscription
-Summary: Red Hat subscription management files needed on the host to enable RHEL containers
-Requires: %{repo} = %{epoch}:%{version}-%{release}
-Requires: subscription-manager-plugin-container
-Provides: %{repo}-io-rhsubscription = %{version}-%{release}
-
-%description rhsubscription
-In order to work with RHEL containers, the host (RHEL, or other) must export susbcription information to the container.
+%endif #with_migrator
 
 %package rhel-push-plugin
 License: GPLv2
@@ -481,19 +521,42 @@ This plugin can be used to create lvm volumes of specified size, which can
 then be bind mounted into the container using `docker run` command.
 
 %prep
-%setup -q -n %{repo}-%{commit0}
+%autosetup -Sgit -n %{repo}-%{commit_docker}
 
 # here keep the new line above otherwise autosetup fails when applying patch
 cp %{SOURCE9} .
 
 # untar d-s-s
 tar zxf %{SOURCE1}
+pushd container-storage-setup-%{commit_dss}
+%if %{custom_storage}
+# create default override config
+ln -s %{repo}-storage-setup-override.conf %{repo}-storage-setup-default
+# create workstation override config
+cp %{repo}-storage-setup-override.conf %{repo}-storage-setup-workstation
+echo 'STORAGE_DRIVER=overlay2' >> %{repo}-storage-setup-workstation
+# create cloud override config
+ln -s %{repo}-storage-setup-workstation %{repo}-storage-setup-cloud
+# create server override config
+ln -s %{repo}-storage-setup-workstation %{repo}-storage-setup-server
+# create atomic override config; see https://pagure.io/atomic-wg/issue/281
+%if 0%{?fedora} >= 27 || 0%{?rhel} > 7
+ln -s %{repo}-storage-setup-workstation %{repo}-storage-setup-atomichost
+%else
+cp %{repo}-storage-setup-server %{repo}-storage-setup-atomichost
+echo 'CONTAINER_ROOT_LV_NAME=docker-root-lv' >> %{repo}-storage-setup-atomichost
+echo 'CONTAINER_ROOT_LV_MOUNT_PATH=/var/lib/docker' >> %{repo}-storage-setup-atomichost
+%endif #atomichost
+%endif # custom_storage
+popd
 
 # untar docker-novolume-plugin
 tar zxf %{SOURCE4}
 
+%if 0%{?with_migrator}
 # untar v1.10-migrator
 tar zxf %{SOURCE11}
+%endif
 
 # untar docker-runc
 tar zxf %{SOURCE12}
@@ -512,70 +575,103 @@ tar zxf %{SOURCE18}
 
 # untar lvm-plugin
 tar zxf %{SOURCE19}
-pushd %{repo}-lvm-plugin-%{commit9}/vendor
+pushd %{repo}-lvm-plugin-%{commit_lvm}/vendor
 mkdir src
 mv g* src/
 popd
 
+# untar docker-proxy
+tar zxf %{SOURCE22}
+
+# untar tini
+tar zxf %{SOURCE23}
+
 %build
 # set up temporary build gopath, and put our directory there
 mkdir _build
+
+%global version_tag %{name}-%{version}-%{release}.%{_arch}
+%{__sed} -r -i 's/^([\t ]*PkgVersion:[\t ]*)"<unknown>",$/\1"%{version_tag}",/' daemon/info.go
+%{__sed} -r -i 's/^([\t ]*PkgVersion:[\t ]*)"<unknown>",$/\1"%{version_tag}",/' cli/command/system/version.go
+
 pushd _build
 mkdir -p src/%{provider}.%{provider_tld}/{%{repo},projectatomic}
 ln -s $(dirs +1 -l) src/%{import_path}
-ln -s $(dirs +1 -l)/%{repo}-novolume-plugin-%{commit4} src/%{provider}.%{provider_tld}/projectatomic/%{repo}-novolume-plugin
-ln -s $(dirs +1 -l)/containerd-%{commit7} src/%{provider}.%{provider_tld}/docker/containerd
-ln -s $(dirs +1 -l)/rhel-push-plugin-%{commit8} src/%{provider}.%{provider_tld}/projectatomic/rhel-push-plugin
-ln -s $(dirs +1 -l)/%{repo}-lvm-plugin-%{commit9} src/%{provider}.%{provider_tld}/projectatomic/%{repo}-lvm-plugin
+ln -s $(dirs +1 -l)/%{repo}-novolume-plugin-%{commit_novolume} src/%{provider}.%{provider_tld}/projectatomic/%{repo}-novolume-plugin
+ln -s $(dirs +1 -l)/containerd-%{commit_containerd} src/%{provider}.%{provider_tld}/docker/containerd
+ln -s $(dirs +1 -l)/rhel-push-plugin-%{commit_rhel_push} src/%{provider}.%{provider_tld}/projectatomic/rhel-push-plugin
+ln -s $(dirs +1 -l)/%{repo}-lvm-plugin-%{commit_lvm} src/%{provider}.%{provider_tld}/projectatomic/%{repo}-lvm-plugin
+popd
+
+pushd libnetwork-%{commit_libnetwork}
+mkdir -p src/github.com/docker/libnetwork
+ln -s $(pwd)/* src/github.com/docker/libnetwork
+export GOPATH=$(pwd)
+go build -ldflags="-linkmode=external" -o docker-proxy github.com/docker/libnetwork/cmd/proxy
 popd
 
 # compile novolume first - otherwise deps in gopath conflict with the others below and this fails
-export GOPATH=$(pwd)/%{repo}-novolume-plugin-%{commit4}/Godeps/_workspace:$(pwd)/_build
+export GOPATH=$(pwd)/%{repo}-novolume-plugin-%{commit_novolume}/Godeps/_workspace:$(pwd)/_build
 pushd $(pwd)/_build/src
 go build -ldflags "-B 0x$(head -c20 /dev/urandom|od -An -tx1|tr -d ' \n')" github.com/projectatomic/%{repo}-novolume-plugin
 popd
 
-export GOPATH=$(pwd)/rhel-push-plugin-%{commit8}/Godeps/_workspace:$(pwd)/_build
+export GOPATH=$(pwd)/rhel-push-plugin-%{commit_rhel_push}/Godeps/_workspace:$(pwd)/_build
 pushd $(pwd)/_build/src
 go build -ldflags "-B 0x$(head -c20 /dev/urandom|od -An -tx1|tr -d ' \n')" %{provider}.%{provider_tld}/projectatomic/rhel-push-plugin
 popd
 
-export GOPATH=$(pwd)/%{name}-lvm-plugin-%{commit9}/vendor:$(pwd)/_build
+export GOPATH=$(pwd)/%{name}-lvm-plugin-%{commit_lvm}/vendor:$(pwd)/_build
 pushd $(pwd)/_build/src
 go build -ldflags "-B 0x$(head -c20 /dev/urandom|od -An -tx1|tr -d ' \n')" %{provider}.%{provider_tld}/projectatomic/%{repo}-lvm-plugin
 popd
 
-export DOCKER_GITCOMMIT="%{shortcommit0}/%{version}"
+export DOCKER_GITCOMMIT="%{shortcommit_docker}/%{version}"
 export DOCKER_BUILDTAGS="selinux seccomp"
-export GOPATH=$(pwd)/_build:$(pwd)/vendor:%{gopath}:$(pwd)/containerd-%{commit7}/vendor
+export GOPATH=$(pwd)/_build:$(pwd)/vendor:%{gopath}:$(pwd)/containerd-%{commit_containerd}/vendor
 
 DOCKER_DEBUG=1 bash -x hack/make.sh dynbinary
+echo ""
+echo "******"
+echo "PWD"
+pwd
+read ans
+echo ""
 man/md2man-all.sh
 cp contrib/syntax/vim/LICENSE LICENSE-vim-syntax
 cp contrib/syntax/vim/README.md README-vim-syntax.md
-cp %{repo}-novolume-plugin-%{commit4}/LICENSE LICENSE-novolume-plugin
-cp %{repo}-novolume-plugin-%{commit4}/README.md README-novolume-plugin.md
-go-md2man -in %{repo}-novolume-plugin-%{commit4}/man/docker-novolume-plugin.8.md -out docker-novolume-plugin.8
-go-md2man -in rhel-push-plugin-%{commit8}/man/rhel-push-plugin.8.md -out rhel-push-plugin.8
-go-md2man -in %{repo}-lvm-plugin-%{commit9}/man/%{repo}-lvm-plugin.8.md -out %{repo}-lvm-plugin.8
+cp %{repo}-novolume-plugin-%{commit_novolume}/LICENSE LICENSE-novolume-plugin
+cp %{repo}-novolume-plugin-%{commit_novolume}/README.md README-novolume-plugin.md
+go-md2man -in %{repo}-novolume-plugin-%{commit_novolume}/man/docker-novolume-plugin.8.md -out docker-novolume-plugin.8
+go-md2man -in rhel-push-plugin-%{commit_rhel_push}/man/rhel-push-plugin.8.md -out rhel-push-plugin.8
+go-md2man -in %{repo}-lvm-plugin-%{commit_lvm}/man/%{repo}-lvm-plugin.8.md -out %{repo}-lvm-plugin.8
 
+%if 0%{?with_migrator}
 # build v1.10-migrator
-pushd v1.10-migrator-%{commit5}
-%if 0%{?fedora}
+pushd v1.10-migrator-%{commit_migrator}
+%if 0%{?fedora} || 0%{?rhel} > 7
 make v1.10-migrator-local
 %else
 go build -o v1.10-migrator-local .
 %endif
 popd
+%endif # with_migrator
 
 # build docker-runc
-pushd runc-%{commit6}
+pushd runc-%{commit_runc}
+sed -i 's/go build -i/go build/g' Makefile
 make BUILDTAGS="seccomp selinux"
 popd
 
 # build docker-containerd
-pushd containerd-%{commit7}
+pushd containerd-%{commit_containerd}
 make
+popd
+
+# build tini
+pushd tini-%{commit_tini}
+cmake .
+make tini-static
 popd
 
 %install
@@ -585,8 +681,10 @@ rm bundles/latest/dynbinary-client/*.md5 bundles/latest/dynbinary-client/*.sha25
 rm bundles/latest/dynbinary-daemon/*.md5 bundles/latest/dynbinary-daemon/*.sha256
 install -p -m 755 bundles/latest/dynbinary-client/%{repo}-%{version}* %{buildroot}%{_bindir}/%{repo}-current
 install -p -m 755 bundles/latest/dynbinary-daemon/%{repo}d-%{version}* %{buildroot}%{_bindir}/%{repo}d-current
+
+# install docker-proxy
 install -d %{buildroot}%{_libexecdir}/%{repo}
-install -p -m 755 bundles/latest/dynbinary-daemon/%{repo}-proxy-%{version}* %{buildroot}%{_libexecdir}/%{repo}/%{repo}-proxy-current
+install -p -m 755 libnetwork-%{commit_libnetwork}/docker-proxy %{buildroot}%{_libexecdir}/%{repo}/%{repo}-proxy-current
 
 # install manpages
 install -d %{buildroot}%{_mandir}/man1
@@ -632,7 +730,7 @@ install -d %{buildroot}%{_datadir}/rhel/secrets
 
 # install systemd/init scripts
 install -d %{buildroot}%{_unitdir}
-%if 0%{?fedora}
+%if 0%{?fedora} || 0%{?rhel} > 7
 install -p -m 644 %{SOURCE5} %{buildroot}%{_unitdir}
 install -p -m 644 %{SOURCE14} %{buildroot}%{_unitdir}
 %else
@@ -643,20 +741,24 @@ install -p -m 644 %{SOURCE21} %{buildroot}%{_unitdir}/%{repo}-containerd.service
 # install novolume-plugin executable, unitfile, socket and man
 install -d %{buildroot}%{_libexecdir}/%{repo}
 install -p -m 755 _build/src/%{repo}-novolume-plugin %{buildroot}%{_libexecdir}/%{repo}
-install -p -m 644 %{repo}-novolume-plugin-%{commit4}/systemd/%{repo}-novolume-plugin.service %{buildroot}%{_unitdir}
-install -p -m 644 %{repo}-novolume-plugin-%{commit4}/systemd/%{repo}-novolume-plugin.socket %{buildroot}%{_unitdir}
+install -p -m 644 %{repo}-novolume-plugin-%{commit_novolume}/systemd/%{repo}-novolume-plugin.service %{buildroot}%{_unitdir}
+install -p -m 644 %{repo}-novolume-plugin-%{commit_novolume}/systemd/%{repo}-novolume-plugin.socket %{buildroot}%{_unitdir}
 install -d %{buildroot}%{_mandir}/man8
 install -p -m 644 %{repo}-novolume-plugin.8 %{buildroot}%{_mandir}/man8
 
 # install docker-runc
 install -d %{buildroot}%{_libexecdir}/%{repo}
-install -p -m 755 runc-%{commit6}/runc %{buildroot}%{_libexecdir}/%{repo}/%{repo}-runc-current
+install -p -m 755 runc-%{commit_runc}/runc %{buildroot}%{_libexecdir}/%{repo}/%{repo}-runc-current
 
 #install docker-containerd-current
 install -d %{buildroot}%{_libexecdir}/%{repo}
-install -p -m 755 containerd-%{commit7}/bin/containerd %{buildroot}%{_libexecdir}/%{repo}/%{repo}-containerd-current
-install -p -m 755 containerd-%{commit7}/bin/containerd-shim %{buildroot}%{_libexecdir}/%{repo}/%{repo}-containerd-shim-current
-install -p -m 755 containerd-%{commit7}/bin/ctr %{buildroot}%{_libexecdir}/%{repo}/%{repo}-ctr-current
+install -p -m 755 containerd-%{commit_containerd}/bin/containerd %{buildroot}%{_libexecdir}/%{repo}/%{repo}-containerd-current
+install -p -m 755 containerd-%{commit_containerd}/bin/containerd-shim %{buildroot}%{_libexecdir}/%{repo}/%{repo}-containerd-shim-current
+install -p -m 755 containerd-%{commit_containerd}/bin/ctr %{buildroot}%{_libexecdir}/%{repo}/%{repo}-ctr-current
+
+# install tini
+install -d %{buildroot}%{_libexecdir}/%{repo}
+install -p -m 755 tini-%{commit_tini}/tini-static %{buildroot}%{_libexecdir}/%{repo}/%{repo}-init-current
 
 # for additional args
 install -d %{buildroot}%{_sysconfdir}/sysconfig/
@@ -687,55 +789,62 @@ for file in $(find . -iname "*.go" \! -iname "*_test.go") ; do
 done
 %endif
 
-# install %%{repo} config directory
-install -dp %{buildroot}%{_sysconfdir}/%{repo}
+# install %%{name} config directory
+install -dp %{buildroot}%{_sysconfdir}/%{name}
+# install seccomp.json
+install -p -m 644 %{SOURCE11} %{buildroot}%{_sysconfdir}/%{name}
 
 # install d-s-s
-pushd %{repo}-storage-setup-%{commit1}
-make install DESTDIR=%{buildroot}
+pushd container-storage-setup-%{commit_dss}
+make install-docker DESTDIR=%{buildroot}
+%if %{custom_storage}
+install -dp %{buildroot}%{dss_datadir}
+install -p -m 644 %{repo}-storage-setup-atomichost %{buildroot}%{dss_datadir}
+install -p -m 644 %{repo}-storage-setup-cloud %{buildroot}%{dss_datadir}
+install -p -m 644 %{repo}-storage-setup-server %{buildroot}%{dss_datadir}
+install -p -m 644 %{repo}-storage-setup-workstation %{buildroot}%{dss_datadir}
+install -p -m 644 %{repo}-storage-setup-default %{buildroot}%{dss_datadir}
+%endif # custom_storage
 popd
 
-# install %%{_bindir}/%{name}
+# install %%{_bindir}/%%{name}
 install -d %{buildroot}%{_bindir}
 install -p -m 755 %{SOURCE16} %{buildroot}%{_bindir}/%{repo}
 
+%if 0%{?with_migrator}
 # install v1.10-migrator
 install -d %{buildroot}%{_bindir}
-install -p -m 700 v1.10-migrator-%{commit5}/v1.10-migrator-local %{buildroot}%{_bindir}
-cp v1.10-migrator-%{commit5}/CONTRIBUTING.md CONTRIBUTING-v1.10-migrator.md
-cp v1.10-migrator-%{commit5}/README.md README-v1.10-migrator.md
-cp v1.10-migrator-%{commit5}/LICENSE.code LICENSE-v1.10-migrator.code
-cp v1.10-migrator-%{commit5}/LICENSE.docs LICENSE-v1.10-migrator.docs
+install -p -m 700 v1.10-migrator-%{commit_migrator}/v1.10-migrator-local %{buildroot}%{_bindir}
+cp v1.10-migrator-%{commit_migrator}/CONTRIBUTING.md CONTRIBUTING-v1.10-migrator.md
+cp v1.10-migrator-%{commit_migrator}/README.md README-v1.10-migrator.md
+cp v1.10-migrator-%{commit_migrator}/LICENSE.code LICENSE-v1.10-migrator.code
+cp v1.10-migrator-%{commit_migrator}/LICENSE.docs LICENSE-v1.10-migrator.docs
 
 # install v1.10-migrator-helper
 install -p -m 700 %{SOURCE15} %{buildroot}%{_bindir}
+%endif # with_migrator
 
-# install secrets patch directory
-install -d -p -m 750 %{buildroot}/%{_datadir}/rhel/secrets
-# rhbz#1110876 - update symlinks for subscription management
-ln -s %{_sysconfdir}/pki/entitlement %{buildroot}%{_datadir}/rhel/secrets/etc-pki-entitlement
-ln -s %{_sysconfdir}/rhsm %{buildroot}%{_datadir}/rhel/secrets/rhsm
-ln -s %{_sysconfdir}/yum.repos.d/redhat.repo %{buildroot}%{_datadir}/rhel/secrets/rhel7.repo
-mkdir -p %{buildroot}/etc/%{name}/certs.d/redhat.{com,io}
+# install certs for redhat registries
+mkdir -p %{buildroot}%{_sysconfdir}/%{name}/certs.d/redhat.{com,io}
 ln -s %{_sysconfdir}/rhsm/ca/redhat-uep.pem %{buildroot}/%{_sysconfdir}/%{name}/certs.d/redhat.com/redhat-ca.crt
 ln -s %{_sysconfdir}/rhsm/ca/redhat-uep.pem %{buildroot}/%{_sysconfdir}/%{name}/certs.d/redhat.io/redhat-ca.crt
 
 # install rhel-push-plugin executable, unitfile, socket and man
 install -d %{buildroot}%{_libexecdir}/%{repo}
 install -p -m 755 _build/src/rhel-push-plugin %{buildroot}%{_libexecdir}/%{repo}/rhel-push-plugin
-install -p -m 644 rhel-push-plugin-%{commit8}/systemd/rhel-push-plugin.service %{buildroot}%{_unitdir}/rhel-push-plugin.service
-install -p -m 644 rhel-push-plugin-%{commit8}/systemd/rhel-push-plugin.socket %{buildroot}%{_unitdir}/rhel-push-plugin.socket
+install -p -m 644 rhel-push-plugin-%{commit_rhel_push}/systemd/rhel-push-plugin.service %{buildroot}%{_unitdir}/rhel-push-plugin.service
+install -p -m 644 rhel-push-plugin-%{commit_rhel_push}/systemd/rhel-push-plugin.socket %{buildroot}%{_unitdir}/rhel-push-plugin.socket
 install -d %{buildroot}%{_mandir}/man8
 install -p -m 644 rhel-push-plugin.8 %{buildroot}%{_mandir}/man8
 
 # install %%{repo}-lvm-plugin executable, unitfile, socket and man
 install -d %{buildroot}/%{_libexecdir}/%{repo}
 install -p -m 755 _build/src/%{repo}-lvm-plugin %{buildroot}/%{_libexecdir}/%{repo}/%{repo}-lvm-plugin
-install -p -m 644 %{repo}-lvm-plugin-%{commit9}/systemd/%{repo}-lvm-plugin.s* %{buildroot}%{_unitdir}
+install -p -m 644 %{repo}-lvm-plugin-%{commit_lvm}/systemd/%{repo}-lvm-plugin.s* %{buildroot}%{_unitdir}
 install -d %{buildroot}%{_mandir}/man8
 install -p -m 644 %{repo}-lvm-plugin.8 %{buildroot}%{_mandir}/man8
 mkdir -p %{buildroot}%{_sysconfdir}/%{repo}
-install -p -m 644 %{repo}-lvm-plugin-%{commit9}%{_sysconfdir}/%{repo}/%{repo}-lvm-plugin %{buildroot}%{_sysconfdir}/%{repo}/%{repo}-lvm-plugin
+install -p -m 644 %{repo}-lvm-plugin-%{commit_lvm}%{_sysconfdir}/%{repo}/%{repo}-lvm-plugin %{buildroot}%{_sysconfdir}/%{repo}/%{repo}-lvm-plugin
 
 %check
 [ ! -w /run/%{repo}.sock ] || {
@@ -757,9 +866,66 @@ install -p -m 644 %{repo}-lvm-plugin-%{commit9}%{_sysconfdir}/%{repo}/%{repo}-lv
 %postun
 %systemd_postun_with_restart %{repo}
 
+%post lvm-plugin
+%systemd_post docker-lvm-plugin.service
+
+%preun lvm-plugin
+%systemd_preun docker-lvm-plugin.service
+
+%postun lvm-plugin
+%systemd_postun_with_restart docker-lvm-plugin.service
+
+%post novolume-plugin
+%systemd_post docker-novolume-plugin.service
+
+%preun novolume-plugin
+%systemd_preun docker-novolume-plugin.service
+
+%postun novolume-plugin
+%systemd_postun_with_restart docker-novolume-plugin.service
+
+%post rhel-push-plugin
+%systemd_post rhel-push-plugin.service
+
+%preun rhel-push-plugin
+%systemd_preun rhel-push-plugin.service
+
+%postun rhel-push-plugin
+%systemd_postun_with_restart rhel-push-plugin.service
+
+%if %{custom_storage}
+%posttrans
+# If we don't yet have a symlink or existing file for
+# %%{name}-storage-setup.conf, create it.
+if [ ! -e %{_sysconfdir}/sysconfig/%{name}-storage-setup ]; then
+    # Import /etc/os-release to get the variant definition
+    . %{_sysconfdir}/os-release || :
+
+    case "$VARIANT_ID" in
+        atomic.host)
+            cp %{dss_datadir}/%{name}-storage-setup-atomichost %{_sysconfdir}/sysconfig/%{name}-storage-setup || :
+            ;;
+        cloud)
+            cp %{dss_datadir}/%{name}-storage-setup-cloud %{_sysconfdir}/sysconfig/%{name}-storage-setup || :
+            ;;
+        server)
+            cp %{dss_datadir}/%{name}-storage-setup-server %{_sysconfdir}/sysconfig/%{name}-storage-setup || :
+            ;;
+        workstation)
+            cp %{dss_datadir}/%{name}-storage-setup-workstation %{_sysconfdir}/sysconfig/%{name}-storage-setup || :
+            ;;
+        *)
+            cp %{dss_datadir}/%{name}-storage-setup-default %{_sysconfdir}/sysconfig/%{name}-storage-setup || :
+            ;;
+        esac
+fi
+%endif # custom_storage
+
+%if 0%{?with_migrator}
 %triggerin -n %{repo}-v1.10-migrator -- %{repo} < %{version}
 %{_bindir}/v1.10-migrator-local 2>/dev/null
 exit 0
+%endif # with_migrator
 
 #define license tag if not already defined
 %{!?_licensedir:%global license %doc}
@@ -768,31 +934,41 @@ exit 0
 %license LICENSE LICENSE-novolume-plugin LICENSE-vim-syntax
 %doc AUTHORS CHANGELOG.md CONTRIBUTING.md MAINTAINERS NOTICE README.md 
 %doc README-novolume-plugin.md README-vim-syntax.md
-%config(noreplace) %{_sysconfdir}/sysconfig/%{repo}-*
-%{_mandir}/man1/%{repo}*.1.gz
-%{_mandir}/man5/*.5.gz
-%{_mandir}/man8/%{repo}*.8.gz
+%config(noreplace) %{_sysconfdir}/sysconfig/%{repo}-network
+%config(noreplace) %{_sysconfdir}/sysconfig/%{repo}-storage
+%{_mandir}/man1/%{name}*
+%{_mandir}/man5/*
+%{_mandir}/man8/*
 %{_bindir}/%{repo}-current
 %{_bindir}/%{repo}d-current
 %{_unitdir}/%{repo}.service
 %{_unitdir}/%{repo}-containerd.service
 %{_datadir}/bash-completion/completions/%{repo}
-%dir %{_datadir}/rhel/secrets
 %dir %{_sharedstatedir}/%{repo}
 %{_udevrulesdir}/80-%{repo}.rules
 %{_sysconfdir}/%{repo}
 # d-s-s specific
-%config(noreplace) %{_sysconfdir}/sysconfig/%{repo}-storage-setup
+%if %{custom_storage}
+#ghost+config causes the file to stay after uninstalling the package and we do not want that
+%ghost %{_sysconfdir}/sysconfig/%{name}-storage-setup
+%config(noreplace) %{dss_datadir}/%{name}-storage-setup-atomichost
+%config(noreplace) %{dss_datadir}/%{name}-storage-setup-cloud
+%config(noreplace) %{dss_datadir}/%{name}-storage-setup-server
+%config(noreplace) %{dss_datadir}/%{name}-storage-setup-workstation
+%config(noreplace) %{dss_datadir}/%{name}-storage-setup-default
+%else # custom_storage
+%config(noreplace) %{_sysconfdir}/sysconfig/%{name}-storage-setup
+%endif # custom_storage
 %{_unitdir}/%{repo}-storage-setup.service
 %{_bindir}/%{repo}-storage-setup
-%dir %{dss_libdir}
-%{dss_libdir}/*
 # >= 1.11 specific
+%dir %{_libexecdir}/%{repo}/
 %{_libexecdir}/%{repo}/%{repo}-runc-current
 %{_libexecdir}/%{repo}/%{repo}-containerd-current
 %{_libexecdir}/%{repo}/%{repo}-containerd-shim-current
 %{_libexecdir}/%{repo}/%{repo}-ctr-current
 %{_libexecdir}/%{repo}/%{repo}-proxy-current
+%{_libexecdir}/%{repo}/%{repo}-init-current
 
 %if 0%{?with_devel}
 %files devel -f devel.file-list
@@ -820,19 +996,11 @@ exit 0
 %{_unitdir}/%{repo}-novolume-plugin.service
 %{_unitdir}/%{repo}-novolume-plugin.socket
 
-%post novolume-plugin
-%systemd_post docker-novolume-plugin.service
-
-%preun novolume-plugin
-%systemd_preun docker-novolume-plugin.service
-
-%postun novolume-plugin
-%systemd_postun_with_restart docker-novolume-plugin.service
-
 %files common
 %doc README-%{repo}-common
 %{_bindir}/%{repo}
 %config(noreplace) %{_sysconfdir}/sysconfig/%{repo}
+%{_sysconfdir}/%{name}/seccomp.json
 
 %files vim
 %{_datadir}/vim/vimfiles/doc/%{repo}file.txt
@@ -842,50 +1010,251 @@ exit 0
 %files zsh-completion
 %{_datadir}/zsh/site-functions/_%{repo}
 
+%if 0%{?with_migrator}
 %files v1.10-migrator
 %license LICENSE-v1.10-migrator.{code,docs}
 %doc CONTRIBUTING-v1.10-migrator.md README-v1.10-migrator.md
 %{_bindir}/v1.10-migrator-*
-
-%files rhsubscription
-%{_datadir}/rhel/secrets/etc-pki-entitlement
-%{_datadir}/rhel/secrets/rhel7.repo
-%{_datadir}/rhel/secrets/rhsm
+%endif # with_migrator
 
 %files rhel-push-plugin
-%license rhel-push-plugin-%{commit8}/LICENSE
-%doc rhel-push-plugin-%{commit8}/README.md
+%license rhel-push-plugin-%{commit_rhel_push}/LICENSE
+%doc rhel-push-plugin-%{commit_rhel_push}/README.md
 %{_mandir}/man8/rhel-push-plugin.8.gz
 %{_libexecdir}/%{repo}/rhel-push-plugin
 %{_unitdir}/rhel-push-plugin.*
 
-%post rhel-push-plugin
-%systemd_post docker-rhel-push-plugin.service
-
-%preun rhel-push-plugin
-%systemd_preun docker-rhel-push-plugin.service
-
-%postun rhel-push-plugin
-%systemd_postun_with_restart docker-rhel-push-plugin.service
-
 %files lvm-plugin
-%license %{repo}-lvm-plugin-%{commit9}/LICENSE
-%doc %{repo}-lvm-plugin-%{commit9}/README.md
+%license %{repo}-lvm-plugin-%{commit_lvm}/LICENSE
+%doc %{repo}-lvm-plugin-%{commit_lvm}/README.md
 %config(noreplace) %{_sysconfdir}/%{repo}/%{repo}-lvm-plugin
 %{_mandir}/man8/%{repo}-lvm-plugin.8.gz
 %{_libexecdir}/%{repo}/%{repo}-lvm-plugin
 %{_unitdir}/%{repo}-lvm-plugin.*
 
-%post lvm-plugin
-%systemd_post docker-lvm-plugin.service
-
-%preun lvm-plugin
-%systemd_preun docker-lvm-plugin.service
-
-%postun lvm-plugin
-%systemd_postun_with_restart docker-lvm-plugin.service
-
 %changelog
+* Thu Nov 23 2017 Lokesh Mandvekar <lsm5@fedoraproject.org> - 2:1.13.1-44.git584d391
+- built docker @projectatomic/docker-1.13.1 commit 584d391
+- built docker-novolume-plugin commit 385ec70
+- built rhel-push-plugin commit af9107b
+- built docker-lvm-plugin commit 8647404
+- built docker-runc @projectatomic/docker-1.13.1 commit 1c91122
+- built docker-containerd @projectatomic/docker-1.13.1 commit 62a9c60
+- built docker-init commit 0effd37
+- built libnetwork commit 460ac8f
+
+* Wed Nov 22 2017 Frantisek Kluknavsky <fkluknav@redhat.com> - 2:1.13.1-43.git4402c09
+- make /etc/sysconfig/docker-storage-setup ghost but not config, https://bugzilla.redhat.com/show_bug.cgi?id=1508376
+
+* Fri Nov 17 2017 Lokesh Mandvekar <lsm5@fedoraproject.org> - 2:1.13.1-42.git4402c09
+- built docker @projectatomic/docker-1.13.1 commit 4402c09
+- built docker-novolume-plugin commit 385ec70
+- built rhel-push-plugin commit af9107b
+- built docker-lvm-plugin commit 8647404
+- built docker-runc @projectatomic/docker-1.13.1 commit 1c91122
+- built docker-containerd @projectatomic/docker-1.13.1 commit 62a9c60
+- built docker-init commit 0effd37
+- built libnetwork commit 460ac8f
+
+* Thu Nov 09 2017 Lokesh Mandvekar <lsm5@fedoraproject.org> - 2:1.13.1-41.git0861eff
+- Resolves: #1510351 - CVE-2017-14992
+- built docker @projectatomic/docker-1.13.1 commit 0861eff
+- built docker-novolume-plugin commit 385ec70
+- built rhel-push-plugin commit af9107b
+- built docker-lvm-plugin commit 8647404
+- built docker-runc @projectatomic/docker-1.13.1 commit 06641d7
+- built docker-containerd @projectatomic/docker-1.13.1 commit 62a9c60
+- built docker-init commit 0effd37
+- built libnetwork commit 460ac8f
+
+* Fri Nov 03 2017 Lokesh Mandvekar <lsm5@fedoraproject.org> - 2:1.13.1-40.git877b6df
+- built docker @projectatomic/docker-1.13.1 commit 877b6df
+- built docker-novolume-plugin commit 385ec70
+- built rhel-push-plugin commit af9107b
+- built docker-lvm-plugin commit 8647404
+- built docker-runc @projectatomic/docker-1.13.1 commit 06641d7
+- built docker-containerd @projectatomic/docker-1.13.1 commit 62a9c60
+- built docker-init commit 0effd37
+- built libnetwork commit 6d1dc05
+
+* Fri Nov 03 2017 Lokesh Mandvekar <lsm5@fedoraproject.org> - 2:1.13.1-39.git166a52e
+- ensure clean upgrade from f26
+ 
+* Thu Nov 02 2017 Lokesh Mandvekar <lsm5@fedoraproject.org> - 2:1.13.1-38.git166a52e
+- ensure clean upgrade from f26
+
+* Thu Nov 02 2017 Lokesh Mandvekar <lsm5@fedoraproject.org> - 2:1.13.1-37.git166a52e
+- Resolves: #1507679
+- built docker @projectatomic/docker-1.13.1 commit 166a52e
+- built docker-novolume-plugin commit 385ec70
+- built rhel-push-plugin commit af9107b
+- built docker-lvm-plugin commit 8647404
+- built docker-runc @projectatomic/docker-1.13.1 commit 06641d7
+- built docker-containerd @projectatomic/docker-1.13.1 commit 62a9c60
+- built docker-init commit 0effd37
+- built libnetwork commit 6d1dc05
+
+* Thu Oct 26 2017 Lokesh Mandvekar <lsm5@fedoraproject.org> - 2:1.13.1-36.git8fd0ebb
+- built docker @projectatomic/docker-1.13.1 commit 8fd0ebb
+- built docker-novolume-plugin commit 385ec70
+- built rhel-push-plugin commit af9107b
+- built docker-lvm-plugin commit 8647404
+- built docker-runc @projectatomic/docker-1.13.1 commit 06641d7
+- built docker-containerd @projectatomic/docker-1.13.1 commit 62a9c60
+- built docker-init commit 0effd37
+- built libnetwork commit dd20549
+
+* Thu Oct 19 2017 Lokesh Mandvekar <lsm5@fedoraproject.org> - 2:1.13.1-35.git8fd0ebb
+- Resolves: #1504065 - include seccomp.json in docker-common
+
+* Wed Oct 18 2017 Lokesh Mandvekar <lsm5@fedoraproject.org> - 2:1.13.1-34.git8fd0ebb
+- built docker @projectatomic/docker-1.13.1 commit 8fd0ebb
+- built docker-novolume-plugin commit 385ec70
+- built rhel-push-plugin commit af9107b
+- built docker-lvm-plugin commit 8647404
+- built docker-runc @projectatomic/docker-1.13.1 commit 06641d7
+- built docker-containerd @projectatomic/docker-1.13.1 commit 62a9c60
+- built docker-init commit 0effd37
+- built libnetwork commit b5cc5c5
+
+* Tue Oct 17 2017 Lokesh Mandvekar <lsm5@fedoraproject.org> - 2:1.13.1-33.git790e958
+- update unitfile to include --seccomp-profile option with daemon
+
+* Tue Oct 17 2017 Lokesh Mandvekar <lsm5@fedoraproject.org> - 2:1.13.1-32.git790e958
+- use skopeo-containers>= 0.1.24-6
+- rhel subscription secrets data moved to skopeo-containers
+
+* Mon Sep 18 2017 Lokesh Mandvekar <lsm5@fedoraproject.org> - 2:1.13.1-31.git790e958
+- built docker @projectatomic/docker-1.13.1 commit 790e958
+- built docker-novolume-plugin commit 385ec70
+- built rhel-push-plugin commit af9107b
+- built docker-lvm-plugin commit 8647404
+- built docker-runc @projectatomic/docker-1.13.1 commit a07b8d4
+- built docker-containerd @projectatomic/docker-1.13.1 commit 62a9c60
+- built docker-init commit 0effd37
+- built libnetwork commit 6d09846
+
+* Tue Aug 22 2017 Ville Skyttä <ville.skytta@iki.fi> - 2:1.13.1-30.gitb5e3294
+- Own the %%{_libexecdir}/%%{repo} dir
+
+* Thu Aug 17 2017 Lokesh Mandvekar <lsm5@fedoraproject.org> - 2:1.13.1-29.gitb5e3294
+- oci-umount is a separate package
+- use autosetup
+
+* Wed Aug 16 2017 Dan Walsh <dwalsh@fedoraproject.org> - 2:1.13.1-28.gitb5e3294
+- Update oci-umount to work with cri-o
+
+* Wed Aug 16 2017 Lokesh Mandvekar <lsm5@fedoraproject.org> - 2:1.13.1-27.gitb5e3294
+- fix spec file conditionals
+
+* Tue Aug 15 2017 Lokesh Mandvekar <lsm5@fedoraproject.org> - 2:1.13.1-26.gitb5e3294
+- built docker @projectatomic/docker-1.13.1 commit b5e3294
+- built docker-novolume-plugin commit 385ec70
+- built rhel-push-plugin commit af9107b
+- built docker-lvm-plugin commit 8647404
+- built docker-runc @projectatomic/docker-1.13.1 commit a07b8d4
+- built docker-containerd @projectatomic/docker-1.13.1 commit 62a9c60
+- built oci-umount commit 299e781
+- built docker-init commit 4892d4d
+- built libnetwork commit 2719c60
+- oci-umount BR: pcre-devel
+
+* Mon Aug 07 2017 Frantisek Kluknavsky <fkluknav@redhat.com> - 2:1.13.1-25.gitb5e3294
+- rebased to b5e3294e8666bb6d8da564286ed4c2790c7b9af1
+
+* Wed Aug 02 2017 Fedora Release Engineering <releng@fedoraproject.org> - 2:1.13.1-24.git27e468e
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_27_Binutils_Mass_Rebuild
+
+* Wed Jul 26 2017 Fedora Release Engineering <releng@fedoraproject.org> - 2:1.13.1-23.git27e468e
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_27_Mass_Rebuild
+
+* Thu Jul 20 2017 fkluknav <fkluknav@redhat.com> - 2:1.13.1-22.git27e468e
+- rebased oci-umount to 8377044dec05f05a7a1031d52241bce79b5ad446
+
+* Tue Jul 18 2017 fkluknav <fkluknav@redhat.com> - 2:1.13.1-21.git27e468e
+- rebased runc to d90fcb78c3886d01d48829a11fb481af5db08372
+
+* Fri Jun 23 2017 Colin Walters <walters@verbum.org> - 2:1.13.1-20.git27e468e
+- Switch Atomic Host to non-separate container storage
+  See https://pagure.io/atomic-wg/issue/281
+
+* Mon Jun 19 2017 Lokesh Mandvekar <lsm5@fedoraproject.org> - 2:1.13.1-19.git27e468e
+- Resolves: #1462963
+- ensure smooth upgrade path from f26 to rawhide
+
+* Thu Jun 15 2017 Frantisek Kluknavsky <fkluknav@redhat.com> - 2:1.13.1-17.git27e468e
+- rebase
+
+* Wed Jun 07 2017 Frantisek Kluknavsky <fkluknav@redhat.com> - 2:1.13.1-16.git14cc629
+- rebased container-storage-setup
+
+* Mon Jun 05 2017 bbaude <bbaude@redhat.com> - 2:1.13.1-15.git51eb16e
+- version bump to align future builds of f26 to -15
+
+* Sun May 28 2017 Frantisek Kluknavsky <fkluknav@redhat.com> - 2:1.13.1-13.git51eb16e
+- rebase to latest upstream
+- docker-oci-umount renamed to oci-umount
+- docker depends on oci-umount, not vice-versa
+
+* Fri May 26 2017 Frantisek Kluknavsky <fkluknav@redhat.com> - 2:1.13.1-12.git14cc629
+- mark /etc/oci-umount.conf as config(noreplace)
+
+* Thu May 25 2017 Frantisek Kluknavsky <fkluknav@redhat.com> - 2:1.13.1-11.git14cc629
+- added oci-umount subpackage
+
+* Thu May 18 2017 bbaude <bbaude@redhat.com> - 2:1.13.1-10.git14cc629
+- Depend on atomic-registries
+
+* Wed Apr 12 2017 Lokesh Mandvekar <lsm5@fedoraproject.org> - 2:1.13.1-9.git14cc629
+- Resolves: #1440389
+- built docker @runcom/secrets-rewrite commit 14cc629
+
+* Mon Apr 10 2017 Antonio Murdaca <runcom@fedoraproject.org> - 2:1.13.1-8.gitd97e396
+- Resolves #1439577
+
+* Fri Mar 31 2017 Lokesh Mandvekar <lsm5@fedoraproject.org> - 2:1.13.1-7.gitcd4c02a
+- Resolves: #1434897, #1436777
+
+* Thu Mar 23 2017 Lokesh Mandvekar <lsm5@fedoraproject.org> - 2:1.13.1-6.gitcd4c02a
+- built docker @projectatomic/docker-1.13.1 commit cd4c02a
+
+* Mon Mar 20 2017 Antonio Murdaca <runcom@fedoraproject.org> - 2:1.13.1-5.git5be1549
+- built docker @projectatomic/docker-1.13 commit 5be1549
+- built docker-selinux commit 
+- built d-s-s commit 1c1cb90
+- built docker-novolume-plugin commit c521254
+- built docker-runc @projectatomic/runc-1.13 commit e18c2ce
+- built docker-utils commit 
+- built docker-containerd commit aa8187d
+- built docker-v1.10-migrator commit 994c35c
+
+* Fri Mar 03 2017 Lokesh Mandvekar <lsm5@fedoraproject.org> - 2:1.13.1-4.git5be1549
+- switch to using container-storage-setup
+
+* Wed Feb 22 2017 Lokesh Mandvekar <lsm5@fedoraproject.org> - 2:1.13.1-3.git5be1549
+- Resolves: #1419514 - F26: Default overlay2 storage
+- https://fedoraproject.org/wiki/Changes/DockerOverlay2
+
+* Thu Feb 09 2017 Antonio Murdaca <runcom@fedoraproject.org> - 2:1.13.1-2.git5be1549
+- built docker @projectatomic/docker-1.13 commit 5be1549
+- built docker-selinux commit 
+- built d-s-s commit 5e1f47b
+- built docker-novolume-plugin commit c521254
+- built docker-runc @projectatomic/runc-1.13 commit e18c2ce
+- built docker-utils commit 
+- built docker-containerd commit aa8187d
+- built docker-v1.10-migrator commit 994c35c
+
+* Mon Jan 30 2017 Antonio Murdaca <runcom@fedoraproject.org> - 2:1.12.6-18.gitae7d637
+- built docker @projectatomic/docker-1.12 commit ae7d637
+- built docker-selinux commit 
+- built d-s-s commit 5e1f47b
+- built docker-novolume-plugin commit c521254
+- built docker-runc @projectatomic/runc-1.12 commit 81b2542
+- built docker-utils commit 
+- built docker-containerd commit 471f03c
+- built docker-v1.10-migrator commit 994c35c
+
 * Thu Jan 26 2017 Lokesh Mandvekar <lsm5@fedoraproject.org> - 2:1.12.6-17.git037a2f5
 - Resolves: #1416929 - pull in parted at install time
 - built d-s-s commit 5e1f47b

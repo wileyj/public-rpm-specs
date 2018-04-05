@@ -1,6 +1,6 @@
 %global gem_name snmp
 %define repo https://rubygems.org/api/v1/gems
-%global gem_version %(echo `curl %{repo}/%{gem_name}.json | jq '.version' | tr -d '"'`)
+%global gem_version %(echo `curl -s %{repo}/%{gem_name}.json | jq '.version' | tr -d '"'`)
 #%global gem_summary %( echo ` curl -s %{repo}/%{gem_name}.json | jq '.info' | sed -e 's/\\n/ /g' | tr -d '"'`)
 %global gem_summary 'rubygeem %{gem_name}'
 
@@ -15,10 +15,8 @@ Packager: %{packager}
 Requires: ruby rubygems 
 BuildRequires: rubygems rubygems-devel
 BuildRequires: ruby ruby-devel
-BuildRequires:	rubygem-rpm-macros
-BuildRequires:	ruby-rpm-macros
-Provides: rubygem-%{gem_name} = %{version}
-Provides: rubygem(%{gem_name}) = %{version}
+Provides: rubygem-%{gem_name}
+Provides: rubygem(%{gem_name})
 Obsoletes: rubygem-%{gem_name} < %{version}
 Obsoletes: rubygem(%{gem_name}) < %{version}
 

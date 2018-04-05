@@ -1,15 +1,16 @@
+%define repo https://github.com/phalcon/cphalcon
+%define gitversion %(echo `curl -s %{repo}/releases | grep 'class="css-truncate-target"' | head -1 |  tr -d '\\-</span class="css-truncate-target">v'`)
+%global revision %(echo `git ls-remote %{repo}.git  | head -1 | cut -f 1| cut -c1-7`)
+%define rel_version 1
 
-%define major    2
-%define minor    0
-%define revision 0
 %define realname cphalcon
-%global php_ver  5.5
+%global php_ver  7
 %global opt_apache /opt/apache2.2
 %global opt_php /opt/php-%{php_ver}
 
 Name:           php-cphalcon
-Version:        %{major}.%{minor}.%{revision}
-Release:        1.%{dist}
+Version:        %{gitversion}
+Release:        %{rel_version}.%{dist}
 Summary:	php web framework
 License: BSD and PHP and LGPLv2+
 Packager: %{packager}
@@ -26,9 +27,16 @@ Requires:	php >= %{php_ver}, php-devel >= %{php_ver}
 Phalcon is a web framework implemented as a C extension offering high performance and lower resource consumption.
 
 %prep
-rm -rf %{buildroot}
+if [ -d %{name}-%{version} ];then
+    rm -rf %{name}-%{version}
+fi
+git clone %{repo} %{name}-%{version}
+cd %{name}-%{version}
+git submodule init
+git submodule update
 
-%setup -q -n %{realname}
+%build
+cd %{name}-%{version}
 export PATH=$PATH:%{php_ver}/bin
 cd build
 #sed -i -e 's/make install/make install DESTDIR=$RPM_BUILD_ROOT/g' install

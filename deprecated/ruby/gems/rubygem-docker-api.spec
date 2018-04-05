@@ -15,10 +15,8 @@ Packager: %{packager}
 Requires: ruby rubygems 
 BuildRequires: rubygems rubygems-devel
 BuildRequires: ruby ruby-devel
-BuildRequires:	rubygem-rpm-macros
-BuildRequires:	ruby-rpm-macros
-Provides: rubygem-%{gem_name} = %{version}
-Provides: rubygem(%{gem_name}) = %{version}
+Provides: rubygem-%{gem_name} 
+Provides: rubygem(%{gem_name}) 
 Obsoletes: rubygem-%{gem_name} < %{version}
 Obsoletes: rubygem(%{gem_name}) < %{version}
 Requires: rubygem-excon
